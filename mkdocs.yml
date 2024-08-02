@@ -1,0 +1,18 @@
+site_name: Crypt4GH Processing
+theme:
+  name: "material"
+nav:
+  - "C4GH": index.md
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            - src
+          options:
+            allow_inspection: false
+            show_source: true
+            filters:
+              - "!^_"
+            show_signature_annotations: true
+            show_root_heading: true
