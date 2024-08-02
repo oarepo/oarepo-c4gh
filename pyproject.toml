@@ -1,0 +1,21 @@
+[project]
+name = "oarepo_c4gh"
+version = "0.0.1"
+authors = [
+  { name = "Dominik Pantůček", email = "dominik.pantucek@trustica.cz" }
+]
+description = ""
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
+dependencies = [
+    "mkdocstrings[python]>=0.18"
+]
+
+[project.urls]
+Homepage = "https://github.com/oarepo/oarepo-c4gh"
+Issues = "https://github.com/oarepo/oarepo-c4gh/issues"
