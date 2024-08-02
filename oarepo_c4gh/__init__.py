@@ -1,3 +1,3 @@
 from .key import Key
 
-__all__ = [ "Key" ]
+__all__ = ["Key"]

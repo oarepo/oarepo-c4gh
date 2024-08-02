@@ -7,6 +7,7 @@ classes implementations.
 
 from abc import ABC, abstractmethod
 
+
 class Key(ABC):
     '''This is an abstract class, containing only one abstract method
     - used to compute the Diffie-Hellman key exchange over the
