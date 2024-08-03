@@ -1,5 +1,4 @@
 import unittest
-import types
 
 
 class TestKeyImplementation(unittest.TestCase):
