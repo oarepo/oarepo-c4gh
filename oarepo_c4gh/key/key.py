@@ -15,7 +15,7 @@ class Key(ABC):
 
     '''
     @abstractmethod
-    def compute_shared_secret(peer_public_key: bytes) -> bytes:
+    def compute_shared_secret(self, peer_public_key: bytes) -> bytes:
         '''Accepts the writer or intended reader public key and
         computes the shared secret based on the public and secret key
         of the particular key source implementation.

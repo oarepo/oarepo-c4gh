@@ -29,3 +29,5 @@ future. However, it should always be reflecting the current internal
 implementation.
 
 ::: oarepo_c4gh.key.key
+
+::: oarepo_c4gh.key.software

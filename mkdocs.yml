@@ -13,6 +13,8 @@ plugins:
             allow_inspection: false
             show_source: true
             filters:
-              - "!^_"
+              - "!^__"
+              - "__init__"
             show_signature_annotations: true
             show_root_heading: true
+            ignore_init_summary: false
