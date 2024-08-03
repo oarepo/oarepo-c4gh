@@ -15,6 +15,14 @@ class Key(ABC):
 
     '''
     @abstractmethod
+    def get_public_key(self) -> bytes:
+        '''The derived classes must implement providing corresponding
+        public key in this method.
+
+        '''
+        pass
+
+    @abstractmethod
     def compute_shared_secret(self, peer_public_key: bytes) -> bytes:
         '''Accepts the writer or intended reader public key and
         computes the shared secret based on the public and secret key

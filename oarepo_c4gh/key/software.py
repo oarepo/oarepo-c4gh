@@ -25,18 +25,15 @@ class SoftwareKey(Key):
         assert len(private_key) == 32, \
             f"The X25519 private key must be 32 bytes long" \
             f" ({len(private_key)})!"
-        lsb = private_key[0]
-        assert (lsb & 7) == 0, \
-            f"The 3 lowest bits (0, 1 and 2) of X25519 private key must be 0" \
-            f" ({lsb & 7})!"
-        msb = private_key[31]
-        assert (msb & 128) == 0, \
-            f"The highest (255) bit of X25519 private key must be 0" \
-            f" ({msb & 128})!"
-        assert (msb & 64) == 64, \
-            f"The 2nd highest (254) bit of X25519 private key must be 1" \
-            f" ({msb & 64})!"
-        self.private_key = PrivateKey(private_key, RawEncoder)
+        self.private_key = PrivateKey(private_key)
+        self.public_key = bytes(self.private_key.public_key)
+
+    def get_public_key(self) -> bytes:
+        '''Returns the public key corresponding to the private key
+        used.
+
+        '''
+        return self.public_key
 
     def compute_shared_secret(self, peer_public_key: bytes) -> bytes:
         '''...
