@@ -58,6 +58,13 @@ class TestSoftwareKeyImplementation(unittest.TestCase):
         assert computed_shared_secret_alice == computed_shared_secret_bob, \
             "Computed shared secrets do not match!"
 
+    def test_bytes_conversion(self):
+        alice_sk = SoftwareKey(alice_priv_str)
+        assert alice_pub_str == bytes(alice_sk), \
+            "Alice's test vector does not match!"
+        bob_sk = SoftwareKey(bob_priv_str)
+        assert bob_pub_str == bytes(bob_sk), \
+            "Bob's test vector does not match!"
 
 if __name__ == '__main__':
     unittest.main()

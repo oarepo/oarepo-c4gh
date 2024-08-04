@@ -51,3 +51,9 @@ class Key(ABC):
 
         '''
         pass
+
+    def __bytes__(self) -> bytes:
+        '''Default converter to bytes returns the public key bytes.
+
+        '''
+        return self.get_public_key()
