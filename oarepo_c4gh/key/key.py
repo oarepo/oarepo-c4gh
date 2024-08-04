@@ -23,13 +23,28 @@ class Key(ABC):
         pass
 
     @abstractmethod
-    def compute_shared_secret(self, peer_public_key: bytes) -> bytes:
-        '''Accepts the writer or intended reader public key and
-        computes the shared secret based on the public and secret key
-        of the particular key source implementation.
+    def compute_write_shared_secret(self, reader_public_key: bytes) -> bytes:
+        '''Accepts the intended reader public key and computes the
+        shared secret based on the public and secret key (this key) of
+        the writer particular key source implementation.
 
         Parameters:
-            peer_public_key: the 32 bytes of the peer public key
+            peer_public_key: the 32 bytes of the reader public key
+
+        Returns:
+            The shared secret as 32 bytes - usable as symmetric key.
+
+        '''
+        pass
+
+    @abstractmethod
+    def compute_read_shared_secret(self, writer_public_key: bytes) -> bytes:
+        '''Accepts the writer public key and computes the shared
+        secret based on the public and secret key (this key) of the
+        reader particular key source implementation.
+
+        Parameters:
+            writer_public_key: the 32 bytes of the writer public key
 
         Returns:
             The shared secret as 32 bytes - usable as symmetric key.
