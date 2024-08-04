@@ -20,17 +20,26 @@ class SoftwareKey(Key):
 
     '''
 
-    def __init__(self, private_key: bytes) -> None:
-        '''Validates the private key and stores it for use.
+    def __init__(self, key_data: bytes, only_public: bool = False) -> None:
+        '''Performs rudimentary key data validation and initializes
+        either only the public key or both the public and private key.
+
+        Parameters:
+            key_data: the 32 bytes of key material
+            only_public: whether this contains only the public point
 
         '''
-        assert len(private_key) == 32, \
-            f"The X25519 private key must be 32 bytes long" \
-            f" ({len(private_key)})!"
-        private_key_obj = PrivateKey(private_key)
-        self.private_key = bytes(private_key_obj)
-        public_key_obj = private_key_obj.public_key
-        self.public_key = bytes(public_key_obj)
+        assert len(key_data) == 32, \
+            f"The X25519 key must be 32 bytes long" \
+            f" ({len(key_data)})!"
+        if only_public:
+            self.public_key = key_data
+            self.private_key = None
+        else:
+            private_key_obj = PrivateKey(key_data)
+            self.private_key = bytes(private_key_obj)
+            public_key_obj = private_key_obj.public_key
+            self.public_key = bytes(public_key_obj)
 
     def get_public_key(self) -> bytes:
         '''Returns the public key corresponding to the private key
