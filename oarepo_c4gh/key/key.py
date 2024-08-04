@@ -29,7 +29,7 @@ class Key(ABC):
         the writer particular key source implementation.
 
         Parameters:
-            peer_public_key: the 32 bytes of the reader public key
+            reader_public_key: the 32 bytes of the reader public key
 
         Returns:
             The shared secret as 32 bytes - usable as symmetric key.
