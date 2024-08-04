@@ -31,3 +31,5 @@ implementation.
 ::: oarepo_c4gh.key.key
 
 ::: oarepo_c4gh.key.software
+
+::: oarepo_c4gh.key.c4gh

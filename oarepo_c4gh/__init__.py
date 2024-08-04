@@ -1,3 +1,3 @@
-from .key import Key, SoftwareKey
+from .key import Key, SoftwareKey, C4GHKey
 
-__all__ = ["Key", "SoftwareKey"]
+__all__ = ["Key", "SoftwareKey", "C4GHKey"]
