@@ -48,10 +48,10 @@ class SoftwareKey(Key):
         '''
         return self.public_key
 
-    def compute_write_shared_secret(self, reader_public_key: bytes) -> bytes:
-        '''Computes shared secret used for writing Crypt4GH encrypted
-        header packets. The instance of this class represents the
-        writer key.
+    def compute_write_key(self, reader_public_key: bytes) -> bytes:
+        '''Computes secret symmetric key used for writing Crypt4GH
+        encrypted header packets. The instance of this class
+        represents the writer key.
 
         Parameters:
             reader_public_key: the 32 bytes of the reader public key
@@ -81,15 +81,18 @@ class SoftwareKey(Key):
         resulting pair of keys would be different.
 
         '''
+        if self.private_key is None:
+            raise TypeError("Only keys with private part can be used"
+                            " for computing shared key")
         _, shared_key = crypto_kx_server_session_keys(
             self.public_key, self.private_key,
             reader_public_key)
         return shared_key
 
-    def compute_read_shared_secret(self, writer_public_key: bytes) -> bytes:
-        '''Computes shared secret used for reading Crypt4GH encrypted
-        header packets. The instance of this class represents the
-        reader key.
+    def compute_read_key(self, writer_public_key: bytes) -> bytes:
+        '''Computes secret symmetric key used for reading Crypt4GH
+        encrypted header packets. The instance of this class
+        represents the reader key.
 
         See detailed description of [compute_write_shared_secret].
 
@@ -102,7 +105,10 @@ class SoftwareKey(Key):
         Returns:
             The shared secret as 32 bytes - usable as symmetric key.
 
-       '''
+        '''
+        if self.private_key is None:
+            raise TypeError("Only keys with private part can be used"
+                            " for computing shared key")
         shared_key, _ = crypto_kx_client_session_keys(
             self.public_key, self.private_key,
             writer_public_key)

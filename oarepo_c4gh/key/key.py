@@ -23,7 +23,7 @@ class Key(ABC):
         pass
 
     @abstractmethod
-    def compute_write_shared_secret(self, reader_public_key: bytes) -> bytes:
+    def compute_write_key(self, reader_public_key: bytes) -> bytes:
         '''Accepts the intended reader public key and computes the
         shared secret based on the public and secret key (this key) of
         the writer particular key source implementation.
@@ -38,7 +38,7 @@ class Key(ABC):
         pass
 
     @abstractmethod
-    def compute_read_shared_secret(self, writer_public_key: bytes) -> bytes:
+    def compute_read_key(self, writer_public_key: bytes) -> bytes:
         '''Accepts the writer public key and computes the shared
         secret based on the public and secret key (this key) of the
         reader particular key source implementation.

@@ -32,6 +32,16 @@ def _construct_bad_key0():
                           b"\x00\x00\x00\x00\x00\x00\x00")
 
 
+def _only_public_write():
+    alice_pk = SoftwareKey(alice_pub_str, True)
+    write_key = alice_pk.compute_write_key(bob_pub_str)
+
+
+def _only_public_read():
+    alice_pk = SoftwareKey(alice_pub_str, True)
+    read_key = alice_pk.compute_read_key(bob_pub_str)
+
+
 class TestSoftwareKeyImplementation(unittest.TestCase):
     def test_construction(self):
         good_key = SoftwareKey(b"\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -48,14 +58,14 @@ class TestSoftwareKeyImplementation(unittest.TestCase):
         assert bob_pub_str == bob_sk.get_public_key(), \
             "Bob's test vector does not match!"
 
-    def test_compute_shared_secret(self):
+    def test_compute_key(self):
         alice_sk = SoftwareKey(alice_priv_str)
         bob_sk = SoftwareKey(bob_priv_str)
-        computed_shared_secret_alice = \
-            alice_sk.compute_write_shared_secret(bob_pub_str)
-        computed_shared_secret_bob = \
-            bob_sk.compute_read_shared_secret(alice_pub_str)
-        assert computed_shared_secret_alice == computed_shared_secret_bob, \
+        computed_key_alice = \
+            alice_sk.compute_write_key(bob_pub_str)
+        computed_key_bob = \
+            bob_sk.compute_read_key(alice_pub_str)
+        assert computed_key_alice == computed_key_bob, \
             "Computed shared secrets do not match!"
 
     def test_bytes_conversion(self):
@@ -65,6 +75,11 @@ class TestSoftwareKeyImplementation(unittest.TestCase):
         bob_sk = SoftwareKey(bob_priv_str)
         assert bob_pub_str == bytes(bob_sk), \
             "Bob's test vector does not match!"
+
+    def test_only_public(self):
+        self.assertRaises(TypeError, _only_public_write)
+        self.assertRaises(TypeError, _only_public_read)
+
 
 if __name__ == '__main__':
     unittest.main()
