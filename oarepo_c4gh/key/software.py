@@ -28,6 +28,9 @@ class SoftwareKey(Key):
             key_data: the 32 bytes of key material
             only_public: whether this contains only the public point
 
+        Raises:
+            AssertionError: is the key_data does not contain exactly 32 bytes
+
         '''
         assert len(key_data) == 32, \
             f"The X25519 key must be 32 bytes long" \
@@ -57,7 +60,10 @@ class SoftwareKey(Key):
             reader_public_key: the 32 bytes of the reader public key
 
         Returns:
-            The shared secret as 32 bytes - usable as symmetric key.
+            Writer symmetric key as 32 bytes.
+
+        Raises:
+            TypeError: if only public key is available
 
         The algorithm used is not just a Diffie-Hellman key exchange
         to establish shared secret but it also includes derivation of
@@ -94,7 +100,7 @@ class SoftwareKey(Key):
         encrypted header packets. The instance of this class
         represents the reader key.
 
-        See detailed description of [compute_write_shared_secret].
+        See detailed description of ``compute_write_key``.
 
         For this function the "receive" key is used - which is the
         same as the "transmit" key of the writer.
@@ -103,7 +109,10 @@ class SoftwareKey(Key):
             writer_public_key: the 32 bytes of the writer public key
 
         Returns:
-            The shared secret as 32 bytes - usable as symmetric key.
+            Reader symmetric key as 32 bytes.
+
+        Raises:
+            TypeError: if only public key is available
 
         '''
         if self.private_key is None:

@@ -19,6 +19,9 @@ class Key(ABC):
         '''The derived classes must implement providing corresponding
         public key in this method.
 
+        Returns:
+            The 32 bytes of the public key.
+
         '''
         pass
 
