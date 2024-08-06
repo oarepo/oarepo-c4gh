@@ -8,7 +8,7 @@ plugins:
       handlers:
         python:
           paths:
-            - src
+            - oarepo_c4gh
           options:
             allow_inspection: false
             show_source: true
