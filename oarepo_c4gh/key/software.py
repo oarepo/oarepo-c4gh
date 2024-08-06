@@ -10,7 +10,10 @@ classes that should implement particular key loaders.
 from .key import Key
 from nacl.public import PrivateKey, PublicKey
 from nacl.encoding import RawEncoder
-from nacl.bindings import crypto_kx_server_session_keys, crypto_kx_client_session_keys
+from nacl.bindings import (
+    crypto_kx_server_session_keys,
+    crypto_kx_client_session_keys,
+)
 
 
 class SoftwareKey(Key):
@@ -88,7 +91,8 @@ class SoftwareKey(Key):
         """
         if self.private_key is None:
             raise TypeError(
-                "Only keys with private part can be used" " for computing shared key"
+                "Only keys with private part can be used"
+                " for computing shared key"
             )
         _, shared_key = crypto_kx_server_session_keys(
             self.public_key, self.private_key, reader_public_key
@@ -117,7 +121,8 @@ class SoftwareKey(Key):
         """
         if self.private_key is None:
             raise TypeError(
-                "Only keys with private part can be used" " for computing shared key"
+                "Only keys with private part can be used"
+                " for computing shared key"
             )
         shared_key, _ = crypto_kx_client_session_keys(
             self.public_key, self.private_key, writer_public_key
