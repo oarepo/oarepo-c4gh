@@ -1,18 +1,18 @@
-'''Class for loading the Crypt4GH reference key format.
+"""Class for loading the Crypt4GH reference key format.
 
-'''
+"""
+
 from .software import SoftwareKey
 from io import RawIOBase
 from typing import Self
 
 
 class C4GHKey(SoftwareKey):
-    '''This class implements the loader for Crypt4GH key file format.
+    """This class implements the loader for Crypt4GH key file format."""
 
-    '''
     @classmethod
     def from_file(file_name: str) -> Self:
-        '''Opens file stream and loads the Crypt4GH key from it.
+        """Opens file stream and loads the Crypt4GH key from it.
 
         Parameters:
             file_name: path to the file with the key
@@ -20,12 +20,12 @@ class C4GHKey(SoftwareKey):
         Returns:
             Initialized C4GHKey instance.
 
-        '''
-        return from_stream(open(file_name, 'b'))
+        """
+        return from_stream(open(file_name, "b"))
 
     @classmethod
     def from_string(contents: str) -> Self:
-        '''Converts string to bytes which is opened as binary stream
+        """Converts string to bytes which is opened as binary stream
         and loads the Crypt4GH key from it.
 
         Parameters:
@@ -34,12 +34,12 @@ class C4GHKey(SoftwareKey):
         Returns:
             Initialized C4GHKey instance.
 
-        '''
-        return from_bytes(bytes(contents, 'utf-8'))
+        """
+        return from_bytes(bytes(contents, "utf-8"))
 
     @classmethod
     def from_bytes(contents: bytes) -> Self:
-        '''Opens the contents bytes as binary stream and loads the
+        """Opens the contents bytes as binary stream and loads the
         Crypt4GH key from it.
 
         Parameters:
@@ -48,7 +48,7 @@ class C4GHKey(SoftwareKey):
         Returns:
             Initialized C4GHKey instance.
 
-        '''
+        """
         return from_stream(io.BytesIO(contents))
 
     @classmethod

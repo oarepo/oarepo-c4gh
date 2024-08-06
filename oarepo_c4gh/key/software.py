@@ -1,27 +1,26 @@
-'''A base class for all software-defined keys.
+"""A base class for all software-defined keys.
 
 This module implements the Diffie-Hellman key exchange using software
 keys and NaCl bindings. The class contained here also provides an
 interface for setting the private key instance property by derived
 classes that should implement particular key loaders.
 
-'''
+"""
 
 from .key import Key
 from nacl.public import PrivateKey, PublicKey
 from nacl.encoding import RawEncoder
-from nacl.bindings import crypto_kx_server_session_keys, \
-    crypto_kx_client_session_keys
+from nacl.bindings import crypto_kx_server_session_keys, crypto_kx_client_session_keys
 
 
 class SoftwareKey(Key):
-    '''This class implements the actual Diffie-Hellman key exchange
+    """This class implements the actual Diffie-Hellman key exchange
     with locally stored private key in the class instance.
 
-    '''
+    """
 
     def __init__(self, key_data: bytes, only_public: bool = False) -> None:
-        '''Performs rudimentary key data validation and initializes
+        """Performs rudimentary key data validation and initializes
         either only the public key or both the public and private key.
 
         Parameters:
@@ -31,10 +30,10 @@ class SoftwareKey(Key):
         Raises:
             AssertionError: is the key_data does not contain exactly 32 bytes
 
-        '''
-        assert len(key_data) == 32, \
-            f"The X25519 key must be 32 bytes long" \
-            f" ({len(key_data)})!"
+        """
+        assert len(key_data) == 32, (
+            f"The X25519 key must be 32 bytes long" f" ({len(key_data)})!"
+        )
         if only_public:
             self.public_key = key_data
             self.private_key = None
@@ -45,14 +44,14 @@ class SoftwareKey(Key):
             self.public_key = bytes(public_key_obj)
 
     def get_public_key(self) -> bytes:
-        '''Returns the public key corresponding to the private key
+        """Returns the public key corresponding to the private key
         used.
 
-        '''
+        """
         return self.public_key
 
     def compute_write_key(self, reader_public_key: bytes) -> bytes:
-        '''Computes secret symmetric key used for writing Crypt4GH
+        """Computes secret symmetric key used for writing Crypt4GH
         encrypted header packets. The instance of this class
         represents the writer key.
 
@@ -86,17 +85,18 @@ class SoftwareKey(Key):
         it - otherwise even with correctly computed shared secret the
         resulting pair of keys would be different.
 
-        '''
+        """
         if self.private_key is None:
-            raise TypeError("Only keys with private part can be used"
-                            " for computing shared key")
+            raise TypeError(
+                "Only keys with private part can be used" " for computing shared key"
+            )
         _, shared_key = crypto_kx_server_session_keys(
-            self.public_key, self.private_key,
-            reader_public_key)
+            self.public_key, self.private_key, reader_public_key
+        )
         return shared_key
 
     def compute_read_key(self, writer_public_key: bytes) -> bytes:
-        '''Computes secret symmetric key used for reading Crypt4GH
+        """Computes secret symmetric key used for reading Crypt4GH
         encrypted header packets. The instance of this class
         represents the reader key.
 
@@ -114,11 +114,12 @@ class SoftwareKey(Key):
         Raises:
             TypeError: if only public key is available
 
-        '''
+        """
         if self.private_key is None:
-            raise TypeError("Only keys with private part can be used"
-                            " for computing shared key")
+            raise TypeError(
+                "Only keys with private part can be used" " for computing shared key"
+            )
         shared_key, _ = crypto_kx_client_session_keys(
-            self.public_key, self.private_key,
-            writer_public_key)
+            self.public_key, self.private_key, writer_public_key
+        )
         return shared_key
