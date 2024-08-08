@@ -8,61 +8,20 @@ from typing import Self
 from base64 import b64decode
 
 
-class C4GHKey(SoftwareKey):
-    """This class implements the loader for Crypt4GH key file format."""
+def default_passphrase_callback():
+    """By default the constructor has no means of obtaining the
+    passphrase and therefore this function unconditionally raises an
+    exception when called.
 
-    @classmethod
-    def from_file(file_name: str) -> Self:
-        """Opens file stream and loads the Crypt4GH key from it.
-
-        Parameters:
-            file_name: path to the file with the key
-
-        Returns:
-            Initialized C4GHKey instance.
-
-        """
-        return from_stream(open(file_name, "b"))
-
-    @classmethod
-    def from_string(contents: str) -> Self:
-        """Converts string to bytes which is opened as binary stream
-        and loads the Crypt4GH key from it.
-
-        Parameters:
-            contents: complete contents of the file with Crypt4GH key.
-
-        Returns:
-            Initialized C4GHKey instance.
-
-        """
-        return from_bytes(bytes(contents, "utf-8"))
-
-    @classmethod
-    def from_bytes(contents: bytes) -> Self:
-        """Opens the contents bytes as binary stream and loads the
-        Crypt4GH key from it.
-
-        Parameters:
-            contents: complete contents of the file with Crypt4GH key.
-
-        Returns:
-            Initialized C4GHKey instance.
-
-        """
-        return from_stream(io.BytesIO(contents))
-
-    @classmethod
-    def from_stream(istream: RawIOBase) -> Self:
-        istream.close()
-        return C4GHKey(3)
+    """
+    raise ArgumentError("No password callback provided!")
 
 
 def decode_b64_envelope(istream: RawIOBase) -> (bytes, bytes):
     """Reads PEM-like format and returns its label and decoded bytes.
 
     Parameters:
-        istream: input stream with the data
+        istream: input stream with the data.
 
     Returns:
         Label of the envelope and decoded content bytes.
@@ -90,3 +49,74 @@ def decode_b64_envelope(istream: RawIOBase) -> (bytes, bytes):
         begin_label == end_label
     ), f"BEGIN {begin_label} not END {end_label}!"
     return begin_label, b"".join(lines)
+
+
+class C4GHKey(SoftwareKey):
+    """This class implements the loader for Crypt4GH key file format."""
+
+    @classmethod
+    def from_file(
+        file_name: str, callback: callable = default_passphrase_callback
+    ) -> Self:
+        """Opens file stream and loads the Crypt4GH key from it.
+
+        Parameters:
+            file_name: path to the file with the key.
+            callback: must return passphrase for decryption if called.
+
+        Returns:
+            Initialized C4GHKey instance.
+
+        """
+        return from_stream(open(file_name, "b"), callback)
+
+    @classmethod
+    def from_string(
+        contents: str, callback: callable = default_passphrase_callback
+    ) -> Self:
+        """Converts string to bytes which is opened as binary stream
+        and loads the Crypt4GH key from it.
+
+        Parameters:
+            contents: complete contents of the file with Crypt4GH key.
+            callback: must return passphrase for decryption if called.
+
+        Returns:
+            Initialized C4GHKey instance.
+
+        """
+        return from_bytes(bytes(contents), callback)
+
+    @classmethod
+    def from_bytes(
+        contents: bytes, callback: callable = default_passphrase_callback
+    ) -> Self:
+        """Opens the contents bytes as binary stream and loads the
+        Crypt4GH key from it.
+
+        Parameters:
+            contents: complete contents of the file with Crypt4GH key.
+            callback: must return passphrase for decryption if called.
+
+        Returns:
+            Initialized C4GHKey instance.
+
+        """
+        return from_stream(io.BytesIO(contents), callback)
+
+    @classmethod
+    def from_stream(
+        istream: RawIOBase, callback: callable = default_passphrase_callback
+    ) -> Self:
+        """Parses the stream with stored key.
+
+        Parameters:
+            istream: input stream with the key file contents.
+            callback: must return passphrase for decryption if called
+
+        Returns:
+            The newly construted key instance.
+        """
+        slabel, sdata = decode_b64_envelope(istream)
+        istream.close()
+        return C4GHKey(3)
