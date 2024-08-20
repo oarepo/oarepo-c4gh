@@ -15,6 +15,7 @@ plugins:
             filters:
               - "!^__"
               - "__init__"
+              - "__bytes__"
             show_signature_annotations: true
             show_root_heading: true
             ignore_init_summary: false

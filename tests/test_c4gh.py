@@ -1,5 +1,5 @@
 import unittest
-from oarepo_c4gh.key.c4gh import decode_b64_envelope
+from oarepo_c4gh.key.c4gh import decode_b64_envelope, C4GHKey
 import io
 
 
@@ -13,6 +13,9 @@ class TestC4GHKeyImplementation(unittest.TestCase):
     def test_b64_decoder(self):
         alabel, adata = decode_b64_envelope(io.BytesIO(alice_pub_bstr))
         assert alabel == b"CRYPT4GH PUBLIC KEY"
+
+    def test_public_loader(self):
+        akey = C4GHKey.from_bytes(alice_pub_bstr)
 
 
 if __name__ == '__main__':
