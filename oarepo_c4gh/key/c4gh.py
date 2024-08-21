@@ -160,8 +160,8 @@ def derive_c4gh_key(
         The derived symmetric key.
 
     Raises:
-        ValueError if given KDF algorithm is not supported (should not happen
-        as this is expected to be called after parse_c4gh_kdf_options).
+        ValueError: if given KDF algorithm is not supported (should not happen
+            as this is expected to be called after parse_c4gh_kdf_options).
     """
     if algo == b"scrypt":
         from hashlib import scrypt
