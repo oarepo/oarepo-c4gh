@@ -15,6 +15,12 @@ alice_sec_bstr = \
     b"-----END ENCRYPTED PRIVATE KEY-----"
 
 
+alice_sec_bstr_dos = \
+    b"-----BEGIN ENCRYPTED PRIVATE KEY-----\r\n" \
+    b"YzRnaC12MQAGYmNyeXB0ABQAAABk8Kn90WJVzJBevxN4980aWwARY2hhY2hhMjBfcG9seTEzMDUAPBdXfpV1zOcMg5EJRlGNpKZXT4PXM2iraMGCyomRQqWaH5iBGmJXU/JROPsyoX5nqmNo8oxANvgDi1hqZQ==\r\n" \
+    b"-----END ENCRYPTED PRIVATE KEY-----"
+
+
 alice_sec_password = "alice"
 
 
@@ -28,6 +34,9 @@ class TestC4GHKeyImplementation(unittest.TestCase):
 
     def test_secret_loader(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+
+    def test_secret_loader_dos(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr_dos, lambda: alice_sec_password)
 
 
 if __name__ == '__main__':
