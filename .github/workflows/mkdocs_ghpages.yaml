@@ -1,8 +1,8 @@
 name: Run mkdocs and deploy to GitHub Pages
 
 on:
-#  push:
-#    branches: ["master"]
+  push:
+    branches: ["master"]
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
