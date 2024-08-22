@@ -56,6 +56,19 @@ class Key(ABC):
         """
         pass
 
+    @abstractmethod
+    def can_compute_symmetric_keys(self) -> bool:
+        """A predicate returning true if this key instance can perform
+        read/write key derivation. This is usually determined by
+        having access to the private key (for software implementation)
+        or some other means of working with the private key (for HSM).
+
+        Returns:
+            true if it can perform symmetric key derivation
+
+        """
+        return false
+
     def __bytes__(self) -> bytes:
         """Default converter to bytes returns the public key bytes."""
         return self.get_public_key()
