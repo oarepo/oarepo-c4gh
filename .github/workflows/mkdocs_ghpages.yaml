@@ -39,7 +39,7 @@ jobs:
         run: |
           python -m venv .venv
           . .venv/bin/activate
-          pip install -e .
+          pip install -e .[dev]
           mkdocs build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
