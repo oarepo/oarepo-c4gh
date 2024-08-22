@@ -19,11 +19,13 @@ class TestC4GHKeyImplementation(unittest.TestCase):
 
     def test_secret_loader(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        assert akey.can_compute_symmetric_keys(), "No private key"
 
     def test_secret_loader_dos(self):
         akey = C4GHKey.from_bytes(
             alice_sec_bstr_dos, lambda: alice_sec_password
         )
+        assert akey.can_compute_symmetric_keys(), "No private key"
 
 
 if __name__ == "__main__":
