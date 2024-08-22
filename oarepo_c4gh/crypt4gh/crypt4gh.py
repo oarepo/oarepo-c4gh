@@ -1,6 +1,8 @@
 """A module containing the Crypt4GH stream processing class.
 
 """
+from ..key import Key
+import io
 
 
 class Crypt4GH:
@@ -12,10 +14,14 @@ class Crypt4GH:
 
     """
 
-    def __init__(self, reader_key, istream):
+    def __init__(self, reader_key: Key, istream: io.RawIOBase) -> None:
         """Initializes the instance by storing the reader_key and the
         input stream. Verifies whether the reader key can perform
         symmetric key derivation.
+
+        Parameters:
+            reader_key: the key used for reading the container
+            istream: the container input stream
 
         Raises:
             ValueError: if the reader key cannot perform symmetric key

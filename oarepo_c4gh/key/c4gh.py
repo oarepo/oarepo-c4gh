@@ -276,6 +276,7 @@ class C4GHKey(SoftwareKey):
             nonce_and_encrypted_data = decode_c4gh_bytes(istreamb)
             nonce = nonce_and_encrypted_data[:12]
             encrypted_data = nonce_and_encrypted_data[12:]
-            return ChaCha20Poly1305(symmetric_key).decrypt(
+            decrypted_data = ChaCha20Poly1305(symmetric_key).decrypt(
                 nonce, encrypted_data, None
             )
+            return C4GHKey(decrypted_data, False)

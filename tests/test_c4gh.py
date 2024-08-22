@@ -1,27 +1,12 @@
 import unittest
 from oarepo_c4gh.key.c4gh import decode_b64_envelope, C4GHKey
 import io
-
-
-alice_pub_bstr = \
-    b"-----BEGIN CRYPT4GH PUBLIC KEY-----\n" \
-    b"oyERnWAhzV4MAh9XIk0xD4C+nNp2tpLUiWtQoVS/xB4=\n" \
-    b"-----END CRYPT4GH PUBLIC KEY-----\n"
-
-
-alice_sec_bstr = \
-    b"-----BEGIN ENCRYPTED PRIVATE KEY-----\n" \
-    b"YzRnaC12MQAGYmNyeXB0ABQAAABk8Kn90WJVzJBevxN4980aWwARY2hhY2hhMjBfcG9seTEzMDUAPBdXfpV1zOcMg5EJRlGNpKZXT4PXM2iraMGCyomRQqWaH5iBGmJXU/JROPsyoX5nqmNo8oxANvgDi1hqZQ==\n" \
-    b"-----END ENCRYPTED PRIVATE KEY-----"
-
-
-alice_sec_bstr_dos = \
-    b"-----BEGIN ENCRYPTED PRIVATE KEY-----\r\n" \
-    b"YzRnaC12MQAGYmNyeXB0ABQAAABk8Kn90WJVzJBevxN4980aWwARY2hhY2hhMjBfcG9seTEzMDUAPBdXfpV1zOcMg5EJRlGNpKZXT4PXM2iraMGCyomRQqWaH5iBGmJXU/JROPsyoX5nqmNo8oxANvgDi1hqZQ==\r\n" \
-    b"-----END ENCRYPTED PRIVATE KEY-----"
-
-
-alice_sec_password = "alice"
+from _test_data import (
+    alice_pub_bstr,
+    alice_sec_bstr,
+    alice_sec_bstr_dos,
+    alice_sec_password,
+)
 
 
 class TestC4GHKeyImplementation(unittest.TestCase):
@@ -36,8 +21,10 @@ class TestC4GHKeyImplementation(unittest.TestCase):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
 
     def test_secret_loader_dos(self):
-        akey = C4GHKey.from_bytes(alice_sec_bstr_dos, lambda: alice_sec_password)
+        akey = C4GHKey.from_bytes(
+            alice_sec_bstr_dos, lambda: alice_sec_password
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

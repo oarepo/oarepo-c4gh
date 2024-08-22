@@ -128,3 +128,8 @@ class SoftwareKey(Key):
             self.public_key, self.private_key, writer_public_key
         )
         return shared_key
+
+    def can_compute_symmetric_keys(self) -> bool:
+        """
+        """
+        return self.private_key is not None
