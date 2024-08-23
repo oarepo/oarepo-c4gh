@@ -3,6 +3,7 @@
 """
 from ..key import Key
 import io
+from .header import Crypt4GHHeader
 
 
 class Crypt4GH:
@@ -33,5 +34,5 @@ class Crypt4GH:
                 "Cannot initialize Crypt4GH object without access to "
                 "private key"
             )
-        self.reader_key = reader_key
-        self.istream = istream
+        self._istream = istream
+        self._header = Crypt4GHHeader(reader_key, istream)

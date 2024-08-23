@@ -35,3 +35,5 @@ implementation.
 ::: oarepo_c4gh.key.c4gh
 
 ::: oarepo_c4gh.crypt4gh.crypt4gh
+
+::: oarepo_c4gh.crypt4gh.header

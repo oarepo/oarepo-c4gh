@@ -16,7 +16,7 @@ class TestCrypt4GH(unittest.TestCase):
 
     def test_init_good_key(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(b""))
+        crypt4gh = Crypt4GH(akey, io.BytesIO(b"crypt4gh\x01\x00\x00\x00"))
 
 
 if __name__ == "__main__":
