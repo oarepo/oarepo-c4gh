@@ -19,4 +19,29 @@ primary features.
 Public API
 ----------
 
+### Working with Crypt4GH Keys
 
+The C4GHKey class provides loaders from file, string, bytes and
+stream. For loading public keys only the key source is needed:
+
+```python
+from oarepo_c4gh import C4GHKey
+
+my_key = C4GHKey.from_file("my_key.c4gh")
+```
+
+Private keys on the other hand are usually encrypted using symmetric
+cipher and a password based key. All the loaders accept a callback
+function as an optional second argument which should return the
+password to be tried when called:
+
+```python
+my_secret_key = C4GHKey.from_file("my_secret_key.c4gh", lambda: "password")
+```
+
+Once the key is loaded, one can always obtain its public part:
+
+```python
+print(my_key.get_public_key())
+print(my_secret_key.get_public_key())
+```
