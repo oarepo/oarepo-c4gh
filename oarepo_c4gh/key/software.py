@@ -85,8 +85,8 @@ class SoftwareKey(Key):
         in the binary string being matches must be the same on both
         sides. Therefore the same symmetric keys are derived. However
         for maintaining this ordering, each party must know which one
-        it - otherwise even with correctly computed shared secret the
-        resulting pair of keys would be different.
+        it is - otherwise even with correctly computed shared secret
+        the resulting pair of keys would be different.
 
         """
         if self.private_key is None:
