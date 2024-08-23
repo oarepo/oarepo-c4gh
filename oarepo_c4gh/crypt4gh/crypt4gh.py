@@ -25,15 +25,6 @@ class Crypt4GH:
             reader_key: the key used for reading the container
             istream: the container input stream
 
-        Raises:
-            ValueError: if the reader key cannot perform symmetric key
-                        derivation
-
         """
-        if not reader_key.can_compute_symmetric_keys():
-            raise ValueError(
-                "Cannot initialize Crypt4GH object without access to "
-                "private key"
-            )
         self._istream = istream
         self._header = Crypt4GHHeader(reader_key, istream)

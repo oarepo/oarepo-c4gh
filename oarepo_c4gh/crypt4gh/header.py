@@ -63,7 +63,16 @@ class Crypt4GHHeader:
         """Loads the packets from the input stream and discards the
         key.
 
+        Raises:
+            ValueError: if the reader key cannot perform symmetric key
+                        derivation
+
         """
+        if not self._reader_key.can_compute_symmetric_keys():
+            raise ValueError(
+                "Cannot initialize Crypt4GH object without access to "
+                "private key"
+            )
         self._packets = []
         for idx in range(self._packet_count):
             self._packets.append(
@@ -76,6 +85,11 @@ class Crypt4GHHeader:
 
         Returns:
             List of header packets.
+
+        Raises:
+            ValueError: if the reader key cannot perform symmetric key
+                        derivation
+
         """
         if self._packets is None:
             self.load_packets()
