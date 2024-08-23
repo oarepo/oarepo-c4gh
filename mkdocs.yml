@@ -3,6 +3,7 @@ theme:
   name: "material"
 nav:
   - "C4GH": index.md
+  - "Implementation": implementation.md
 plugins:
   - mkdocstrings:
       handlers:
