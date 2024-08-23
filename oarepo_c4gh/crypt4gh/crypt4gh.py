@@ -1,6 +1,7 @@
 """A module containing the Crypt4GH stream processing class.
 
 """
+
 from ..key import Key
 import io
 from .header import Crypt4GHHeader

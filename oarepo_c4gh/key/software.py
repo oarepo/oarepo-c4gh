@@ -130,6 +130,10 @@ class SoftwareKey(Key):
         return shared_key
 
     def can_compute_symmetric_keys(self) -> bool:
-        """
+        """Returns True if this key contains the private part.
+
+        Returns:
+            True if private key is available.
+
         """
         return self.private_key is not None

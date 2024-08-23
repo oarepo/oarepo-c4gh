@@ -6,6 +6,7 @@ from given input stream.
 from .header_packet import Crypt4GHHeaderPacket
 from ..key import Key
 import io
+from .util import read_crypt4gh_stream_le_uint32
 
 CRYPT4GH_MAGIC = b"crypt4gh"
 
@@ -48,27 +49,17 @@ class Crypt4GHHeader:
         """
         magic_bytes = istream.read(8)
         check_crypt4gh_magic(magic_bytes)
-        version_bytes = istream.read(2)
-        version_bytes_len = len(version_bytes)
-        if version_bytes_len != 2:
-            raise ValueError(f"Only {version_bytes_len} bytes version")
-        version = int.from_bytes(version_bytes, byteorder="little")
+        version = read_crypt4gh_stream_le_uint32(istream, "version")
         if version != 1:
             raise ValueError(f"Invalid Crypt4GH version {version}")
-        packet_count_bytes = istream.read(2)
-        packet_count_bytes_len = len(packet_count_bytes)
-        if packet_count_bytes_len != 2:
-            raise ValueError(
-                f"Only {packet_count_bytes_len} bytes of packet count"
-            )
-        self._packet_count = int.from_bytes(
-            packet_count_bytes, byteorder="little"
+        self._packet_count = read_crypt4gh_stream_le_uint32(
+            istream, "packet count"
         )
         self._reader_key = reader_key
         self._istream = istream
         self._packets = None
 
-    def load_header_packets(self) -> None:
+    def load_packets(self) -> None:
         """Loads the packets from the input stream and discards the
         key.
 
@@ -80,12 +71,12 @@ class Crypt4GHHeader:
             )
         self._reader_key = None
 
-    def headers(self) -> list:
+    def get_packets(self) -> list:
         """The accessor to the direct list of header packets.
 
         Returns:
             List of header packets.
         """
         if self._packets is None:
-            self.load_header_packets()
+            self.load_packets()
         return self._packets
