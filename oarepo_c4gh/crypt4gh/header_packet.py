@@ -26,39 +26,99 @@ class Crypt4GHHeaderPacket:
                         private part)
             istream: the container input stream
 
+        Raises:
+            ValueError: if any problem in parsing the packet occurs.
+
         """
         self._packet_length = read_crypt4gh_stream_le_uint32(
             istream, "packet length"
         )
         self._packet_data = self._packet_length.to_bytes(
-            2, "little"
-        ) + istream.read(self._packet_length)
+            4, "little"
+        ) + istream.read(self._packet_length - 4)
         if len(self._packet_data) != self._packet_length:
             raise ValueError(
                 f"Header packet: read only {len(self._packet_data)} "
                 f"instead of {self._packet_length}"
             )
         encryption_method = read_crypt4gh_bytes_le_uint32(
-            self._packet_data, 2, "encryption method"
+            self._packet_data, 4, "encryption method"
         )
         if encryption_method != 0:
             raise ValueError(
                 f"Unsupported encryption method {encryption_method}"
             )
-        writer_public_key = self._packet_data[4:36]
-        nonce = self._packet_data[36:48]
-        payload_length = self._packet_length - 2 - 2 - 32 - 12 - 16
-        payload = self._packet_data[48 : 48 + payload_length]
-        mac = self._packet_data[-16:]
+        writer_public_key = self._packet_data[8:40]
+        nonce = self._packet_data[40:52]
+        payload_length = self._packet_length - 4 - 4 - 32 - 12 - 16
+        payload = self._packet_data[52:]
+
         symmetric_key = reader_key.compute_read_key(writer_public_key)
-        content_decrypted = False
+        self._content = None
         try:
-            content = crypto_aead_chacha20poly1305_ietf_decrypt(
+            self._content = crypto_aead_chacha20poly1305_ietf_decrypt(
                 payload, None, nonce, symmetric_key
             )
-            content_decrypted = True
-        except CryptoError:
+        except CryptoError as cerr:
             pass
-        packet_type = read_crypt4gh_bytes_le_uint64(content, 0, "packet type")
-        # if successfull, parse data
-        # if unsuccessfull, mark
+        if self._content is not None:
+            self._packet_type = read_crypt4gh_bytes_le_uint32(
+                self._content, 0, "packet type"
+            )
+            if self._packet_type == 0:
+                self._data_encryption_method = read_crypt4gh_bytes_le_uint32(
+                    self._content, 2, "encryption method"
+                )
+                if self._data_encryption_method != 0:
+                    raise ValueError(
+                        f"Unknown data encryption method "
+                        f"{self._data_encryption_method}."
+                    )
+                self._data_encryption_key = self._content[4:36]
+            elif self._packet_type == 1:
+                # Edit List
+                pass
+            else:
+                # Report error? Warning?
+                pass
+
+    def is_data_encryption_parameters(self) -> bool:
+        """A predicate for checking whether this packet contains DEK.
+
+        Returns:
+            True if this packet was successfully decrypted and it is
+            an encryption parameters type packet.
+
+        """
+        return self._content is not None and self._packet_type == 0
+
+    def get_data_encryption_key(self) -> bytes:
+        """Getter for the symmetric encryption key.
+
+        Returns:
+            32 bytes of the symmetric key.
+
+        Raises:
+            ValueError: if this packet does not contain DEK
+
+        """
+        if not self.is_data_encryption_parameters():
+            raise ValueError("No encryption key available.")
+        return self._data_encryption_key
+
+    def is_edit_list(self) -> bool:
+        """A predicate for checking whether this packet contains edit
+        list.
+
+        Returns:
+            True if it is a successfully decrypted edit list packet.
+
+        """
+        return self._content is not None and self._packet_type == 1
+
+    def is_readable(self) -> bool:
+        """A predicate for checking whether the packet was
+        successfully decrypted.
+
+        """
+        return self._content is not None
