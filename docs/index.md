@@ -45,3 +45,15 @@ Once the key is loaded, one can always obtain its public part:
 print(my_key.get_public_key())
 print(my_secret_key.get_public_key())
 ```
+
+### Loading Crypt4GH Containers
+
+With secret key loaded, initializing Crypt4GH container for reading
+with actual container data is straightforward:
+
+```python
+from oarepo_c4gh import Crypt4GH
+
+with open("hello.txt.c4gh") as f:
+	crypt4gh = Crypt4GH(my_secret_key, f)
+```
