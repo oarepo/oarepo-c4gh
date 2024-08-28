@@ -9,6 +9,7 @@ from _test_data import (
 )
 import io
 import sys
+from oarepo_c4gh.exceptions import Crypt4GHHeaderException
 
 
 def _create_crypt4gh_with_bad_key():
@@ -18,7 +19,9 @@ def _create_crypt4gh_with_bad_key():
 
 class TestCrypt4GH(unittest.TestCase):
     def test_init_bad_key(self):
-        self.assertRaises(ValueError, _create_crypt4gh_with_bad_key)
+        self.assertRaises(
+            Crypt4GHHeaderException, _create_crypt4gh_with_bad_key
+        )
 
     def test_init_good_key(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)

@@ -7,6 +7,8 @@ from .header_packet import Crypt4GHHeaderPacket
 from ..key import Key
 import io
 from .util import read_crypt4gh_stream_le_uint32
+from ..exceptions import Crypt4GHHeaderException
+
 
 CRYPT4GH_MAGIC = b"crypt4gh"
 
@@ -19,14 +21,18 @@ def check_crypt4gh_magic(magic_bytes: bytes) -> None:
         magic_bytes: the bytes to check
 
     Raises:
-        ValueError: if not enough or incorrect bytes
+        Crypt4GHHeaderException: if not enough or incorrect bytes
 
     """
     magic_bytes_len = len(CRYPT4GH_MAGIC)
     if len(magic_bytes) != magic_bytes_len:
-        raise ValueError(f"Cannot read enough magic bytes {magic_bytes_len}")
+        raise Crypt4GHHeaderException(
+            f"Cannot read enough magic bytes {magic_bytes_len}"
+        )
     if magic_bytes != CRYPT4GH_MAGIC:
-        raise ValueError(f"Incorrect Crypt4GH magic: {magic_bytes}")
+        raise Crypt4GHHeaderException(
+            f"Incorrect Crypt4GH magic: {magic_bytes}"
+        )
 
 
 class Crypt4GHHeader:
@@ -51,7 +57,9 @@ class Crypt4GHHeader:
         check_crypt4gh_magic(magic_bytes)
         version = read_crypt4gh_stream_le_uint32(istream, "version")
         if version != 1:
-            raise ValueError(f"Invalid Crypt4GH version {version}")
+            raise Crypt4GHHeaderException(
+                f"Invalid Crypt4GH version {version}"
+            )
         self._packet_count = read_crypt4gh_stream_le_uint32(
             istream, "packet count"
         )
@@ -64,12 +72,12 @@ class Crypt4GHHeader:
         key.
 
         Raises:
-            ValueError: if the reader key cannot perform symmetric key
+            Crypt4GHHeaderException: if the reader key cannot perform symmetric key
                         derivation
 
         """
         if not self._reader_key.can_compute_symmetric_keys():
-            raise ValueError(
+            raise Crypt4GHHeaderException(
                 "Cannot initialize Crypt4GH object without access to "
                 "private key"
             )
@@ -87,7 +95,7 @@ class Crypt4GHHeader:
             List of header packets.
 
         Raises:
-            ValueError: if the reader key cannot perform symmetric key
+            Crypt4GHHeaderException: if the reader key cannot perform symmetric key
                         derivation
 
         """

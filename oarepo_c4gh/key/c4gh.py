@@ -7,6 +7,7 @@ from io import RawIOBase, BytesIO
 from typing import Self
 from base64 import b64decode
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+from ..exceptions import Crypt4GHKeyException
 
 # 7 bytes magic word that is at the very beginning of any private key
 C4GH_MAGIC_WORD = b"c4gh-v1"
@@ -33,7 +34,7 @@ def default_passphrase_callback() -> None:
     exception when called.
 
     """
-    raise ValueError("No password callback provided!")
+    raise Crypt4GHKeyException("No password callback provided!")
 
 
 def decode_b64_envelope(istream: RawIOBase) -> (bytes, bytes):
@@ -81,13 +82,13 @@ def decode_c4gh_bytes(istream: RawIOBase) -> bytes:
         The decoded bytes string.
 
     Raises:
-        ValueError: if there is not enough data in the stream
+        Crypt4GHKeyException: if there is not enough data in the stream
 
     """
     lengthb = istream.read(2)
     lengthb_length = len(lengthb)
     if len(lengthb) != 2:
-        raise ValueError(
+        raise Crypt4GHKeyException(
             f"Binary string read - not enought data to read the length: "
             f"{lengthb_length} != 2"
         )
@@ -95,7 +96,7 @@ def decode_c4gh_bytes(istream: RawIOBase) -> bytes:
     string = istream.read(length)
     read_length = len(string)
     if read_length != length:
-        raise ValueError(
+        raise Crypt4GHKeyException(
             f"Binary string read - not enough data: {read_length} != {length}"
         )
     return string
@@ -110,12 +111,12 @@ def check_c4gh_stream_magic(istreamb: RawIOBase) -> None:
         istreamb: input stream with the raw Crypt4GH binary key stream.
 
     Raises:
-        ValueError: if the signature does not match.
+        Crypt4GHKeyException: if the signature does not match.
 
     """
     magic_to_check = istreamb.read(len(C4GH_MAGIC_WORD))
     if magic_to_check != C4GH_MAGIC_WORD:
-        raise ValueError("Not a Crypt4GH private key!")
+        raise Crypt4GHKeyException("Not a Crypt4GH private key!")
 
 
 def parse_c4gh_kdf_options(istreamb: RawIOBase) -> (bytes, int, bytes):
@@ -131,7 +132,7 @@ def parse_c4gh_kdf_options(istreamb: RawIOBase) -> (bytes, int, bytes):
         kdf_salt: salt for initializing the hashing
 
     Raises:
-        ValueError: if parsed KDF name is not supported
+        Crypt4GHKeyException: if parsed KDF name is not supported
 
     """
     kdf_name = decode_c4gh_bytes(istreamb)
@@ -143,7 +144,7 @@ def parse_c4gh_kdf_options(istreamb: RawIOBase) -> (bytes, int, bytes):
         kdf_salt = kdf_options[4:]
         return (kdf_name, kdf_rounds, kdf_salt)
     else:
-        raise ValueError(f"Unsupported KDF {kdf_name}")
+        raise Crypt4GHKeyException(f"Unsupported KDF {kdf_name}")
 
 
 def derive_c4gh_key(
@@ -160,7 +161,7 @@ def derive_c4gh_key(
         The derived symmetric key.
 
     Raises:
-        ValueError: if given KDF algorithm is not supported (should not happen
+        Crypt4GHKeyException: if given KDF algorithm is not supported (should not happen
             as this is expected to be called after parse_c4gh_kdf_options).
     """
     if algo == b"scrypt":
@@ -181,7 +182,7 @@ def derive_c4gh_key(
         from hashlib import pbkdf2_hmac
 
         return pbkdf2_hmac("sha256", passphrase, salt, rounds, dklen=32)
-    raise ValueError(f"Unsupported KDF: {algo}")
+    raise Crypt4GHKeyException(f"Unsupported KDF: {algo}")
 
 
 class C4GHKey(SoftwareKey):
@@ -265,7 +266,9 @@ class C4GHKey(SoftwareKey):
                 secret_data = decode_c4gh_bytes(istreamb)
                 return C4GHKey(secret_data, False)
             if cipher_name != b"chacha20_poly1305":
-                raise ValueError(f"Unsupported cipher: {cipher_name}")
+                raise Crypt4GHKeyException(
+                    f"Unsupported cipher: {cipher_name}"
+                )
             assert callable(
                 callback
             ), "Invalid passphrase callback (non-callable)"

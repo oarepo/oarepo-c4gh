@@ -57,3 +57,11 @@ from oarepo_c4gh import Crypt4GH
 with open("hello.txt.c4gh") as f:
 	crypt4gh = Crypt4GH(my_secret_key, f)
 ```
+
+Exceptions
+----------
+
+All the exceptions that might be raised by the libary come from the
+`exceptions` module.
+
+::: oarepo_c4gh.exceptions

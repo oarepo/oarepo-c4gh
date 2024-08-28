@@ -14,6 +14,7 @@ from nacl.bindings import (
     crypto_kx_server_session_keys,
     crypto_kx_client_session_keys,
 )
+from ..exceptions import Crypt4GHKeyException
 
 
 class SoftwareKey(Key):
@@ -65,7 +66,7 @@ class SoftwareKey(Key):
             Writer symmetric key as 32 bytes.
 
         Raises:
-            TypeError: if only public key is available
+            Crypt4GHKeyException: if only public key is available
 
         The algorithm used is not just a Diffie-Hellman key exchange
         to establish shared secret but it also includes derivation of
@@ -90,7 +91,7 @@ class SoftwareKey(Key):
 
         """
         if self.private_key is None:
-            raise TypeError(
+            raise Crypt4GHKeyException(
                 "Only keys with private part can be used"
                 " for computing shared key"
             )
@@ -116,11 +117,11 @@ class SoftwareKey(Key):
             Reader symmetric key as 32 bytes.
 
         Raises:
-            TypeError: if only public key is available
+            Crypt4GHKeyException: if only public key is available
 
         """
         if self.private_key is None:
-            raise TypeError(
+            raise Crypt4GHKeyException(
                 "Only keys with private part can be used"
                 " for computing shared key"
             )

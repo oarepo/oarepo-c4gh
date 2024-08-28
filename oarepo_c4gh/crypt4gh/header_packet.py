@@ -7,6 +7,7 @@ import io
 from .util import read_crypt4gh_stream_le_uint32, read_crypt4gh_bytes_le_uint32
 from nacl.bindings import crypto_aead_chacha20poly1305_ietf_decrypt
 from nacl.exceptions import CryptoError
+from ..exceptions import Crypt4GHHeaderPacketException
 
 
 class Crypt4GHHeaderPacket:
@@ -27,7 +28,7 @@ class Crypt4GHHeaderPacket:
             istream: the container input stream
 
         Raises:
-            ValueError: if any problem in parsing the packet occurs.
+            Crypt4GHHeaderPacketException: if any problem in parsing the packet occurs.
 
         """
         self._packet_length = read_crypt4gh_stream_le_uint32(
@@ -37,7 +38,7 @@ class Crypt4GHHeaderPacket:
             4, "little"
         ) + istream.read(self._packet_length - 4)
         if len(self._packet_data) != self._packet_length:
-            raise ValueError(
+            raise Crypt4GHHeaderPacketException(
                 f"Header packet: read only {len(self._packet_data)} "
                 f"instead of {self._packet_length}"
             )
@@ -45,7 +46,7 @@ class Crypt4GHHeaderPacket:
             self._packet_data, 4, "encryption method"
         )
         if encryption_method != 0:
-            raise ValueError(
+            raise Crypt4GHHeaderPacketException(
                 f"Unsupported encryption method {encryption_method}"
             )
         writer_public_key = self._packet_data[8:40]
@@ -70,7 +71,7 @@ class Crypt4GHHeaderPacket:
                     self._content, 2, "encryption method"
                 )
                 if self._data_encryption_method != 0:
-                    raise ValueError(
+                    raise Crypt4GHHeaderPacketException(
                         f"Unknown data encryption method "
                         f"{self._data_encryption_method}."
                     )
@@ -99,11 +100,11 @@ class Crypt4GHHeaderPacket:
             32 bytes of the symmetric key.
 
         Raises:
-            ValueError: if this packet does not contain DEK
+            Crypt4GHHeaderPacketException: if this packet does not contain DEK
 
         """
         if not self.is_data_encryption_parameters():
-            raise ValueError("No encryption key available.")
+            raise Crypt4GHHeaderPacketException("No encryption key available.")
         return self._data_encryption_key
 
     def is_edit_list(self) -> bool:

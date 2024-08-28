@@ -1,5 +1,5 @@
 import unittest
-from oarepo_c4gh import SoftwareKey
+from oarepo_c4gh import SoftwareKey, Crypt4GHKeyException
 
 
 # Taken from RFC 7748
@@ -88,8 +88,8 @@ class TestSoftwareKeyImplementation(unittest.TestCase):
         ), "Bob's test vector does not match!"
 
     def test_only_public(self):
-        self.assertRaises(TypeError, _only_public_write)
-        self.assertRaises(TypeError, _only_public_read)
+        self.assertRaises(Crypt4GHKeyException, _only_public_write)
+        self.assertRaises(Crypt4GHKeyException, _only_public_read)
 
 
 if __name__ == "__main__":
