@@ -72,3 +72,19 @@ class Crypt4GHHeaderPacketException(Crypt4GHHeaderException):
             message: a descriptive message about the problem
         """
         super().__init__("HEADERPACKET", message)
+
+
+class Crypt4GHDEKException(Crypt4GHException):
+    """Base exception raised when something goes wrong with Data
+    Encryption Key(s).
+
+    """
+
+    def __init__(self, message: str) -> None:
+        """Initializes the DEK exception.
+
+        Parameters:
+            message: a descriptive message about the problem
+
+        """
+        super().__init__("DEK", message)

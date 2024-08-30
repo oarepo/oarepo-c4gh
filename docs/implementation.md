@@ -25,3 +25,5 @@ Crypt4GH Container
 ::: oarepo_c4gh.crypt4gh.header_packet
 
 ::: oarepo_c4gh.crypt4gh.util
+
+::: oarepo_c4gh.crypt4gh.dek_collection

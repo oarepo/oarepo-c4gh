@@ -52,6 +52,7 @@ class TestCrypt4GH(unittest.TestCase):
         assert (
             not dek_packet.is_edit_list
         ), "Incorrect predicate result (both Edit List and Data Encryption Parameters)"
+        assert not header.deks.empty, "No DEKs found"
 
 
 if __name__ == "__main__":

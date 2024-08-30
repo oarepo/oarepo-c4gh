@@ -8,6 +8,7 @@ from ..key import Key
 import io
 from .util import read_crypt4gh_stream_le_uint32
 from ..exceptions import Crypt4GHHeaderException
+from .dek_collection import Crypt4GHDEKCollection
 
 
 CRYPT4GH_MAGIC = b"crypt4gh"
@@ -66,10 +67,12 @@ class Crypt4GHHeader:
         self._reader_key = reader_key
         self._istream = istream
         self._packets = None
+        self._deks = Crypt4GHDEKCollection()
 
     def load_packets(self) -> None:
         """Loads the packets from the input stream and discards the
-        key.
+        key. It populates the internal Data Encryption Key collection
+        for later use during this process.
 
         Raises:
             Crypt4GHHeaderException: if the reader key cannot perform symmetric key
@@ -83,9 +86,10 @@ class Crypt4GHHeader:
             )
         self._packets = []
         for idx in range(self._packet_count):
-            self._packets.append(
-                Crypt4GHHeaderPacket(self._reader_key, self._istream)
-            )
+            packet = Crypt4GHHeaderPacket(self._reader_key, self._istream)
+            if packet.is_data_encryption_parameters:
+                self._deks.add_dek(packet.data_encryption_key)
+            self._packets.append(packet)
         self._reader_key = None
 
     @property
@@ -103,3 +107,21 @@ class Crypt4GHHeader:
         if self._packets is None:
             self.load_packets()
         return self._packets
+
+    @property
+    def deks(self) -> Crypt4GHDEKCollection:
+        """Returns the collection of Data Encryption Keys obtained by
+        processing all header packets. Ensures the header packets were
+        actually processed before returning the reference.
+
+        Returns:
+            The DEK Collection.
+
+        Raises:
+            Crypt4GHHeaderException: if packets needed to be loaded and
+                something went wrong
+
+        """
+        if self._packets is None:
+            self.load_packets()
+        return self._deks
