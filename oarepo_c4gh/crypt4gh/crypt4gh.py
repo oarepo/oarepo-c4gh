@@ -5,6 +5,7 @@
 from ..key import Key
 import io
 from .header import Crypt4GHHeader
+from ..exceptions import Crypt4GHProcessedException
 
 
 class Crypt4GH:
@@ -28,8 +29,28 @@ class Crypt4GH:
         """
         self._istream = istream
         self._header = Crypt4GHHeader(reader_key, istream)
+        self._consumed = False
 
     @property
     def header(self):
         """Accessor for the container header object."""
         return self._header
+
+    @property
+    def data_blocks(self):
+        """Single-use iterator for data blocks.
+
+        TODO: switch to Crypt4GHDataBlock once implemented
+
+        Raises:
+            Crypt4GHProcessedException: if called second time
+
+        """
+        if self._consumed:
+            raise Crypt4GHProcessedException("Already processed once")
+        while True:
+            enc, clear = self._header.deks.decrypt_packet(self._istream)
+            if enc is None:
+                break
+            yield(enc, clear)
+        self._consumed = True

@@ -8,6 +8,9 @@ to decrypt the data.
 
 from functools import reduce
 from ..exceptions import Crypt4GHDEKException
+import io
+from nacl.bindings import crypto_aead_chacha20poly1305_ietf_decrypt
+from nacl.exceptions import CryptoError
 
 
 class Crypt4GHDEKCollection:
@@ -61,5 +64,48 @@ class Crypt4GHDEKCollection:
         if not self.contains_dek(dek):
             self._deks.append(dek)
 
-    def decrypt_packet(self, data: bytes) -> bytes:
-        pass
+    def decrypt_packet(self, istream: io.RawIOBase) -> (bytes, bytes):
+        """Internal procedure for decrypting single data block from
+        the stream. If there is not enough data (for example at EOF),
+        two None values are returned. If the block cannot be decrypted
+        using known DEKs, the encrypted version is returned as-is and
+        None is returned as the cleartext version. If the block can be
+        decrypted, both the ciphertext and cleartext versions are
+        returned.
+
+        Updates current key upon successfull decryption so that
+        subsequent attempts will try this key first.
+
+        Tries all DEKs in the collection in circular order until all
+        have been tried or one succeeded.
+
+        Parameters:
+            istream: input stream with data blocks
+
+        Returns:
+            Two values, the first representing the encrypted
+                version of the data block and second one containing
+                decrypted contents if possible. Both are none when no
+                packet has been read.
+
+        """
+        nonce = istream.read(12)
+        if len(nonce) != 12:
+            return (None, None)
+        datamac = istream.read(65536 + 16)
+        if len(datamac) < 16:
+            return (None, None)
+        current = self._current
+        while True:
+            dek = self._deks[current]
+            try:
+                cleartext = crypto_aead_chacha20poly1305_ietf_decrypt(
+                    datamac, None, nonce, dek
+                )
+                self._current = current
+                return (nonce+datamac, cleartext)
+            except CryptoError as cerr:
+                pass
+            current = (current + 1) % self.count
+            if current == self._current:
+                return (nonce+datamac, None)

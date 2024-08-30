@@ -68,14 +68,14 @@ class Crypt4GHHeaderPacket:
             )
             if self._packet_type == 0:
                 self._data_encryption_method = read_crypt4gh_bytes_le_uint32(
-                    self._content, 2, "encryption method"
+                    self._content, 4, "encryption method"
                 )
                 if self._data_encryption_method != 0:
                     raise Crypt4GHHeaderPacketException(
                         f"Unknown data encryption method "
                         f"{self._data_encryption_method}."
                     )
-                self._data_encryption_key = self._content[4:36]
+                self._data_encryption_key = self._content[8:40]
             elif self._packet_type == 1:
                 # Edit List
                 pass

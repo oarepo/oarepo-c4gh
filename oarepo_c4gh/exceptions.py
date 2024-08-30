@@ -88,3 +88,18 @@ class Crypt4GHDEKException(Crypt4GHException):
 
         """
         super().__init__("DEK", message)
+
+class Crypt4GHProcessedException(Crypt4GHException):
+    """An exception for signalling the container cannot be processed
+    again from the beginning.
+
+    """
+
+    def __init__(self, message: str) -> None:
+        """Initializes the Processed exception.
+
+        Parameters:
+            message: a decriptive message about the problem
+
+        """
+        super().__init__("PROCESSED", message)

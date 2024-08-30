@@ -17,4 +17,5 @@ __all__ = [
     "Crypt4GHHeaderException",
     "Crypt4GHHeaderPacketException",
     "Crypt4GHDEKException",
+    "Crypt4GHProcessedException",
 ]

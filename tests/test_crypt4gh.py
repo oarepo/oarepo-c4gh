@@ -53,6 +53,8 @@ class TestCrypt4GH(unittest.TestCase):
             not dek_packet.is_edit_list
         ), "Incorrect predicate result (both Edit List and Data Encryption Parameters)"
         assert not header.deks.empty, "No DEKs found"
+        for enc, clear in crypt4gh.data_blocks:
+            assert clear == b"Hello World!\n", "Incorrectly decrypted"
 
 
 if __name__ == "__main__":
