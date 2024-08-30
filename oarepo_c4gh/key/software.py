@@ -39,20 +39,21 @@ class SoftwareKey(Key):
             f"The X25519 key must be 32 bytes long" f" ({len(key_data)})!"
         )
         if only_public:
-            self.public_key = key_data
-            self.private_key = None
+            self._public_key = key_data
+            self._private_key = None
         else:
             private_key_obj = PrivateKey(key_data)
-            self.private_key = bytes(private_key_obj)
+            self._private_key = bytes(private_key_obj)
             public_key_obj = private_key_obj.public_key
-            self.public_key = bytes(public_key_obj)
+            self._public_key = bytes(public_key_obj)
 
-    def get_public_key(self) -> bytes:
+    @property
+    def public_key(self) -> bytes:
         """Returns the public key corresponding to the private key
         used.
 
         """
-        return self.public_key
+        return self._public_key
 
     def compute_write_key(self, reader_public_key: bytes) -> bytes:
         """Computes secret symmetric key used for writing Crypt4GH
@@ -90,13 +91,13 @@ class SoftwareKey(Key):
         the resulting pair of keys would be different.
 
         """
-        if self.private_key is None:
+        if self._private_key is None:
             raise Crypt4GHKeyException(
                 "Only keys with private part can be used"
                 " for computing shared key"
             )
         _, shared_key = crypto_kx_server_session_keys(
-            self.public_key, self.private_key, reader_public_key
+            self._public_key, self._private_key, reader_public_key
         )
         return shared_key
 
@@ -120,16 +121,17 @@ class SoftwareKey(Key):
             Crypt4GHKeyException: if only public key is available
 
         """
-        if self.private_key is None:
+        if self._private_key is None:
             raise Crypt4GHKeyException(
                 "Only keys with private part can be used"
                 " for computing shared key"
             )
         shared_key, _ = crypto_kx_client_session_keys(
-            self.public_key, self.private_key, writer_public_key
+            self._public_key, self._private_key, writer_public_key
         )
         return shared_key
 
+    @property
     def can_compute_symmetric_keys(self) -> bool:
         """Returns True if this key contains the private part.
 
@@ -137,4 +139,4 @@ class SoftwareKey(Key):
             True if private key is available.
 
         """
-        return self.private_key is not None
+        return self._private_key is not None

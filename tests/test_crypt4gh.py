@@ -23,6 +23,12 @@ class TestCrypt4GH(unittest.TestCase):
             Crypt4GHHeaderException, _create_crypt4gh_with_bad_key
         )
 
+    def test_init_bad_key_exception(self):
+        try:
+            _create_crypt4gh_with_bad_key
+        except Crypt4GHKeyException as ex:
+            assert ex.code == "KEY", "Incorrect exception code"
+
     def test_init_good_key(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(
@@ -32,16 +38,20 @@ class TestCrypt4GH(unittest.TestCase):
     def test_encrypted_hello_header(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
-        header = crypt4gh.get_header()
-        packets = header.get_packets()
+        header = crypt4gh.header
+        packets = header.packets
         assert (
             len(packets) == 1
         ), f"Invalid number of header packets - {len(packets)}"
         dek_packet = packets[0]
-        assert dek_packet.is_readable(), "Cannot decrypt header packet"
+        assert dek_packet.is_readable, "Cannot decrypt header packet"
+        assert dek_packet.is_data_encryption_parameters, "Invalid packet type"
         assert (
-            dek_packet.is_data_encryption_parameters()
-        ), "Invalid packet type"
+            dek_packet.data_encryption_key is not None
+        ), "Dit not get Data Encryption Key"
+        assert (
+            not dek_packet.is_edit_list
+        ), "Incorrect predicate result (both Edit List and Data Encryption Parameters)"
 
 
 if __name__ == "__main__":

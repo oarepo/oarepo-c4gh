@@ -61,11 +61,11 @@ class TestSoftwareKeyImplementation(unittest.TestCase):
     def test_get_public_key(self):
         alice_sk = SoftwareKey(alice_priv_str)
         assert (
-            alice_pub_str == alice_sk.get_public_key()
+            alice_pub_str == alice_sk.public_key
         ), "Alice's test vector does not match!"
         bob_sk = SoftwareKey(bob_priv_str)
         assert (
-            bob_pub_str == bob_sk.get_public_key()
+            bob_pub_str == bob_sk.public_key
         ), "Bob's test vector does not match!"
 
     def test_compute_key(self):

@@ -76,7 +76,7 @@ class Crypt4GHHeader:
                         derivation
 
         """
-        if not self._reader_key.can_compute_symmetric_keys():
+        if not self._reader_key.can_compute_symmetric_keys:
             raise Crypt4GHHeaderException(
                 "Cannot initialize Crypt4GH object without access to "
                 "private key"
@@ -88,7 +88,8 @@ class Crypt4GHHeader:
             )
         self._reader_key = None
 
-    def get_packets(self) -> list:
+    @property
+    def packets(self) -> list:
         """The accessor to the direct list of header packets.
 
         Returns:

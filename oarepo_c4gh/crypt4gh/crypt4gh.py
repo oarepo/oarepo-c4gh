@@ -29,6 +29,7 @@ class Crypt4GH:
         self._istream = istream
         self._header = Crypt4GHHeader(reader_key, istream)
 
-    def get_header(self):
+    @property
+    def header(self):
         """Accessor for the container header object."""
         return self._header

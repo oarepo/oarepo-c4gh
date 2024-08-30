@@ -15,8 +15,9 @@ class Key(ABC):
 
     """
 
+    @property
     @abstractmethod
-    def get_public_key(self) -> bytes:
+    def public_key(self) -> bytes:
         """The derived classes must implement providing corresponding
         public key in this method.
 
@@ -56,6 +57,7 @@ class Key(ABC):
         """
         pass
 
+    @property
     @abstractmethod
     def can_compute_symmetric_keys(self) -> bool:
         """A predicate returning true if this key instance can perform
@@ -71,4 +73,4 @@ class Key(ABC):
 
     def __bytes__(self) -> bytes:
         """Default converter to bytes returns the public key bytes."""
-        return self.get_public_key()
+        return self.public_key

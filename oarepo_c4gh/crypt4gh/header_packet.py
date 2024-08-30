@@ -83,6 +83,7 @@ class Crypt4GHHeaderPacket:
                 # Report error? Warning?
                 pass
 
+    @property
     def is_data_encryption_parameters(self) -> bool:
         """A predicate for checking whether this packet contains DEK.
 
@@ -93,7 +94,8 @@ class Crypt4GHHeaderPacket:
         """
         return self._content is not None and self._packet_type == 0
 
-    def get_data_encryption_key(self) -> bytes:
+    @property
+    def data_encryption_key(self) -> bytes:
         """Getter for the symmetric encryption key.
 
         Returns:
@@ -103,10 +105,11 @@ class Crypt4GHHeaderPacket:
             Crypt4GHHeaderPacketException: if this packet does not contain DEK
 
         """
-        if not self.is_data_encryption_parameters():
+        if not self.is_data_encryption_parameters:
             raise Crypt4GHHeaderPacketException("No encryption key available.")
         return self._data_encryption_key
 
+    @property
     def is_edit_list(self) -> bool:
         """A predicate for checking whether this packet contains edit
         list.
@@ -117,6 +120,7 @@ class Crypt4GHHeaderPacket:
         """
         return self._content is not None and self._packet_type == 1
 
+    @property
     def is_readable(self) -> bool:
         """A predicate for checking whether the packet was
         successfully decrypted.
