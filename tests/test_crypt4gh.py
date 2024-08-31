@@ -9,12 +9,20 @@ from _test_data import (
 )
 import io
 import sys
-from oarepo_c4gh.exceptions import Crypt4GHHeaderException
+from oarepo_c4gh.exceptions import (
+    Crypt4GHHeaderException,
+    Crypt4GHProcessedException,
+)
 
 
 def _create_crypt4gh_with_bad_key():
     akey = C4GHKey.from_bytes(alice_pub_bstr)
     crypt4gh = Crypt4GH(akey, io.BytesIO(b""))
+
+
+def _test_hello_world_data_blocks(crypt4gh):
+    for block in crypt4gh.data_blocks:
+        assert block.cleartext == b"Hello World!\n", "Incorrectly decrypted"
 
 
 class TestCrypt4GH(unittest.TestCase):
@@ -53,10 +61,20 @@ class TestCrypt4GH(unittest.TestCase):
             not dek_packet.is_edit_list
         ), "Incorrect predicate result (both Edit List and Data Encryption Parameters)"
         assert not header.deks.empty, "No DEKs found"
-        for block in crypt4gh.data_blocks:
-            assert (
-                block.cleartext == b"Hello World!\n"
-            ), "Incorrectly decrypted"
+
+    def test_encrypted_hello_blocks(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        _test_hello_world_data_blocks(crypt4gh)
+
+    def test_encrypted_blocks_restart(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        _test_hello_world_data_blocks(crypt4gh)
+        self.assertRaises(
+            Crypt4GHProcessedException,
+            lambda: _test_hello_world_data_blocks(crypt4gh),
+        )
 
 
 if __name__ == "__main__":
