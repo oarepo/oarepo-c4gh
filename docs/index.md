@@ -58,6 +58,17 @@ with open("hello.txt.c4gh") as f:
 	crypt4gh = Crypt4GH(my_secret_key, f)
 ```
 
+To process the data blocks from the initialized container a single-use
+iterator is provided:
+
+```python
+for block in crypt4gh.data_blocks:
+    if block.is_deciphered:
+	    print(block.cleartext)
+	else:
+	    print("Cannot decrypt this block.")
+```
+
 Exceptions
 ----------
 
