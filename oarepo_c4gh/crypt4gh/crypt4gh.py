@@ -18,7 +18,7 @@ class Crypt4GH:
 
     """
 
-    def __init__(self, reader_key: Key, istream: io.RawIOBase) -> None:
+    def __init__(self, reader_key: Key, istream: io.RawIOBase, decrypt : bool = True) -> None:
         """Initializes the instance by storing the reader_key and the
         input stream. Verifies whether the reader key can perform
         symmetric key derivation.
@@ -26,11 +26,13 @@ class Crypt4GH:
         Parameters:
             reader_key: the key used for reading the container
             istream: the container input stream
+            decrypt: if True, attempt to decrypt the data blocks
 
         """
         self._istream = istream
         self._header = Crypt4GHHeader(reader_key, istream)
         self._consumed = False
+        self._decrypt = decrypt
 
     @property
     def header(self) -> Crypt4GHHeader:
@@ -55,7 +57,13 @@ class Crypt4GH:
         if self._consumed:
             raise Crypt4GHProcessedException("Already processed once")
         while True:
-            enc, clear = self._header.deks.decrypt_packet(self._istream)
+            if self._decrypt:
+                enc, clear = self._header.deks.decrypt_packet(self._istream)
+            else:
+                enc = io.read(12 + 65536 + 16)
+                if len(enc) == 0:
+                    enc = None
+                clear = None
             if enc is None:
                 break
             yield (Crypt4GHDataBlock(enc, clear))
