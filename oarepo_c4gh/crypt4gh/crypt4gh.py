@@ -6,6 +6,7 @@ from ..key import Key
 import io
 from .header import Crypt4GHHeader
 from ..exceptions import Crypt4GHProcessedException
+from .data_block import Crypt4GHDataBlock
 
 
 class Crypt4GH:
@@ -32,8 +33,13 @@ class Crypt4GH:
         self._consumed = False
 
     @property
-    def header(self):
-        """Accessor for the container header object."""
+    def header(self) -> Crypt4GHHeader:
+        """Accessor for the container header object.
+
+        Returns:
+            The contents of the parsed header.
+
+        """
         return self._header
 
     @property
@@ -52,5 +58,5 @@ class Crypt4GH:
             enc, clear = self._header.deks.decrypt_packet(self._istream)
             if enc is None:
                 break
-            yield(enc, clear)
+            yield (Crypt4GHDataBlock(enc, clear))
         self._consumed = True

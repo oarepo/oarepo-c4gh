@@ -89,6 +89,7 @@ class Crypt4GHDEKException(Crypt4GHException):
         """
         super().__init__("DEK", message)
 
+
 class Crypt4GHProcessedException(Crypt4GHException):
     """An exception for signalling the container cannot be processed
     again from the beginning.

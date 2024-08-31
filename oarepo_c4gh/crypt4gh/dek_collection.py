@@ -103,9 +103,9 @@ class Crypt4GHDEKCollection:
                     datamac, None, nonce, dek
                 )
                 self._current = current
-                return (nonce+datamac, cleartext)
+                return (nonce + datamac, cleartext)
             except CryptoError as cerr:
                 pass
             current = (current + 1) % self.count
             if current == self._current:
-                return (nonce+datamac, None)
+                return (nonce + datamac, None)
