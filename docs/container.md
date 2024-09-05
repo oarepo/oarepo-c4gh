@@ -1,22 +1,10 @@
-Implementation and Private API
-==============================
+Crypt4GH Container
+==================
 
 The documentation of these modules and classes should NOT be
 considered a stable API and is subject to change in the
 future. However, it should always be reflecting the current internal
 implementation.
-
-Key Support
------------
-
-::: oarepo_c4gh.key.key
-
-::: oarepo_c4gh.key.software
-
-::: oarepo_c4gh.key.c4gh
-
-Crypt4GH Container
-------------------
 
 ::: oarepo_c4gh.crypt4gh.crypt4gh
 

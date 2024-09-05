@@ -68,11 +68,3 @@ for block in crypt4gh.data_blocks:
 	else:
 	    print("Cannot decrypt this block.")
 ```
-
-Exceptions
-----------
-
-All the exceptions that might be raised by the libary come from the
-`exceptions` module.
-
-::: oarepo_c4gh.exceptions
