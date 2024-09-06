@@ -45,6 +45,18 @@ def _test_short_packet_exception(akey):
     assert crypt4gh.header.packets is not None
 
 
+def _test_wrong_encryption_exception(akey):
+    crypt4gh = Crypt4GH(
+        akey,
+        io.BytesIO(
+            b"crypt4gh\x01\x00\x00\x00\x01\x00\x00\x00"
+            b"\x08\x00\x00\x00\x01\x00\x00\x00"
+        ),
+        False,
+    )
+    assert crypt4gh.header.packets is not None
+
+
 class TestCrypt4GH(unittest.TestCase):
     def test_init_bad_key(self):
         self.assertRaises(
@@ -124,6 +136,13 @@ class TestCrypt4GH(unittest.TestCase):
         self.assertRaises(
             Crypt4GHHeaderPacketException,
             lambda: _test_short_packet_exception(akey),
+        )
+
+    def test_wrongly_encrypted_packet(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        self.assertRaises(
+            Crypt4GHHeaderPacketException,
+            lambda: _test_wrong_encryption_exception(akey),
         )
 
 
