@@ -12,6 +12,8 @@ import sys
 from oarepo_c4gh.exceptions import (
     Crypt4GHHeaderException,
     Crypt4GHProcessedException,
+    Crypt4GHHeaderException,
+    Crypt4GHHeaderPacketException,
 )
 
 
@@ -22,7 +24,25 @@ def _create_crypt4gh_with_bad_key():
 
 def _test_hello_world_data_blocks(crypt4gh):
     for block in crypt4gh.data_blocks:
+        assert len(block.ciphertext) == 41, "Incorrect ciphertext block length"
+        assert block.is_deciphered, "Not decrypted"
         assert block.cleartext == b"Hello World!\n", "Incorrectly decrypted"
+
+
+def _test_incorrect_magic_exception(akey):
+    crypt4gh = Crypt4GH(akey, io.BytesIO(b"NotC4GH!"), False)
+    assert crypt4gh.header is not None
+
+
+def _test_short_packet_exception(akey):
+    crypt4gh = Crypt4GH(
+        akey,
+        io.BytesIO(
+            b"crypt4gh\x01\x00\x00\x00\x01\x00\x00\x00\x10\x00\x00\x00"
+        ),
+        False,
+    )
+    assert crypt4gh.header.packets is not None
 
 
 class TestCrypt4GH(unittest.TestCase):
@@ -74,6 +94,36 @@ class TestCrypt4GH(unittest.TestCase):
         self.assertRaises(
             Crypt4GHProcessedException,
             lambda: _test_hello_world_data_blocks(crypt4gh),
+        )
+
+    def test_no_decryption(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted), False)
+        num_blocks = 0
+        for block in crypt4gh.data_blocks:
+            num_blocks = num_blocks + 1
+            assert (
+                len(block.ciphertext) == 41
+            ), "Incorrect ciphertext block length"
+        assert num_blocks == 1, "Did not read block without decrypting"
+
+    def test_deks_availability(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted), False)
+        assert not crypt4gh.header.deks.empty, "No DEKs read"
+
+    def test_incorrect_magic(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        self.assertRaises(
+            Crypt4GHHeaderException,
+            lambda: _test_incorrect_magic_exception(akey),
+        )
+
+    def test_short_packet(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        self.assertRaises(
+            Crypt4GHHeaderPacketException,
+            lambda: _test_short_packet_exception(akey),
         )
 
 

@@ -59,7 +59,7 @@ class Crypt4GHHeaderException(Crypt4GHException):
         super().__init__("HEADER", message)
 
 
-class Crypt4GHHeaderPacketException(Crypt4GHHeaderException):
+class Crypt4GHHeaderPacketException(Crypt4GHException):
     """An exception related to particular Crypt4GH header packet
     processing problem.
 
