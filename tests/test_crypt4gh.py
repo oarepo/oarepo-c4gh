@@ -34,12 +34,15 @@ def _test_incorrect_magic_exception(akey):
     assert crypt4gh.header is not None
 
 
+_short_packet_bytes = (
+    b"crypt4gh\x01\x00\x00\x00\x01\x00\x00\x00\x10\x00\x00\x00"
+)
+
+
 def _test_short_packet_exception(akey):
     crypt4gh = Crypt4GH(
         akey,
-        io.BytesIO(
-            b"crypt4gh\x01\x00\x00\x00\x01\x00\x00\x00\x10\x00\x00\x00"
-        ),
+        io.BytesIO(_short_packet_bytes),
         False,
     )
     assert crypt4gh.header.packets is not None
@@ -144,6 +147,14 @@ class TestCrypt4GH(unittest.TestCase):
             Crypt4GHHeaderPacketException,
             lambda: _test_wrong_encryption_exception(akey),
         )
+
+    def test_short_exception_code(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        try:
+            crypt4gh = Crypt4GH(akey, io.BytesIO(_short_packet_bytes))
+            assert crypt4gh.header.packets is not None
+        except Crypt4GHHeaderPacketException as ex:
+            assert ex.code == "HEADERPACKET", "Incorrect exception code"
 
 
 if __name__ == "__main__":

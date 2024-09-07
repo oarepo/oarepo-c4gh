@@ -219,7 +219,7 @@ class C4GHKey(SoftwareKey):
             Initialized C4GHKey instance.
 
         """
-        return C4GH.from_bytes(bytes(contents), callback)
+        return C4GHKey.from_bytes(bytes(contents, "ASCII"), callback)
 
     @classmethod
     def from_bytes(
