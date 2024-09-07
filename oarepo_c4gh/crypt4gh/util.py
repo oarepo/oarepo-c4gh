@@ -42,25 +42,6 @@ def read_crypt4gh_bytes_le_uint32(
     return parse_crypt4gh_bytes_le_uint(number_bytes, name, 4)
 
 
-def read_crypt4gh_bytes_le_uint64(
-    ibytes: bytes, offset: int, name: str = "number"
-) -> int:
-    """Extracts little-endian integer from given bytes object handling
-    errors with customizable message.
-
-    Parameters:
-        ibytes: bytes with the binary structure
-        offset: starting byte of the encoded number
-        name: optional name of the number in the error message
-
-    Raises:
-        ValueError: if not enough data given
-
-    """
-    number_bytes = ibytes[offset : offset + 8]
-    return parse_crypt4gh_bytes_le_uint(number_bytes, name, 8)
-
-
 def parse_crypt4gh_bytes_le_uint(
     number_bytes: bytes, name: str, size: int
 ) -> int:

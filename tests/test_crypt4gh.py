@@ -14,6 +14,7 @@ from oarepo_c4gh.exceptions import (
     Crypt4GHProcessedException,
     Crypt4GHHeaderException,
     Crypt4GHHeaderPacketException,
+    Crypt4GHDEKException,
 )
 
 
@@ -155,6 +156,36 @@ class TestCrypt4GH(unittest.TestCase):
             assert crypt4gh.header.packets is not None
         except Crypt4GHHeaderPacketException as ex:
             assert ex.code == "HEADERPACKET", "Incorrect exception code"
+
+    def test_invalid_signature(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        self.assertRaises(
+            Crypt4GHHeaderException,
+            lambda: Crypt4GH(akey, io.BytesIO(b"crypt4gh\x00\x00\x00\x02")),
+        )
+
+    def test_missing_private_key(self):
+        akey = C4GHKey.from_bytes(alice_pub_bstr)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        self.assertRaises(
+            Crypt4GHHeaderException, lambda: crypt4gh.header.packets
+        )
+
+    def test_dek_length_check(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted), False)
+        self.assertRaises(
+            Crypt4GHDEKException,
+            lambda: crypt4gh.header.deks.contains_dek(b"abcd"),
+        )
+
+    def test_short_block_decryption(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted[:136]))
+        count = 0
+        for block in crypt4gh.data_blocks:
+            count = count + 1
+        assert count == 0, "Should not read any packet!"
 
 
 if __name__ == "__main__":

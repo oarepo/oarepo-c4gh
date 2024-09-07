@@ -14,6 +14,7 @@ from _test_data import (
     alice_sec_bstr_dos,
     alice_sec_password,
 )
+from oarepo_c4gh.crypt4gh.util import parse_crypt4gh_bytes_le_uint
 
 
 def _test_no_password_callback():
@@ -76,6 +77,12 @@ class TestC4GHKeyImplementation(unittest.TestCase):
     def test_from_string(self):
         akey = C4GHKey.from_string(
             alice_sec_bstr.decode("ASCII"), lambda: alice_sec_password
+        )
+
+    def test_generic_uint_parsing_failure(self):
+        self.assertRaises(
+            ValueError,
+            lambda: parse_crypt4gh_bytes_le_uint(b"\x00", "Number", 8),
         )
 
 
