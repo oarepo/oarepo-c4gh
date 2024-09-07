@@ -69,7 +69,7 @@ class Key(ABC):
             true if it can perform symmetric key derivation
 
         """
-        return false
+        return False
 
     def __bytes__(self) -> bytes:
         """Default converter to bytes returns the public key bytes."""
