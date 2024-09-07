@@ -202,7 +202,7 @@ class C4GHKey(SoftwareKey):
             Initialized C4GHKey instance.
 
         """
-        return C4GH.from_stream(open(file_name, "b"), callback)
+        return C4GHKey.from_stream(open(file_name, "rb"), callback)
 
     @classmethod
     def from_string(

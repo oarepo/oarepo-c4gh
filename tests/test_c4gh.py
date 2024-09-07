@@ -85,6 +85,9 @@ class TestC4GHKeyImplementation(unittest.TestCase):
             lambda: parse_crypt4gh_bytes_le_uint(b"\x00", "Number", 8),
         )
 
+    def test_from_file(self):
+        akey = C4GHKey.from_file("tests/_test_alice.c4gh")
+
 
 if __name__ == "__main__":
     unittest.main()
