@@ -5,6 +5,7 @@ from oarepo_c4gh.key.c4gh import (
     decode_c4gh_bytes,
     check_c4gh_stream_magic,
     parse_c4gh_kdf_options,
+    derive_c4gh_key,
 )
 from oarepo_c4gh.exceptions import Crypt4GHKeyException
 import io
@@ -13,6 +14,16 @@ from _test_data import (
     alice_sec_bstr,
     alice_sec_bstr_dos,
     alice_sec_password,
+    cecilia_sec_bstr,
+    cecilia_pub_bstr,
+    alice_sec_unknown_bstr,
+    alice_sec_unsupported_bstr,
+    saruman_sec_scrypt_bstr,
+    saruman_pub_bstr,
+    saruman_sec_password,
+    shark_sec_pbkdf2_bstr,
+    shark_sec_password,
+    shark_pub_bstr,
 )
 from oarepo_c4gh.crypt4gh.util import parse_crypt4gh_bytes_le_uint
 
@@ -87,6 +98,47 @@ class TestC4GHKeyImplementation(unittest.TestCase):
 
     def test_from_file(self):
         akey = C4GHKey.from_file("tests/_test_alice.c4gh")
+
+    def test_cleartext_secret(self):
+        csec = C4GHKey.from_bytes(cecilia_sec_bstr)
+        cpub = C4GHKey.from_bytes(cecilia_pub_bstr)
+        assert bytes(csec) == bytes(cpub), "Problem reading cleartext secret"
+
+    def test_unknown_method(self):
+        self.assertRaises(
+            Crypt4GHKeyException,
+            lambda: C4GHKey.from_bytes(alice_sec_unknown_bstr),
+        )
+
+    def test_unsupported_kdf(self):
+        self.assertRaises(
+            Crypt4GHKeyException,
+            lambda: C4GHKey.from_bytes(alice_sec_unsupported_bstr),
+        )
+
+    def test_scrypt_kdf(self):
+        ssec = C4GHKey.from_bytes(
+            saruman_sec_scrypt_bstr, lambda: saruman_sec_password
+        )
+        spub = C4GHKey.from_bytes(saruman_pub_bstr)
+        assert bytes(ssec) == bytes(
+            spub
+        ), "Problem reading secret key using SCrypt KDF"
+
+    def test_pbkdf2_kdf(self):
+        ssec = C4GHKey.from_bytes(
+            shark_sec_pbkdf2_bstr, lambda: shark_sec_password
+        )
+        spub = C4GHKey.from_bytes(shark_pub_bstr)
+        assert bytes(ssec) == bytes(
+            spub
+        ), "Problem reading secret key using PBKDF2_HMAC_SHA256 KDF"
+
+    def test_internal_unsupported_kdf(self):
+        self.assertRaises(
+            Crypt4GHKeyException,
+            lambda: derive_c4gh_key(b"Unsupported", b"password", b"salt", 32),
+        )
 
 
 if __name__ == "__main__":

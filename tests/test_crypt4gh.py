@@ -180,7 +180,10 @@ class TestCrypt4GH(unittest.TestCase):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_bob_encrypted))
         assert crypt4gh.header.deks.empty, "Some DEKs from nowhere"
-        self.assertRaises(Crypt4GHHeaderPacketException, lambda: crypt4gh.header.packets[0].data_encryption_key)
+        self.assertRaises(
+            Crypt4GHHeaderPacketException,
+            lambda: crypt4gh.header.packets[0].data_encryption_key,
+        )
 
     def test_dek_length_check(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
@@ -211,9 +214,11 @@ class TestCrypt4GH(unittest.TestCase):
     def test_unknown_encryption_method(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(akey, io.BytesIO(hello_unknown_method))
+
         def _process():
             for block in crypt4gh.data_blocks:
                 pass
+
         self.assertRaises(Crypt4GHHeaderPacketException, _process)
 
     def test_short_block_decryption(self):

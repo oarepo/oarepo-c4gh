@@ -25,12 +25,21 @@ class TestKeyImplementation(unittest.TestCase):
 
     def test_abstract_implementation(self):
         from oarepo_c4gh import Key
+
         Key.__abstractmethods__ = set()
         key = Key()
-        assert key.public_key is None, "Implementation of public_key in abstract Key class"
-        assert key.compute_write_key(None) is None, "Implementation of write key computation in abstract Key class"
-        assert key.compute_read_key(None) is None, "Implementation of read key computation in abstract Key class"
-        assert not key.can_compute_symmetric_keys, "Abstract Key class reports ability to compute symmetric keys"
+        assert (
+            key.public_key is None
+        ), "Implementation of public_key in abstract Key class"
+        assert (
+            key.compute_write_key(None) is None
+        ), "Implementation of write key computation in abstract Key class"
+        assert (
+            key.compute_read_key(None) is None
+        ), "Implementation of read key computation in abstract Key class"
+        assert (
+            not key.can_compute_symmetric_keys
+        ), "Abstract Key class reports ability to compute symmetric keys"
 
 
 if __name__ == "__main__":
