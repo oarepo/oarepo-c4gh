@@ -16,4 +16,6 @@ implementation.
 
 ::: oarepo_c4gh.crypt4gh.dek_collection
 
+::: oarepo_c4gh.crypt4gh.dek
+
 ::: oarepo_c4gh.crypt4gh.data_block

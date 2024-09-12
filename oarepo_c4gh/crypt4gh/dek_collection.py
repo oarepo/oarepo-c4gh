@@ -106,3 +106,12 @@ class DEKCollection:
             current = (current + 1) % self.count
             if current == self._current:
                 return (nonce + datamac, None)
+
+    def __getitem__(self, idx: int) -> DEK:
+        """Returns DEK at given index.
+
+        Parameters:
+            idx: 0-based index (must be obtained elsewhere)
+
+        """
+        return self._deks[idx]

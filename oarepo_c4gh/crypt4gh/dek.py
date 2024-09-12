@@ -11,9 +11,12 @@ class DEK:
 
     """
 
-    def __init__(self, dek: bytes, key: Key) -> None:
-        """asdf
+    def __init__(self, dek: bytes, key: bytes) -> None:
+        """Initializes the wrapper.
 
+        Parameters:
+            dek: the symmetric Data Encryption Key
+            key: public key that unlocked this DEK
         """
         if len(dek) != 32:
             raise Crypt4GHDEKException("DEK must be 32 bytes")
@@ -22,13 +25,16 @@ class DEK:
 
     @property
     def dek(self) -> bytes:
-        """asdf
+        """The Data Encryption Key - directly usable by symmetric
+        cryptography functions.
 
         """
         return self._dek
 
     @property
     def key(self) -> Key:
-        """asdf
+        """Bytes representation of the public key that unlocked this
+        DEK.
+
         """
         return self._key
