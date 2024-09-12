@@ -11,6 +11,7 @@ from ..exceptions import Crypt4GHDEKException
 import io
 from nacl.bindings import crypto_aead_chacha20poly1305_ietf_decrypt
 from nacl.exceptions import CryptoError
+from .dek import DEK
 
 
 class DEKCollection:
@@ -36,7 +37,7 @@ class DEKCollection:
         """True if there are no DEKs available."""
         return self.count == 0
 
-    def contains_dek(self, dek: bytes) -> bool:
+    def contains_dek(self, dek: DEK) -> bool:
         """Check for duplicate DEKS.
 
         Parameters:
@@ -45,13 +46,11 @@ class DEKCollection:
         Returns:
             True if given DEK is already contained.
         """
-        if len(dek) != 32:
-            raise Crypt4GHDEKException("DEK must be 32 bytes")
         return reduce(
-            lambda a, v: a or v, map(lambda v: dek == v, self._deks), False
+            lambda a, v: a or v, map(lambda v: dek.dek == v.dek, self._deks), False
         )
 
-    def add_dek(self, dek: bytes) -> None:
+    def add_dek(self, dek: DEK) -> None:
         """Adds a new dek to the collection if it is not already
         there.
 
@@ -59,8 +58,6 @@ class DEKCollection:
             dek: a Data Encryption Key to add
 
         """
-        if len(dek) != 32:
-            raise Crypt4GHDEKException("DEK must be 32 bytes")
         if not self.contains_dek(dek):
             self._deks.append(dek)
 
@@ -100,7 +97,7 @@ class DEKCollection:
             dek = self._deks[current]
             try:
                 cleartext = crypto_aead_chacha20poly1305_ietf_decrypt(
-                    datamac, None, nonce, dek
+                    datamac, None, nonce, dek.dek
                 )
                 self._current = current
                 return (nonce + datamac, cleartext)

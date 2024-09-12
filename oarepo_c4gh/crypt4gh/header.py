@@ -89,7 +89,7 @@ class Crypt4GHHeader:
         for idx in range(self._packet_count):
             packet = HeaderPacket(self._reader_key, self._istream)
             if packet.is_data_encryption_parameters:
-                self._deks.add_dek(packet.data_encryption_key)
+                self._deks.add_dek(DEK(packet.data_encryption_key, packet.reader_key))
             self._packets.append(packet)
         self._reader_key = None
 

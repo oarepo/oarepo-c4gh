@@ -21,6 +21,7 @@ from oarepo_c4gh.exceptions import (
     Crypt4GHHeaderPacketException,
     Crypt4GHDEKException,
 )
+from oarepo_c4gh.crypt4gh.dek import DEK
 
 
 def _create_crypt4gh_with_bad_key():
@@ -191,7 +192,7 @@ class TestCrypt4GH(unittest.TestCase):
         crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted), False)
         self.assertRaises(
             Crypt4GHDEKException,
-            lambda: crypt4gh.header.deks.contains_dek(b"abcd"),
+            lambda: crypt4gh.header.deks.contains_dek(DEK(b"abcd", None)),
         )
 
     def test_corrupted_block(self):
