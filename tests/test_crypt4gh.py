@@ -8,6 +8,9 @@ from _test_data import (
     hello_world_encrypted,
     hello_world_bob_encrypted,
     hello_world_corrupted,
+    hello_alice_range,
+    hello_unknown_packet,
+    hello_unknown_method,
 )
 import io
 import sys
@@ -192,6 +195,26 @@ class TestCrypt4GH(unittest.TestCase):
         crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_corrupted))
         for block in crypt4gh.data_blocks:
             assert not block.is_deciphered, "Readable corrupted block"
+
+    def test_edit_list_packet(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_alice_range))
+        for block in crypt4gh.data_blocks:
+            assert block.is_deciphered
+
+    def test_unknown_packet(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_unknown_packet))
+        for block in crypt4gh.data_blocks:
+            assert block.is_deciphered
+
+    def test_unknown_encryption_method(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_unknown_method))
+        def _process():
+            for block in crypt4gh.data_blocks:
+                pass
+        self.assertRaises(Crypt4GHHeaderPacketException, _process)
 
     def test_short_block_decryption(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
