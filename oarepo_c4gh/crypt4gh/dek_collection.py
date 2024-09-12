@@ -13,7 +13,7 @@ from nacl.bindings import crypto_aead_chacha20poly1305_ietf_decrypt
 from nacl.exceptions import CryptoError
 
 
-class Crypt4GHDEKCollection:
+class DEKCollection:
     """This class contains a list of Data Encryption Keys and provides
     functionality for the Crypt4GHHeader reader to add new DEKs. When
     fully populated it can be then used for decrypting a stream of

@@ -3,12 +3,12 @@ from given input stream.
 
 """
 
-from .header_packet import Crypt4GHHeaderPacket
+from .header_packet import HeaderPacket
 from ..key import Key
 import io
 from .util import read_crypt4gh_stream_le_uint32
 from ..exceptions import Crypt4GHHeaderException
-from .dek_collection import Crypt4GHDEKCollection
+from .dek_collection import DEKCollection
 
 
 CRYPT4GH_MAGIC = b"crypt4gh"
@@ -67,7 +67,7 @@ class Crypt4GHHeader:
         self._reader_key = reader_key
         self._istream = istream
         self._packets = None
-        self._deks = Crypt4GHDEKCollection()
+        self._deks = DEKCollection()
 
     def load_packets(self) -> None:
         """Loads the packets from the input stream and discards the
@@ -86,7 +86,7 @@ class Crypt4GHHeader:
             )
         self._packets = []
         for idx in range(self._packet_count):
-            packet = Crypt4GHHeaderPacket(self._reader_key, self._istream)
+            packet = HeaderPacket(self._reader_key, self._istream)
             if packet.is_data_encryption_parameters:
                 self._deks.add_dek(packet.data_encryption_key)
             self._packets.append(packet)
@@ -109,7 +109,7 @@ class Crypt4GHHeader:
         return self._packets
 
     @property
-    def deks(self) -> Crypt4GHDEKCollection:
+    def deks(self) -> DEKCollection:
         """Returns the collection of Data Encryption Keys obtained by
         processing all header packets. Ensures the header packets were
         actually processed before returning the reference.

@@ -6,7 +6,7 @@ from ..key import Key
 import io
 from .header import Crypt4GHHeader
 from ..exceptions import Crypt4GHProcessedException
-from .data_block import Crypt4GHDataBlock
+from .data_block import DataBlock
 
 
 class Crypt4GH:
@@ -50,8 +50,6 @@ class Crypt4GH:
     def data_blocks(self):
         """Single-use iterator for data blocks.
 
-        TODO: switch to Crypt4GHDataBlock once implemented
-
         Raises:
             Crypt4GHProcessedException: if called second time
 
@@ -69,5 +67,5 @@ class Crypt4GH:
                 clear = None
             if enc is None:
                 break
-            yield (Crypt4GHDataBlock(enc, clear))
+            yield (DataBlock(enc, clear))
         self._consumed = True

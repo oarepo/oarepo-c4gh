@@ -10,7 +10,7 @@ from nacl.exceptions import CryptoError
 from ..exceptions import Crypt4GHHeaderPacketException
 
 
-class Crypt4GHHeaderPacket:
+class HeaderPacket:
     """Represents a single Crypt4GH header packet. If it was possible
     to decrypt it, the parsed contents are made available as well.
 

@@ -6,7 +6,7 @@ the container.
 from typing import Optional
 
 
-class Crypt4GHDataBlock:
+class DataBlock:
     """This class represents single data block - either successfully
     decrypted or opaque.
 
