@@ -6,6 +6,8 @@ from _test_data import (
     alice_sec_bstr,
     alice_sec_password,
     hello_world_encrypted,
+    hello_world_bob_encrypted,
+    hello_world_corrupted,
 )
 import io
 import sys
@@ -171,6 +173,12 @@ class TestCrypt4GH(unittest.TestCase):
             Crypt4GHHeaderException, lambda: crypt4gh.header.packets
         )
 
+    def test_wrong_private_key(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_bob_encrypted))
+        assert crypt4gh.header.deks.empty, "Some DEKs from nowhere"
+        self.assertRaises(Crypt4GHHeaderPacketException, lambda: crypt4gh.header.packets[0].data_encryption_key)
+
     def test_dek_length_check(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted), False)
@@ -178,6 +186,12 @@ class TestCrypt4GH(unittest.TestCase):
             Crypt4GHDEKException,
             lambda: crypt4gh.header.deks.contains_dek(b"abcd"),
         )
+
+    def test_corrupted_block(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_corrupted))
+        for block in crypt4gh.data_blocks:
+            assert not block.is_deciphered, "Readable corrupted block"
 
     def test_short_block_decryption(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
