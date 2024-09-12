@@ -9,6 +9,7 @@ import io
 from .util import read_crypt4gh_stream_le_uint32
 from ..exceptions import Crypt4GHHeaderException
 from .dek_collection import DEKCollection
+from .dek import DEK
 
 
 CRYPT4GH_MAGIC = b"crypt4gh"

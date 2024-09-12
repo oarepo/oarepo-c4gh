@@ -102,6 +102,7 @@ class TestCrypt4GH(unittest.TestCase):
             not dek_packet.is_edit_list
         ), "Incorrect predicate result (both Edit List and Data Encryption Parameters)"
         assert not header.deks.empty, "No DEKs found"
+        assert dek_packet.reader_key is not None, "No reader key for DEK packet"
 
     def test_encrypted_hello_blocks(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)

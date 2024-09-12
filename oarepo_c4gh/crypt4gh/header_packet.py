@@ -56,6 +56,7 @@ class HeaderPacket:
 
         symmetric_key = reader_key.compute_read_key(writer_public_key)
         self._content = None
+        self._reader_key = None
         try:
             self._content = crypto_aead_chacha20poly1305_ietf_decrypt(
                 payload, None, nonce, symmetric_key
@@ -63,6 +64,7 @@ class HeaderPacket:
         except CryptoError as cerr:
             pass
         if self._content is not None:
+            self._reader_key = reader_key.public_key
             self._packet_type = read_crypt4gh_bytes_le_uint32(
                 self._content, 0, "packet type"
             )
@@ -127,3 +129,10 @@ class HeaderPacket:
 
         """
         return self._content is not None
+
+    @property
+    def reader_key(self) -> bytes:
+        """Returns public key used for decrypting this header packet
+        or None if the decryption was not successful.
+        """
+        return self._reader_key
