@@ -1,6 +1,6 @@
 [project]
 name = "oarepo_c4gh"
-version = "0.5"
+version = "0.6"
 authors = [
   { name = "Dominik Pantůček", email = "dominik.pantucek@trustica.cz" }
 ]
