@@ -10,6 +10,7 @@ from .util import read_crypt4gh_stream_le_uint32
 from ..exceptions import Crypt4GHHeaderException
 from .dek_collection import DEKCollection
 from .dek import DEK
+from .analyzer import Analyzer
 
 
 CRYPT4GH_MAGIC = b"crypt4gh"
@@ -45,7 +46,7 @@ class Crypt4GHHeader:
 
     """
 
-    def __init__(self, reader_key: Key, istream: io.RawIOBase) -> None:
+    def __init__(self, reader_key: Key, istream: io.RawIOBase, analyzer: Analyzer = None) -> None:
         """Checks the Crypt4GH container signature, version and header
         packet count. The header packets are loaded lazily when needed.
 
@@ -53,6 +54,7 @@ class Crypt4GHHeader:
             reader_key: the key used for trying to decrypt header packets
                         (must include the private part)
             istream: the container input stream
+            analyzer: analyzer for storing packet readability information
 
         """
         magic_bytes = istream.read(8)
@@ -69,6 +71,7 @@ class Crypt4GHHeader:
         self._istream = istream
         self._packets = None
         self._deks = DEKCollection()
+        self._analyzer = analyzer
 
     def load_packets(self) -> None:
         """Loads the packets from the input stream and discards the
@@ -91,6 +94,8 @@ class Crypt4GHHeader:
             if packet.is_data_encryption_parameters:
                 self._deks.add_dek(DEK(packet.data_encryption_key, packet.reader_key))
             self._packets.append(packet)
+            if self._analyzer is not None:
+                self._analyzer.analyze_packet(packet)
         self._reader_key = None
 
     @property

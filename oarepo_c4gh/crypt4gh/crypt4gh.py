@@ -33,10 +33,10 @@ class Crypt4GH:
 
         """
         self._istream = istream
-        self._header = Crypt4GHHeader(reader_key, istream)
+        self._analyzer = Analyzer() if analyze else None
+        self._header = Crypt4GHHeader(reader_key, istream, self._analyzer)
         self._consumed = False
         self._decrypt = decrypt
-        self._analyzer = analyze ? Analyzer() : None
 
     @property
     def header(self) -> Crypt4GHHeader:
