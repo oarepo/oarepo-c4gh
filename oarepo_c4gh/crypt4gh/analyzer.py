@@ -2,6 +2,7 @@
 Module with the Crypt4GH container analyzer.
 """
 from .header_packet import HeaderPacket
+from .data_block import DataBlock
 
 
 class Analyzer:
@@ -15,9 +16,9 @@ class Analyzer:
         """Initializes the instance with empty lists and no key
         information.
         """
-        self.packet_info = []
-        self.block_info = []
-        self.public_keys = []
+        self._packet_info = []
+        self._block_info = []
+        self._public_keys = []
 
     def analyze_packet(self, packet: HeaderPacket) -> None:
         """Analyzes single header packet and adds the result into the
@@ -28,6 +29,31 @@ class Analyzer:
 
         """
         if packet.is_readable:
-            self.packet_info.append(packet.reader_key)
+            self._packet_info.append(packet.reader_key)
+            if not packet.reader_key in self._public_keys:
+                self._public_keys.append(packet.reader_key)
         else:
-            self.packet_info.append(False)
+            self._packet_info.append(False)
+
+    def analyze_block(self, block: DataBlock) -> None:
+        """Analyzes single data block and adds the result into the
+        block_info list.
+
+        Parameters:
+            block: data block information class instance
+
+        """
+        if block.is_deciphered:
+            self._block_info.append(True)
+        else:
+            self._block_info.append(False)
+
+    def to_dict(self) -> dict:
+        """Returns dictionary representation of the analysis.
+
+        """
+        result = {}
+        result["header"] = self._packet_info
+        result["readers"] = self._public_keys
+        result["blocks"] = self._block_info
+        return result

@@ -69,5 +69,8 @@ class Crypt4GH:
                 clear = None
             if enc is None:
                 break
-            yield (DataBlock(enc, clear))
+            block = DataBlock(enc, clear)
+            if self._analyzer is not None:
+                self._analyzer.analyze_block(block)
+            yield (block)
         self._consumed = True
