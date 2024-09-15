@@ -1,6 +1,7 @@
 """
 Module with Data Encryption Key wrapper.
 """
+
 from ..key import Key
 from ..exceptions import Crypt4GHDEKException
 

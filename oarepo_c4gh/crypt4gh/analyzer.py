@@ -1,6 +1,7 @@
 """
 Module with the Crypt4GH container analyzer.
 """
+
 from .header_packet import HeaderPacket
 from .data_block import DataBlock
 
@@ -49,9 +50,7 @@ class Analyzer:
             self._block_info.append(False)
 
     def to_dict(self) -> dict:
-        """Returns dictionary representation of the analysis.
-
-        """
+        """Returns dictionary representation of the analysis."""
         result = {}
         result["header"] = self._packet_info
         result["readers"] = self._public_keys

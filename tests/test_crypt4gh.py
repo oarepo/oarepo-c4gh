@@ -87,7 +87,9 @@ class TestCrypt4GH(unittest.TestCase):
 
     def test_encrypted_hello_header(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        crypt4gh = Crypt4GH(
+            akey, io.BytesIO(hello_world_encrypted), analyze=True
+        )
         header = crypt4gh.header
         packets = header.packets
         assert (
@@ -103,12 +105,18 @@ class TestCrypt4GH(unittest.TestCase):
             not dek_packet.is_edit_list
         ), "Incorrect predicate result (both Edit List and Data Encryption Parameters)"
         assert not header.deks.empty, "No DEKs found"
-        assert dek_packet.reader_key is not None, "No reader key for DEK packet"
-        assert header.deks[0].key == akey.public_key, "DEK not unlocked by used key"
+        assert (
+            dek_packet.reader_key is not None
+        ), "No reader key for DEK packet"
+        assert (
+            header.deks[0].key == akey.public_key
+        ), "DEK not unlocked by used key"
 
     def test_encrypted_hello_blocks(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        crypt4gh = Crypt4GH(
+            akey, io.BytesIO(hello_world_encrypted), analyze=True
+        )
         _test_hello_world_data_blocks(crypt4gh)
 
     def test_encrypted_blocks_restart(self):
@@ -122,7 +130,9 @@ class TestCrypt4GH(unittest.TestCase):
 
     def test_no_decryption(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted), False)
+        crypt4gh = Crypt4GH(
+            akey, io.BytesIO(hello_world_encrypted), False, analyze=True
+        )
         num_blocks = 0
         for block in crypt4gh.data_blocks:
             num_blocks = num_blocks + 1
@@ -181,7 +191,9 @@ class TestCrypt4GH(unittest.TestCase):
 
     def test_wrong_private_key(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_bob_encrypted))
+        crypt4gh = Crypt4GH(
+            akey, io.BytesIO(hello_world_bob_encrypted), analyze=True
+        )
         assert crypt4gh.header.deks.empty, "Some DEKs from nowhere"
         self.assertRaises(
             Crypt4GHHeaderPacketException,
@@ -231,6 +243,27 @@ class TestCrypt4GH(unittest.TestCase):
         for block in crypt4gh.data_blocks:
             count = count + 1
         assert count == 0, "Should not read any packet!"
+
+    def test_analyzer_result(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(
+            akey, io.BytesIO(hello_world_encrypted), analyze=True
+        )
+        for block in crypt4gh.data_blocks:
+            pass
+        rdict = crypt4gh.analyzer.to_dict()
+        assert len(rdict["header"]) == 1, "Incorrect number of packets"
+        assert (
+            rdict["header"][0]
+            == b'\xa3!\x11\x9d`!\xcd^\x0c\x02\x1fW"M1\x0f\x80\xbe\x9c\xdav\xb6\x92\xd4\x89kP\xa1T\xbf\xc4\x1e'
+        ), "Incorrect reader key for packet 0"
+        assert len(rdict["readers"]) == 1, "Incorrect number of reader keys"
+        assert (
+            rdict["readers"][0]
+            == b'\xa3!\x11\x9d`!\xcd^\x0c\x02\x1fW"M1\x0f\x80\xbe\x9c\xdav\xb6\x92\xd4\x89kP\xa1T\xbf\xc4\x1e'
+        )
+        assert len(rdict["blocks"]) == 1, "Incorrect number of data blocks"
+        assert rdict["blocks"][0] == 0, "Incorrect DEK index"
 
 
 if __name__ == "__main__":

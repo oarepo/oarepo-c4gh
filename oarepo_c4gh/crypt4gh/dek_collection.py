@@ -47,7 +47,9 @@ class DEKCollection:
             True if given DEK is already contained.
         """
         return reduce(
-            lambda a, v: a or v, map(lambda v: dek.dek == v.dek, self._deks), False
+            lambda a, v: a or v,
+            map(lambda v: dek.dek == v.dek, self._deks),
+            False,
         )
 
     def add_dek(self, dek: DEK) -> None:

@@ -46,7 +46,9 @@ class Crypt4GHHeader:
 
     """
 
-    def __init__(self, reader_key: Key, istream: io.RawIOBase, analyzer: Analyzer = None) -> None:
+    def __init__(
+        self, reader_key: Key, istream: io.RawIOBase, analyzer: Analyzer = None
+    ) -> None:
         """Checks the Crypt4GH container signature, version and header
         packet count. The header packets are loaded lazily when needed.
 
@@ -92,7 +94,9 @@ class Crypt4GHHeader:
         for idx in range(self._packet_count):
             packet = HeaderPacket(self._reader_key, self._istream)
             if packet.is_data_encryption_parameters:
-                self._deks.add_dek(DEK(packet.data_encryption_key, packet.reader_key))
+                self._deks.add_dek(
+                    DEK(packet.data_encryption_key, packet.reader_key)
+                )
             self._packets.append(packet)
             if self._analyzer is not None:
                 self._analyzer.analyze_packet(packet)

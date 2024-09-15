@@ -12,7 +12,9 @@ class DataBlock:
 
     """
 
-    def __init__(self, enc: bytes, clear: Optional[bytes], idx: Optional[int]) -> None:
+    def __init__(
+        self, enc: bytes, clear: Optional[bytes], idx: Optional[int]
+    ) -> None:
         """Initializes all the data block instance properties.
 
         Parameters:

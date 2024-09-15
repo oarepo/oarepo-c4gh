@@ -20,7 +20,11 @@ class Crypt4GH:
     """
 
     def __init__(
-            self, reader_key: Key, istream: io.RawIOBase, decrypt: bool = True, analyze: bool = False
+        self,
+        reader_key: Key,
+        istream: io.RawIOBase,
+        decrypt: bool = True,
+        analyze: bool = False,
     ) -> None:
         """Initializes the instance by storing the reader_key and the
         input stream. Verifies whether the reader key can perform
@@ -61,7 +65,9 @@ class Crypt4GH:
             raise Crypt4GHProcessedException("Already processed once")
         while True:
             if self._decrypt:
-                enc, clear, idx = self._header.deks.decrypt_packet(self._istream)
+                enc, clear, idx = self._header.deks.decrypt_packet(
+                    self._istream
+                )
             else:
                 enc = self._istream.read(12 + 65536 + 16)
                 if len(enc) == 0:
@@ -75,3 +81,8 @@ class Crypt4GH:
                 self._analyzer.analyze_block(block)
             yield (block)
         self._consumed = True
+
+    @property
+    def analyzer(self):
+        """For direct access to analyzer and its results."""
+        return self._analyzer
