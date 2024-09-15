@@ -61,7 +61,7 @@ class DEKCollection:
         if not self.contains_dek(dek):
             self._deks.append(dek)
 
-    def decrypt_packet(self, istream: io.RawIOBase) -> (bytes, bytes):
+    def decrypt_packet(self, istream: io.RawIOBase) -> (bytes, bytes, int):
         """Internal procedure for decrypting single data block from
         the stream. If there is not enough data (for example at EOF),
         two None values are returned. If the block cannot be decrypted
@@ -88,10 +88,10 @@ class DEKCollection:
         """
         nonce = istream.read(12)
         if len(nonce) != 12:
-            return (None, None)
+            return (None, None, None)
         datamac = istream.read(65536 + 16)
         if len(datamac) < 16:
-            return (None, None)
+            return (None, None, None)
         current = self._current
         while True:
             dek = self._deks[current]
@@ -100,12 +100,12 @@ class DEKCollection:
                     datamac, None, nonce, dek.dek
                 )
                 self._current = current
-                return (nonce + datamac, cleartext)
+                return (nonce + datamac, cleartext, current)
             except CryptoError as cerr:
                 pass
             current = (current + 1) % self.count
             if current == self._current:
-                return (nonce + datamac, None)
+                return (nonce + datamac, None, None)
 
     def __getitem__(self, idx: int) -> DEK:
         """Returns DEK at given index.

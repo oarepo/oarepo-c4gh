@@ -61,15 +61,16 @@ class Crypt4GH:
             raise Crypt4GHProcessedException("Already processed once")
         while True:
             if self._decrypt:
-                enc, clear = self._header.deks.decrypt_packet(self._istream)
+                enc, clear, idx = self._header.deks.decrypt_packet(self._istream)
             else:
                 enc = self._istream.read(12 + 65536 + 16)
                 if len(enc) == 0:
                     enc = None
                 clear = None
+                idx = None
             if enc is None:
                 break
-            block = DataBlock(enc, clear)
+            block = DataBlock(enc, clear, idx)
             if self._analyzer is not None:
                 self._analyzer.analyze_block(block)
             yield (block)

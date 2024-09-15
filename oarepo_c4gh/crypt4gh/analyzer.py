@@ -44,7 +44,7 @@ class Analyzer:
 
         """
         if block.is_deciphered:
-            self._block_info.append(True)
+            self._block_info.append(block.dek_index)
         else:
             self._block_info.append(False)
 

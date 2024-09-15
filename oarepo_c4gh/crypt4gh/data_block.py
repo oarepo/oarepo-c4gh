@@ -12,7 +12,7 @@ class DataBlock:
 
     """
 
-    def __init__(self, enc: bytes, clear: Optional[bytes]) -> None:
+    def __init__(self, enc: bytes, clear: Optional[bytes], idx: Optional[int]) -> None:
         """Initializes all the data block instance properties.
 
         Parameters:
@@ -22,6 +22,7 @@ class DataBlock:
         """
         self._ciphertext = enc
         self._cleartext = clear
+        self._dek_index = idx
 
     @property
     def ciphertext(self) -> bytes:
@@ -50,3 +51,7 @@ class DataBlock:
 
         """
         return self._cleartext is not None
+
+    @property
+    def dek_index(self):
+        return self._dek_index
