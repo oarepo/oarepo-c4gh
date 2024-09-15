@@ -7,6 +7,7 @@ import io
 from .header import Crypt4GHHeader
 from ..exceptions import Crypt4GHProcessedException
 from .data_block import DataBlock
+from .analyzer import Analyzer
 
 
 class Crypt4GH:
@@ -19,7 +20,7 @@ class Crypt4GH:
     """
 
     def __init__(
-        self, reader_key: Key, istream: io.RawIOBase, decrypt: bool = True
+            self, reader_key: Key, istream: io.RawIOBase, decrypt: bool = True, analyze: bool = False
     ) -> None:
         """Initializes the instance by storing the reader_key and the
         input stream. Verifies whether the reader key can perform
@@ -35,6 +36,7 @@ class Crypt4GH:
         self._header = Crypt4GHHeader(reader_key, istream)
         self._consumed = False
         self._decrypt = decrypt
+        self._analyzer = analyze ? Analyzer() : None
 
     @property
     def header(self) -> Crypt4GHHeader:

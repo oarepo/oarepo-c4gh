@@ -19,3 +19,5 @@ implementation.
 ::: oarepo_c4gh.crypt4gh.dek
 
 ::: oarepo_c4gh.crypt4gh.data_block
+
+::: oarepo_c4gh.crypt4gh.analyzer
