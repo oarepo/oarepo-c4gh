@@ -12,7 +12,7 @@ fi
 
 python3 -m venv $VENV
 . $VENV/bin/activate
-pip install -U setuptools pip wheel pytest
+pip install -U setuptools pip wheel pytest pytest-cov
 
 #echo "Installing oarepo version $OAREPO_VERSION"
 #pip install "oarepo==${OAREPO_VERSION}.*"
