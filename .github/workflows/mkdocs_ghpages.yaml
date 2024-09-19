@@ -41,6 +41,7 @@ jobs:
           . .venv/bin/activate
           pip install -e .[dev]
           mkdocs build
+          pytest -x tests --ignore=docs --cov=oarepo_c4gh --cov-report=html:site/cov_html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
