@@ -20,6 +20,7 @@ from oarepo_c4gh.exceptions import (
     Crypt4GHHeaderException,
     Crypt4GHHeaderPacketException,
     Crypt4GHDEKException,
+    Crypt4GHKeyException,
 )
 from oarepo_c4gh.crypt4gh.dek import DEK
 
@@ -184,9 +185,9 @@ class TestCrypt4GH(unittest.TestCase):
 
     def test_missing_private_key(self):
         akey = C4GHKey.from_bytes(alice_pub_bstr)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
         self.assertRaises(
-            Crypt4GHHeaderException, lambda: crypt4gh.header.packets
+            Crypt4GHKeyException,
+            lambda: Crypt4GH(akey, io.BytesIO(hello_world_encrypted)),
         )
 
     def test_wrong_private_key(self):

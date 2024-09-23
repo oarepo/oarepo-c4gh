@@ -2,7 +2,7 @@
 
 """
 
-from ..key import Key
+from ..key import KeyCollection
 import io
 from .util import read_crypt4gh_stream_le_uint32, read_crypt4gh_bytes_le_uint32
 from nacl.bindings import crypto_aead_chacha20poly1305_ietf_decrypt
@@ -16,15 +16,16 @@ class HeaderPacket:
 
     """
 
-    def __init__(self, reader_key: Key, istream: io.RawIOBase) -> None:
+    def __init__(
+        self, reader_keys: KeyCollection, istream: io.RawIOBase
+    ) -> None:
         """Tries parsing a single packet from given input stream and
         stores it for future processing. If it is possible to decrypt
         the packet with given reader key, the contents are parsed and
         interpreted as well.
 
         Parameters:
-            reader_key: the key used for decryption (must include the
-                        private part)
+            reader_keys: the key collection used for decryption attempts
             istream: the container input stream
 
         Raises:
@@ -53,18 +54,21 @@ class HeaderPacket:
         nonce = self._packet_data[40:52]
         payload_length = self._packet_length - 4 - 4 - 32 - 12 - 16
         payload = self._packet_data[52:]
-
-        symmetric_key = reader_key.compute_read_key(writer_public_key)
-        self._content = None
-        self._reader_key = None
-        try:
-            self._content = crypto_aead_chacha20poly1305_ietf_decrypt(
-                payload, None, nonce, symmetric_key
+        for maybe_reader_key in reader_keys.keys:
+            symmetric_key = maybe_reader_key.compute_read_key(
+                writer_public_key
             )
-        except CryptoError as cerr:
-            pass
+            self._content = None
+            self._reader_key = None
+            try:
+                self._content = crypto_aead_chacha20poly1305_ietf_decrypt(
+                    payload, None, nonce, symmetric_key
+                )
+                self._reader_key = maybe_reader_key.public_key
+                break
+            except CryptoError as cerr:
+                pass
         if self._content is not None:
-            self._reader_key = reader_key.public_key
             self._packet_type = read_crypt4gh_bytes_le_uint32(
                 self._content, 0, "packet type"
             )

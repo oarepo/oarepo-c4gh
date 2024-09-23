@@ -2,13 +2,13 @@
 
 """
 
-from ..key import Key
+from ..key import Key, KeyCollection
 import io
 from .header import Crypt4GHHeader
 from ..exceptions import Crypt4GHProcessedException
 from .data_block import DataBlock
 from .analyzer import Analyzer
-from typing import Generator
+from typing import Generator, Union
 
 
 class Crypt4GH:
@@ -22,7 +22,7 @@ class Crypt4GH:
 
     def __init__(
         self,
-        reader_key: Key,
+        reader_key: Union[Key, KeyCollection],
         istream: io.RawIOBase,
         decrypt: bool = True,
         analyze: bool = False,

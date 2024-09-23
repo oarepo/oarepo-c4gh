@@ -4,13 +4,14 @@ from given input stream.
 """
 
 from .header_packet import HeaderPacket
-from ..key import Key
+from ..key import Key, KeyCollection
 import io
 from .util import read_crypt4gh_stream_le_uint32
 from ..exceptions import Crypt4GHHeaderException
 from .dek_collection import DEKCollection
 from .dek import DEK
 from .analyzer import Analyzer
+from typing import Union
 
 
 CRYPT4GH_MAGIC = b"crypt4gh"
@@ -47,7 +48,10 @@ class Crypt4GHHeader:
     """
 
     def __init__(
-        self, reader_key: Key, istream: io.RawIOBase, analyzer: Analyzer = None
+        self,
+        reader_key_or_collection: Union[Key, KeyCollection],
+        istream: io.RawIOBase,
+        analyzer: Analyzer = None,
     ) -> None:
         """Checks the Crypt4GH container signature, version and header
         packet count. The header packets are loaded lazily when needed.
@@ -69,7 +73,10 @@ class Crypt4GHHeader:
         self._packet_count = read_crypt4gh_stream_le_uint32(
             istream, "packet count"
         )
-        self._reader_key = reader_key
+        if isinstance(reader_key_or_collection, KeyCollection):
+            self._reader_keys = reader_key_or_collection
+        else:
+            self._reader_keys = KeyCollection(reader_key_or_collection)
         self._istream = istream
         self._packets = None
         self._deks = DEKCollection()
@@ -85,14 +92,9 @@ class Crypt4GHHeader:
                         derivation
 
         """
-        if not self._reader_key.can_compute_symmetric_keys:
-            raise Crypt4GHHeaderException(
-                "Cannot initialize Crypt4GH object without access to "
-                "private key"
-            )
         self._packets = []
         for idx in range(self._packet_count):
-            packet = HeaderPacket(self._reader_key, self._istream)
+            packet = HeaderPacket(self._reader_keys, self._istream)
             if packet.is_data_encryption_parameters:
                 self._deks.add_dek(
                     DEK(packet.data_encryption_key, packet.reader_key)
@@ -100,7 +102,7 @@ class Crypt4GHHeader:
             self._packets.append(packet)
             if self._analyzer is not None:
                 self._analyzer.analyze_packet(packet)
-        self._reader_key = None
+        self._reader_keys = None
 
     @property
     def packets(self) -> list:
