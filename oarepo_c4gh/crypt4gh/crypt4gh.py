@@ -8,6 +8,7 @@ from .header import Crypt4GHHeader
 from ..exceptions import Crypt4GHProcessedException
 from .data_block import DataBlock
 from .analyzer import Analyzer
+from typing import Generator
 
 
 class Crypt4GH:
@@ -53,7 +54,7 @@ class Crypt4GH:
         return self._header
 
     @property
-    def data_blocks(self):
+    def data_blocks(self) -> Generator[DataBlock, None, None]:
         """Single-use iterator for data blocks.
 
         Raises:
