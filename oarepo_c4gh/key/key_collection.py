@@ -27,9 +27,11 @@ class KeyCollection:
 
         Raises:
             Crypt4GHKeyException: if some key(s) do not have access to
-                                  private part
+                                  private part or no keys were given
 
         """
+        if len(keys) == 0:
+            raise Crypt4GHKeyException("Collection needs at least one key")
         for key in keys:
             if not key.can_compute_symmetric_keys:
                 raise Crypt4GHKeyException(
@@ -50,8 +52,6 @@ class KeyCollection:
         recently yielded key.
 
         """
-        if len(self._keys) == 0:
-            raise Crypt4GHKeyException("Collection needs at least one key")
         first_current = self._current
         while True:
             yield self._keys[self._current]

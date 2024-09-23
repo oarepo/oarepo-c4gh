@@ -23,6 +23,7 @@ from oarepo_c4gh.exceptions import (
     Crypt4GHKeyException,
 )
 from oarepo_c4gh.crypt4gh.dek import DEK
+from oarepo_c4gh.key.key_collection import KeyCollection
 
 
 def _create_crypt4gh_with_bad_key():
@@ -265,6 +266,13 @@ class TestCrypt4GH(unittest.TestCase):
         )
         assert len(rdict["blocks"]) == 1, "Incorrect number of data blocks"
         assert rdict["blocks"][0] == 0, "Incorrect DEK index"
+
+    def test_passing_collection(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        keyc = KeyCollection(akey)
+        crypt4gh = Crypt4GH(
+            keyc, io.BytesIO(hello_world_encrypted), analyze=True
+        )
 
 
 if __name__ == "__main__":
