@@ -10,3 +10,7 @@ Distributed under MIT license - see LICENSE for details.
 
 For usage instructions, see the [generated
 documentation](https://oarepo.github.io/oarepo-c4gh/).
+
+The [test coverage
+report](https://oarepo.github.io/oarepo-c4gh/cov_html/) is also
+available.
