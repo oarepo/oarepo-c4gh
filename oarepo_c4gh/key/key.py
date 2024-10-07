@@ -9,9 +9,10 @@ from abc import ABC, abstractmethod
 
 
 class Key(ABC):
-    """This is an abstract class, containing only one abstract method
-    - used to compute the Diffie-Hellman key exchange over the
-    Montgomery curve Curve25519 as specified by the X25519 standard.
+    """This is an abstract class, containing only abstract methods
+    used to compute the Diffie-Hellman key exchange over the
+    Montgomery curve Curve25519 as specified by the X25519 standard
+    and auxilliary informative helpers.
 
     """
 
