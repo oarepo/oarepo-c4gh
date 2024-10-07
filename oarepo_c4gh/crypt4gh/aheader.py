@@ -14,5 +14,24 @@ class ACrypt4GHHeader(ABC):
     @property
     @abstractmethod
     def packets(self) -> list:
-        """Must return original or transformed list of header packets."""
+        """Must return original or transformed list of header packets.
+
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def magic_bytes(self) -> bytes:
+        """Must return the original magic bytes.
+
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def version(self) -> int:
+        """Must return the version of the loaded/transformer
+        container. Must always return 1.
+
+        """
         pass

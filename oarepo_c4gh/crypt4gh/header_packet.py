@@ -138,5 +138,13 @@ class HeaderPacket:
     def reader_key(self) -> bytes:
         """Returns public key used for decrypting this header packet
         or None if the decryption was not successful.
+
         """
         return self._reader_key
+
+    @property
+    def packet_data(self) -> bytes:
+        """Returns the original packet data (for serialization).
+
+        """
+        return self._packet_data

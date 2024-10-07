@@ -64,12 +64,12 @@ class Crypt4GHHeader(ACrypt4GHHeader):
             analyzer: analyzer for storing packet readability information
 
         """
-        magic_bytes = istream.read(8)
-        check_crypt4gh_magic(magic_bytes)
-        version = read_crypt4gh_stream_le_uint32(istream, "version")
-        if version != 1:
+        self._magic_bytes = istream.read(8)
+        check_crypt4gh_magic(self._magic_bytes)
+        self._version = read_crypt4gh_stream_le_uint32(istream, "version")
+        if self._version != 1:
             raise Crypt4GHHeaderException(
-                f"Invalid Crypt4GH version {version}"
+                f"Invalid Crypt4GH version {self._version}"
             )
         self._packet_count = read_crypt4gh_stream_le_uint32(
             istream, "packet count"
@@ -138,3 +138,20 @@ class Crypt4GHHeader(ACrypt4GHHeader):
         if self._packets is None:
             self.load_packets()
         return self._deks
+
+    @property
+    def magic_bytes(self) -> bytes:
+        """Returns the original magic bytes from the beginning of the
+        container.
+
+        """
+        return self._magic_bytes
+
+    @property
+    def version(self) -> int:
+        """Returns the version of this container format (must always
+        return 1).
+
+        """
+        return self._version
+

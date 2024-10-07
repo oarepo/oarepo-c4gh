@@ -100,6 +100,7 @@ class TestCrypt4GH(unittest.TestCase):
         dek_packet = packets[0]
         assert dek_packet.is_readable, "Cannot decrypt header packet"
         assert dek_packet.is_data_encryption_parameters, "Invalid packet type"
+        assert dek_packet.packet_data is not None, "Packet data is not kept"
         assert (
             dek_packet.data_encryption_key is not None
         ), "Dit not get Data Encryption Key"
@@ -154,6 +155,12 @@ class TestCrypt4GH(unittest.TestCase):
             Crypt4GHHeaderException,
             lambda: _test_incorrect_magic_exception(akey),
         )
+
+    def test_correct_magic_and_version(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted), False)
+        assert crypt4gh.header.magic_bytes == b"crypt4gh", "Incorrect magic bytes returned"
+        assert crypt4gh.header.version == 1, "Incorrect version returned"
 
     def test_short_packet(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)

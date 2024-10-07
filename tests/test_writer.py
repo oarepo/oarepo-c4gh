@@ -10,6 +10,8 @@ class TestACrypt4GHHeader(unittest.TestCase):
         ACrypt4GHHeader.__abstractmethods__ = set()
         hdr = ACrypt4GHHeader()
         assert hdr.packets is None, "Implementation in abstract class"
+        assert hdr.magic_bytes is None, "Implementation in abstract class"
+        assert hdr.version is None, "Implementation in abstract class"
 
     def test_abstract_container(self):
         ACrypt4GH.__abstractmethods__ = set()
