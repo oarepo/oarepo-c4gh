@@ -46,11 +46,7 @@ class DEKCollection:
         Returns:
             True if given DEK is already contained.
         """
-        return reduce(
-            lambda a, v: a or v,
-            map(lambda v: dek.dek == v.dek, self._deks),
-            False,
-        )
+        return next((True for v in self._deks if dek.dek == v.dek), False)
 
     def add_dek(self, dek: DEK) -> None:
         """Adds a new dek to the collection if it is not already
