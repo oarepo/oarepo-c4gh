@@ -90,3 +90,10 @@ class Crypt4GH(ACrypt4GH):
     def analyzer(self):
         """For direct access to analyzer and its results."""
         return self._analyzer
+
+    @property
+    def clear_blocks(self) -> Generator[DataBlock, None, None]:
+        """Single-use iterator for deciphered blocks only."""
+        for block in self.data_blocks:
+            if block.is_deciphered:
+                yield block

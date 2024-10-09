@@ -31,8 +31,8 @@ def _create_crypt4gh_with_bad_key():
     crypt4gh = Crypt4GH(akey, io.BytesIO(b""))
 
 
-def _test_hello_world_data_blocks(crypt4gh):
-    for block in crypt4gh.data_blocks:
+def _test_hello_world_data_blocks(blocks):
+    for block in blocks:
         assert len(block.ciphertext) == 41, "Incorrect ciphertext block length"
         assert block.is_deciphered, "Not decrypted"
         assert block.cleartext == b"Hello World!\n", "Incorrectly decrypted"
@@ -121,15 +121,22 @@ class TestCrypt4GH(unittest.TestCase):
         crypt4gh = Crypt4GH(
             akey, io.BytesIO(hello_world_encrypted), analyze=True
         )
-        _test_hello_world_data_blocks(crypt4gh)
+        _test_hello_world_data_blocks(crypt4gh.data_blocks)
+
+    def test_encrypted_hello_blocks_as_clear(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(
+            akey, io.BytesIO(hello_world_encrypted), analyze=True
+        )
+        _test_hello_world_data_blocks(crypt4gh.clear_blocks)
 
     def test_encrypted_blocks_restart(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
-        _test_hello_world_data_blocks(crypt4gh)
+        _test_hello_world_data_blocks(crypt4gh.data_blocks)
         self.assertRaises(
             Crypt4GHProcessedException,
-            lambda: _test_hello_world_data_blocks(crypt4gh),
+            lambda: _test_hello_world_data_blocks(crypt4gh.data_blocks),
         )
 
     def test_no_decryption(self):
