@@ -154,4 +154,3 @@ class Crypt4GHHeader(ACrypt4GHHeader):
 
         """
         return self._version
-

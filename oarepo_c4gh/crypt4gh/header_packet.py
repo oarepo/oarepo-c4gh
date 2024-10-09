@@ -144,7 +144,5 @@ class HeaderPacket:
 
     @property
     def packet_data(self) -> bytes:
-        """Returns the original packet data (for serialization).
-
-        """
+        """Returns the original packet data (for serialization)."""
         return self._packet_data

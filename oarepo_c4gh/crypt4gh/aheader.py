@@ -14,17 +14,13 @@ class ACrypt4GHHeader(ABC):
     @property
     @abstractmethod
     def packets(self) -> list:
-        """Must return original or transformed list of header packets.
-
-        """
+        """Must return original or transformed list of header packets."""
         pass
 
     @property
     @abstractmethod
     def magic_bytes(self) -> bytes:
-        """Must return the original magic bytes.
-
-        """
+        """Must return the original magic bytes."""
         pass
 
     @property

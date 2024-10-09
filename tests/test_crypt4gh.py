@@ -159,7 +159,9 @@ class TestCrypt4GH(unittest.TestCase):
     def test_correct_magic_and_version(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted), False)
-        assert crypt4gh.header.magic_bytes == b"crypt4gh", "Incorrect magic bytes returned"
+        assert (
+            crypt4gh.header.magic_bytes == b"crypt4gh"
+        ), "Incorrect magic bytes returned"
         assert crypt4gh.header.version == 1, "Incorrect version returned"
 
     def test_short_packet(self):
