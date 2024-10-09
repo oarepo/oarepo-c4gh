@@ -65,6 +65,7 @@ class Crypt4GH(ACrypt4GH):
         assert self.header.packets is not None
         if self._consumed:
             raise Crypt4GHProcessedException("Already processed once")
+        offset = 0
         while True:
             if self._decrypt:
                 enc, clear, idx = self._header.deks.decrypt_packet(
@@ -78,7 +79,8 @@ class Crypt4GH(ACrypt4GH):
                 idx = None
             if enc is None:
                 break
-            block = DataBlock(enc, clear, idx)
+            block = DataBlock(enc, clear, idx, offset)
+            offset = offset + block.size
             if self._analyzer is not None:
                 self._analyzer.analyze_block(block)
             yield (block)

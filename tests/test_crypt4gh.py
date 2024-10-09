@@ -36,6 +36,7 @@ def _test_hello_world_data_blocks(crypt4gh):
         assert len(block.ciphertext) == 41, "Incorrect ciphertext block length"
         assert block.is_deciphered, "Not decrypted"
         assert block.cleartext == b"Hello World!\n", "Incorrectly decrypted"
+        assert block.offset == 0, "Invalid first block offset"
 
 
 def _test_incorrect_magic_exception(akey):

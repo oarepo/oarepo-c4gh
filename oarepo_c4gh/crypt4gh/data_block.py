@@ -13,7 +13,7 @@ class DataBlock:
     """
 
     def __init__(
-        self, enc: bytes, clear: Optional[bytes], idx: Optional[int]
+            self, enc: bytes, clear: Optional[bytes], idx: Optional[int], off: Optional[int]
     ) -> None:
         """Initializes all the data block instance properties.
 
@@ -25,6 +25,7 @@ class DataBlock:
         self._ciphertext = enc
         self._cleartext = clear
         self._dek_index = idx
+        self._offset = off
 
     @property
     def ciphertext(self) -> bytes:
@@ -56,4 +57,17 @@ class DataBlock:
 
     @property
     def dek_index(self):
+        """Returns the DEK index (to avoid leaking the actual key)"""
         return self._dek_index
+
+    @property
+    def offset(self):
+        """Returns the offset this block starts at (in original
+        cleartext data)"""
+        return self._offset
+
+    @property
+    def size(self):
+        """Returns the size of cleartext data of this packet -
+        regardless of whether it was deciphered."""
+        return len(self._ciphertext) - 16
