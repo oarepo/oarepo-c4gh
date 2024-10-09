@@ -27,6 +27,6 @@ class Crypt4GHWriter:
             len(self._container.header.packets).to_bytes(4, "little")
         )
         for packet in self._container.header.packets:
-            pass
+            self._stream.write(packet.packet_data)
         for block in self._container.data_blocks:
-            pass
+            self._stream.write(block.ciphertext)
