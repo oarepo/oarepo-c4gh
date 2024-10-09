@@ -95,3 +95,16 @@ my_keys = KeyCollection(my_secret_key, my_other_secret_key)
 with open("hello.txt.c4gh") as f:
 	crypt4gh = Crypt4GH(my_keys, f)
 ```
+
+### Container Serialization
+
+An initialized container can be also serialized. Currently the result
+of such serialization should be exactly the same binary data as the
+original input.
+
+```python
+from oarepo_cg4h import Crypt4GHWriter
+
+writer = Crypt4GHWriter(crypt4gh, open("output.c4gh", "w"))
+writer.write()
+```

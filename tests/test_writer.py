@@ -28,6 +28,7 @@ class TestACrypt4GHHeader(unittest.TestCase):
         assert c4gh.header is None, "Implementation in abstract class"
         assert c4gh.data_blocks is None, "Implementation in abstract class"
 
+
 class TestCrypt4GHWriter(unittest.TestCase):
 
     def test_writing_header(self):
