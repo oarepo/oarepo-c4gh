@@ -68,3 +68,30 @@ for block in crypt4gh.data_blocks:
 	else:
 	    print("Cannot decrypt this block.")
 ```
+
+If only deciphered blocks are to be processed, the clear_blocks
+iterator can be used:
+
+```python
+for block in crypt4gh.clear_blocks:
+	print(block.cleartext)
+```
+
+### Multiple Crypt4GH Keys Support
+
+The reader may try multiple reader keys when reading the container
+header. To work with multiple keys, a key collection has to be created
+and subsequently used:
+
+```python
+from oarepo_c4gh import KeyCollection
+
+my_secret_key = C4GHKey.from_file("my_secret_key.c4gh", lambda: "password")
+my_other_secret_key = C4GHKey.from_file(
+  "my_other_secret_key.c4gh",
+  lambda: "other_password"
+)
+my_keys = KeyCollection(my_secret_key, my_other_secret_key)
+with open("hello.txt.c4gh") as f:
+	crypt4gh = Crypt4GH(my_keys, f)
+```

@@ -58,8 +58,8 @@ class Crypt4GHHeader(ACrypt4GHHeader):
         packet count. The header packets are loaded lazily when needed.
 
         Parameters:
-            reader_key: the key used for trying to decrypt header packets
-                        (must include the private part)
+            reader_key_or_collection: the key used for trying to decrypt header
+                packets (must include the private part) or collection of keys
             istream: the container input stream
             analyzer: analyzer for storing packet readability information
 
