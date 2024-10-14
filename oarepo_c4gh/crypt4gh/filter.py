@@ -5,6 +5,8 @@ and/or removed) header packets.
 """
 from .acrypt4gh import ACrypt4GH
 from .aheader import ACrypt4GHHeader
+from typing import Generator
+from .data_block import DataBlock
 
 
 class Crypt4GHHeaderFilter(ACrypt4GHHeader):
@@ -40,24 +42,24 @@ class Crypt4GHHeaderFilter(ACrypt4GHHeader):
         edit lists and DEKs are added.
 
         """
-        self._original.packets
+        return self._original.packets
 
     @property
     def magic_bytes(self) -> bytes:
         """Returns the original data.
 
         """
-        self._original.magic_bytes
+        return self._original.magic_bytes
 
     @property
     def version(self) -> int:
         """Returns the original version.
 
         """
-        self._original.version
+        return self._original.version
 
 
-class Crypt4GHFilter(Acrypt4GH):
+class Crypt4GHFilter(ACrypt4GH):
     """The whole container filter which actually filters only header
     packets but for the writer the whole interface is needed.
 
@@ -83,8 +85,15 @@ class Crypt4GHFilter(Acrypt4GH):
         self._header.add_recipient(public_key)
 
     @property
+    def header(self) -> ACrypt4GHHeader:
+        """Returns the filtered header instance.
+
+        """
+        return self._header
+
+    @property
     def data_blocks(self) -> Generator[DataBlock, None, None]:
         """Returns the iterator for the original data blocks.
 
         """
-        self._original.data_blocks
+        return self._original.data_blocks

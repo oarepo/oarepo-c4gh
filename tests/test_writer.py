@@ -11,6 +11,7 @@ from _test_data import (
 from oarepo_c4gh.crypt4gh.crypt4gh import Crypt4GH
 import io
 from oarepo_c4gh.crypt4gh.writer import Crypt4GHWriter
+from oarepo_c4gh.crypt4gh.filter import Crypt4GHFilter
 
 
 class TestACrypt4GHHeader(unittest.TestCase):
@@ -49,6 +50,17 @@ class TestCrypt4GHWriter(unittest.TestCase):
         writer = Crypt4GHWriter(crypt4gh, ostream)
         writer.write()
         crypt4gh2 = Crypt4GH(akey, io.BytesIO(ostream.getvalue()))
+
+class TestCrypt4GHFilter(unittest.TestCase):
+
+    def test_identity(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        filter4gh = Crypt4GHFilter(crypt4gh)
+        ostream = io.BytesIO()
+        writer = Crypt4GHWriter(filter4gh, ostream)
+        writer.write()
+        assert ostream.getvalue() == hello_world_encrypted, "Identity filter failure."
 
 
 if __name__ == "__main__":
