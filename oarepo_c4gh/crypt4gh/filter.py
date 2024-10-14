@@ -3,6 +3,7 @@ other Crypt4GH container but presenting filtered (added, changed
 and/or removed) header packets.
 
 """
+
 from .acrypt4gh import ACrypt4GH
 from .aheader import ACrypt4GHHeader
 from typing import Generator
@@ -34,7 +35,9 @@ class Crypt4GHHeaderFilter(ACrypt4GHHeader):
             public_key: The reader public key to add.
 
         """
-        self._recipients_to_add.append(public_key)
+        if not public_key in self.original.reader_keys_used:
+            if not public_key in self._recipients_to_add:
+                self._recipients_to_add.append(public_key)
 
     @property
     def packets(self) -> list:
@@ -46,16 +49,12 @@ class Crypt4GHHeaderFilter(ACrypt4GHHeader):
 
     @property
     def magic_bytes(self) -> bytes:
-        """Returns the original data.
-
-        """
+        """Returns the original data."""
         return self._original.magic_bytes
 
     @property
     def version(self) -> int:
-        """Returns the original version.
-
-        """
+        """Returns the original version."""
         return self._original.version
 
 
@@ -86,14 +85,10 @@ class Crypt4GHFilter(ACrypt4GH):
 
     @property
     def header(self) -> ACrypt4GHHeader:
-        """Returns the filtered header instance.
-
-        """
+        """Returns the filtered header instance."""
         return self._header
 
     @property
     def data_blocks(self) -> Generator[DataBlock, None, None]:
-        """Returns the iterator for the original data blocks.
-
-        """
+        """Returns the iterator for the original data blocks."""
         return self._original.data_blocks

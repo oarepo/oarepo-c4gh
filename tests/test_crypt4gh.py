@@ -115,6 +115,9 @@ class TestCrypt4GH(unittest.TestCase):
         assert (
             header.deks[0].key == akey.public_key
         ), "DEK not unlocked by used key"
+        assert header.reader_keys_used == [
+            akey.public_key
+        ], "Alice's key not collected as successfull reader"
 
     def test_encrypted_hello_blocks(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)

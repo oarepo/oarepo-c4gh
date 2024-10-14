@@ -154,3 +154,17 @@ class Crypt4GHHeader(ACrypt4GHHeader):
 
         """
         return self._version
+
+    @property
+    def reader_keys_used(self) -> list[bytes]:
+        """Returns all reader public keys successfully used in any
+        packets decryption.
+
+        """
+        return list(
+            set(
+                packet.reader_key
+                for packet in self._packets
+                if packet.reader_key is not None
+            )
+        )

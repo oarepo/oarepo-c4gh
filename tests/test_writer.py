@@ -51,6 +51,7 @@ class TestCrypt4GHWriter(unittest.TestCase):
         writer.write()
         crypt4gh2 = Crypt4GH(akey, io.BytesIO(ostream.getvalue()))
 
+
 class TestCrypt4GHFilter(unittest.TestCase):
 
     def test_identity(self):
@@ -60,7 +61,9 @@ class TestCrypt4GHFilter(unittest.TestCase):
         ostream = io.BytesIO()
         writer = Crypt4GHWriter(filter4gh, ostream)
         writer.write()
-        assert ostream.getvalue() == hello_world_encrypted, "Identity filter failure."
+        assert (
+            ostream.getvalue() == hello_world_encrypted
+        ), "Identity filter failure."
 
 
 if __name__ == "__main__":
