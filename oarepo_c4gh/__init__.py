@@ -13,6 +13,7 @@ __all__ = [
     "C4GHKey",
     "Crypt4GH",
     "Crypt4GHWriter",
+    "Crypt4GHFilter",
     "Crypt4GHException",
     "Crypt4GHKeyException",
     "Crypt4GHHeaderException",

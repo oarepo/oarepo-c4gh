@@ -108,3 +108,21 @@ from oarepo_cg4h import Crypt4GHWriter
 writer = Crypt4GHWriter(crypt4gh, open("output.c4gh", "w"))
 writer.write()
 ```
+
+### Adding Recipients for Serialization
+
+```python
+from oarepo_c4gh import Crypt4GHFilter
+
+my_secret_key = C4GHKey.from_file("my_secret_key.c4gh", lambda: "password")
+my_other_secret_key = C4GHKey.from_file(
+  "my_other_secret_key.c4gh",
+  lambda: "other_password"
+)
+my_keys = KeyCollection(my_secret_key, my_other_secret_key)
+crypt4gh = Crypt4GH(my_keys, open("hello.txt.c4gh"))
+filter4gh = Crypt4GHFilter(crypt4gh)
+filter4gh.add_recipient(alice_pub)
+writer = Crypt4GHWriter(filter4gh, open("output.c4gh", "w"))
+writer.write()
+```

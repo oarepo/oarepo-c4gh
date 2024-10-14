@@ -42,3 +42,5 @@ Stream Writer
 -------------
 
 ::: oarepo_c4gh.crypt4gh.writer
+
+::: oarepo_c4gh.crypt4gh.filter
