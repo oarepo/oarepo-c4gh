@@ -146,3 +146,17 @@ class HeaderPacket:
     def packet_data(self) -> bytes:
         """Returns the original packet data (for serialization)."""
         return self._packet_data
+
+    @property
+    def packet_type(self) -> int:
+        """Returns the numerical representation of packet type.
+
+        """
+        return self._packet_type
+
+    @property
+    def content(self) -> bytes:
+        """Returns the encrypted packet content.
+
+        """
+        return self._content

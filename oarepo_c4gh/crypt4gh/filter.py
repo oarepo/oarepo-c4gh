@@ -8,6 +8,7 @@ from .acrypt4gh import ACrypt4GH
 from .aheader import ACrypt4GHHeader
 from typing import Generator
 from .data_block import DataBlock
+from ..key.software import SoftwareKey
 
 
 class Crypt4GHHeaderFilter(ACrypt4GHHeader):
@@ -45,7 +46,24 @@ class Crypt4GHHeaderFilter(ACrypt4GHHeader):
         edit lists and DEKs are added.
 
         """
-        return self._original.packets
+        ekey = None
+        ekey_col = None
+        temp_packets = self._original.packets.copy()
+        for public_key in self._recipients_to_add:
+            for packet in self._original.packets:
+                if packet.is_readable and packet.packet_type in (1, 2):
+                    if ekey is None:
+                        ekey = SoftwareKey.generate()
+                        ekey_col = KeyCollection(ekey)
+                    payload = io.BytesIO()
+                    payload.write(packet.length.to_bytes(4, "little"))
+                    enc_method = 0
+                    payload.write(enc_method.to_bytes(4, "little"))
+                    payload.write(ekey.public_key)
+                    # At offset 40 here.
+                    # Encrypt content: packet.content
+                    # TODO: write encrypted content (the same size as content + 16 bytes MAC)
+        return temp_packets
 
     @property
     def magic_bytes(self) -> bytes:

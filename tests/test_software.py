@@ -91,6 +91,9 @@ class TestSoftwareKeyImplementation(unittest.TestCase):
         self.assertRaises(Crypt4GHKeyException, _only_public_write)
         self.assertRaises(Crypt4GHKeyException, _only_public_read)
 
+    def test_ephemeral_generate(self):
+        key = SoftwareKey.generate()
+
 
 if __name__ == "__main__":
     unittest.main()

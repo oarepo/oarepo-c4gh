@@ -15,6 +15,7 @@ from nacl.bindings import (
     crypto_kx_client_session_keys,
 )
 from ..exceptions import Crypt4GHKeyException
+import secrets
 
 
 class SoftwareKey(Key):
@@ -140,3 +141,7 @@ class SoftwareKey(Key):
 
         """
         return self._private_key is not None
+
+    @classmethod
+    def generate(self) -> None:
+        return SoftwareKey(secrets.token_bytes(32))
