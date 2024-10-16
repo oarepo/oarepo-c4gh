@@ -164,7 +164,7 @@ class Crypt4GHHeader(ACrypt4GHHeader):
         return list(
             set(
                 packet.reader_key
-                for packet in self._packets
+                for packet in self.packets
                 if packet.reader_key is not None
             )
         )

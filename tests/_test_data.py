@@ -37,6 +37,14 @@ hello_world_encrypted = (
     b"\x2b\xee\x1a\x5e\x89"
 )
 
+bob_sec_bstr = (
+    b"-----BEGIN ENCRYPTED PRIVATE KEY-----\r\n"
+    b"YzRnaC12MQAGYmNyeXB0ABQAAABkb1LLjyLNrcL4IgMD+NuDDQARY2hhY2hhMjBfcG9seTEzMDUAPFfaFm7bJc+pr6IRezakf5AsP7HTZnVfhSBt7XIKQcJBJY/yrPSfLxLvPMY4Edu4r0hyJTX2CNqR7wmwYg==\r\n"
+    b"-----END ENCRYPTED PRIVATE KEY-----\r\n"
+)
+
+bob_sec_password = "bob"
+
 # crypt4gh encrypt --sk ../crypt4gh/tests/_common/alice.sec --recipient_pk ../crypt4gh/tests/_common/bob.pub <hello.txt >hello-bob.txt.c4gh
 hello_world_bob_encrypted = (
     b"crypt4gh\x01\x00\x00\x00\x01\x00\x00\x00"

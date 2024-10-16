@@ -188,3 +188,11 @@ class HeaderPacket:
     def content(self) -> bytes:
         """Returns the encrypted packet content."""
         return self._content
+
+    @property
+    def length(self) -> int:
+        """Returns the packet length in bytes - including the packet
+        length 4-byte value at the beginning.
+
+        """
+        return self._packet_length

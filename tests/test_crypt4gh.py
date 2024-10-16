@@ -124,6 +124,7 @@ class TestCrypt4GH(unittest.TestCase):
         assert (
             dek_packet.content is not None
         ), "DEK packet must have readable content"
+        assert dek_packet.length > 0, "Non-positive length of DEK packet"
 
     def test_encrypted_hello_blocks(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)

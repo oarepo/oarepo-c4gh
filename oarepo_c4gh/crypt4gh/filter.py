@@ -10,6 +10,9 @@ from typing import Generator
 from .data_block import DataBlock
 from ..key.software import SoftwareKey
 from nacl.bindings import crypto_aead_chacha20poly1305_ietf_encrypt
+import io
+import secrets
+from .header_packet import HeaderPacket
 
 
 class Crypt4GHHeaderFilter(ACrypt4GHHeader):
@@ -37,7 +40,7 @@ class Crypt4GHHeaderFilter(ACrypt4GHHeader):
             public_key: The reader public key to add.
 
         """
-        if not public_key in self.original.reader_keys_used:
+        if not public_key in self._original.reader_keys_used:
             if not public_key in self._recipients_to_add:
                 self._recipients_to_add.append(public_key)
 
@@ -51,20 +54,22 @@ class Crypt4GHHeaderFilter(ACrypt4GHHeader):
         temp_packets = self._original.packets.copy()
         for public_key in self._recipients_to_add:
             for packet in self._original.packets:
-                if packet.is_readable and packet.packet_type in (1, 2):
+                if packet.is_readable and packet.packet_type in (0, 1):
                     if ekey is None:
                         ekey = SoftwareKey.generate()
-                    payload = io.BytesIO()
-                    payload.write(packet.length.to_bytes(4, "little"))
+                    data = io.BytesIO()
+                    data.write(packet.length.to_bytes(4, "little"))
                     enc_method = 0
-                    payload.write(enc_method.to_bytes(4, "little"))
-                    payload.write(ekey.public_key)
+                    data.write(enc_method.to_bytes(4, "little"))
+                    data.write(ekey.public_key)
                     symmetric_key = ekey.compute_write_key(public_key)
+                    nonce = secrets.token_bytes(12)
                     content = crypto_aead_chacha20poly1305_ietf_encrypt(
-                        packet.content, None, symmetric_key
+                        packet.content, None, nonce, symmetric_key
                     )
-                    payload.write(content)
-                    # construct the packet and add it to temp_packets
+                    data.write(content)
+                    # This packet is useful only for serialization
+                    temp_packets.append(HeaderPacket(packet.length, data.getvalue(), None, None, None, None, None))
         return temp_packets
 
     @property
