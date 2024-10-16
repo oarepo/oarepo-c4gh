@@ -95,7 +95,7 @@ class Crypt4GHHeader(ACrypt4GHHeader):
         """
         self._packets = []
         for idx in range(self._packet_count):
-            packet = HeaderPacket(self._reader_keys, self._istream)
+            packet = HeaderPacket.from_stream(self._reader_keys, self._istream)
             if packet.is_data_encryption_parameters:
                 self._deks.add_dek(
                     DEK(packet.data_encryption_key, packet.reader_key)

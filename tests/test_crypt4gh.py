@@ -118,6 +118,12 @@ class TestCrypt4GH(unittest.TestCase):
         assert header.reader_keys_used == [
             akey.public_key
         ], "Alice's key not collected as successfull reader"
+        assert (
+            dek_packet.packet_type == 0
+        ), "DEK packet must have packet_type 0"
+        assert (
+            dek_packet.content is not None
+        ), "DEK packet must have readable content"
 
     def test_encrypted_hello_blocks(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
