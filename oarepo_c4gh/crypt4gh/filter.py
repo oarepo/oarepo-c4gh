@@ -64,12 +64,23 @@ class Crypt4GHHeaderFilter(ACrypt4GHHeader):
                     data.write(ekey.public_key)
                     symmetric_key = ekey.compute_write_key(public_key)
                     nonce = secrets.token_bytes(12)
+                    data.write(nonce)
                     content = crypto_aead_chacha20poly1305_ietf_encrypt(
                         packet.content, None, nonce, symmetric_key
                     )
                     data.write(content)
                     # This packet is useful only for serialization
-                    temp_packets.append(HeaderPacket(packet.length, data.getvalue(), None, None, None, None, None))
+                    temp_packets.append(
+                        HeaderPacket(
+                            packet.length,
+                            data.getvalue(),
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                    )
         return temp_packets
 
     @property

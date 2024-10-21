@@ -80,6 +80,10 @@ class TestCrypt4GHFilter(unittest.TestCase):
         header = crypt4ghb.header
         packets = header.packets
         assert len(packets) == 2, "Exactly two header packets expected"
+        assert len(header.reader_keys_used) == 1, "One reader key expected"
+        assert (
+            header.reader_keys_used[0] == bkey.public_key
+        ), "Bob's key expected"
 
 
 if __name__ == "__main__":
