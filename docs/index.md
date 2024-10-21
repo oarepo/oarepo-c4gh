@@ -111,6 +111,14 @@ writer.write()
 
 ### Adding Recipients for Serialization
 
+For granting access to the encrypted container contents a filtering
+wrapper is implemented which accepts underlying Crypt4GH container as
+its source and allows for arbitrary transformations
+on-the-fly. Currently only the `add_recipient` transformation is
+available, which adds given public key as a new recipient to the
+container by encrypting every readable packet for this recipient and
+adding the newly encrypted version of given packet to the output.
+
 ```python
 from oarepo_c4gh import Crypt4GHFilter
 
