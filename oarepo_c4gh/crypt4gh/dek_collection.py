@@ -16,7 +16,7 @@ from .dek import DEK
 
 class DEKCollection:
     """This class contains a list of Data Encryption Keys and provides
-    functionality for the Crypt4GHHeader reader to add new DEKs. When
+    functionality for the Header4GH reader to add new DEKs. When
     fully populated it can be then used for decrypting a stream of
     Data Blocks.
 

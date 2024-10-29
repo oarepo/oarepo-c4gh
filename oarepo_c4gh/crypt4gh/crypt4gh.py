@@ -4,7 +4,7 @@
 
 from ..key import Key, KeyCollection
 import io
-from .header import Crypt4GHHeader
+from .stream_header4gh import StreamHeader4GH
 from ..exceptions import Crypt4GHProcessedException
 from .data_block import DataBlock
 from .analyzer import Analyzer
@@ -40,12 +40,12 @@ class Crypt4GH(ACrypt4GH):
         """
         self._istream = istream
         self._analyzer = Analyzer() if analyze else None
-        self._header = Crypt4GHHeader(reader_key, istream, self._analyzer)
+        self._header = StreamHeader4GH(reader_key, istream, self._analyzer)
         self._consumed = False
         self._decrypt = decrypt
 
     @property
-    def header(self) -> Crypt4GHHeader:
+    def header(self) -> StreamHeader4GH:
         """Accessor for the container header object.
 
         Returns:
