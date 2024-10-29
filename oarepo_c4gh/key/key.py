@@ -5,10 +5,10 @@ classes implementations.
 
 """
 
-from abc import ABC, abstractmethod
+from typing import Protocol
 
 
-class Key(ABC):
+class Key(Protocol):
     """This is an abstract class, containing only abstract methods
     used to compute the Diffie-Hellman key exchange over the
     Montgomery curve Curve25519 as specified by the X25519 standard
@@ -17,7 +17,6 @@ class Key(ABC):
     """
 
     @property
-    @abstractmethod
     def public_key(self) -> bytes:
         """The derived classes must implement providing corresponding
         public key in this method.
@@ -26,9 +25,8 @@ class Key(ABC):
             The 32 bytes of the public key.
 
         """
-        pass
+        ...
 
-    @abstractmethod
     def compute_write_key(self, reader_public_key: bytes) -> bytes:
         """Accepts the intended reader public key and computes the
         shared secret based on the public and secret key (this key) of
@@ -41,9 +39,8 @@ class Key(ABC):
             The shared secret as 32 bytes - usable as symmetric key.
 
         """
-        pass
+        ...
 
-    @abstractmethod
     def compute_read_key(self, writer_public_key: bytes) -> bytes:
         """Accepts the writer public key and computes the shared
         secret based on the public and secret key (this key) of the
@@ -56,10 +53,9 @@ class Key(ABC):
             The shared secret as 32 bytes - usable as symmetric key.
 
         """
-        pass
+        ...
 
     @property
-    @abstractmethod
     def can_compute_symmetric_keys(self) -> bool:
         """A predicate returning true if this key instance can perform
         read/write key derivation. This is usually determined by

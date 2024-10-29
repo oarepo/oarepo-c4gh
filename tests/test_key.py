@@ -25,9 +25,11 @@ class TestKeyImplementation(unittest.TestCase):
 
     def test_abstract_implementation(self):
         from oarepo_c4gh import Key
+        class MyKey(Key):
+            pass
 
-        Key.__abstractmethods__ = set()
-        key = Key()
+        MyKey.__abstractmethods__ = set()
+        key = MyKey()
         assert (
             key.public_key is None
         ), "Implementation of public_key in abstract Key class"
