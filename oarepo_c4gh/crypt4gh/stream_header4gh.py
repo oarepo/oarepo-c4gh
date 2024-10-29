@@ -3,7 +3,7 @@ from given input stream.
 
 """
 
-from .common.header_packet import HeaderPacket
+from .stream_header_packet import StreamHeaderPacket
 from ..key import Key, KeyCollection
 import io
 from .util import read_crypt4gh_stream_le_uint32
@@ -95,7 +95,7 @@ class StreamHeader4GH(Header):
         """
         self._packets = []
         for idx in range(self._packet_count):
-            packet = HeaderPacket.from_stream(self._reader_keys, self._istream)
+            packet = StreamHeaderPacket(self._reader_keys, self._istream)
             if packet.is_data_encryption_parameters:
                 self._deks.add_dek(
                     DEK(packet.data_encryption_key, packet.reader_key)
