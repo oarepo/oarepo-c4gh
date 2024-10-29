@@ -3,7 +3,7 @@ from given input stream.
 
 """
 
-from .stream_header_packet import StreamHeaderPacket
+from .stream.header_packet import StreamHeaderPacket
 from ..key import Key, KeyCollection
 import io
 from .util import read_crypt4gh_stream_le_uint32
