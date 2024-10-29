@@ -2,10 +2,10 @@
 
 """
 
-from abc import ABC, abstractmethod
+from typing import Protocol, abstractmethod
 
 
-class ACrypt4GHHeader(ABC):
+class Header4GH(Protocol):
     """This is an abstract class which guarantees that a header
     packets collection is available by its descendants.
 

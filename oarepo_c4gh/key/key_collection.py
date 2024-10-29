@@ -23,7 +23,7 @@ class KeyCollection:
         """Initializes the collection with a list of keys.
 
         Parameters:
-            keys: list of instances of classes implementing the Key ABC
+            keys: list of instances of classes implementing the Key Protocol
 
         Raises:
             Crypt4GHKeyException: if some key(s) do not have access to

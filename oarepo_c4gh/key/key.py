@@ -5,7 +5,7 @@ classes implementations.
 
 """
 
-from typing import Protocol
+from typing import Protocol, abstractmethod
 
 
 class Key(Protocol):
@@ -17,6 +17,7 @@ class Key(Protocol):
     """
 
     @property
+    @abstractmethod
     def public_key(self) -> bytes:
         """The derived classes must implement providing corresponding
         public key in this method.
@@ -27,6 +28,7 @@ class Key(Protocol):
         """
         ...
 
+    @abstractmethod
     def compute_write_key(self, reader_public_key: bytes) -> bytes:
         """Accepts the intended reader public key and computes the
         shared secret based on the public and secret key (this key) of
@@ -41,6 +43,7 @@ class Key(Protocol):
         """
         ...
 
+    @abstractmethod
     def compute_read_key(self, writer_public_key: bytes) -> bytes:
         """Accepts the writer public key and computes the shared
         secret based on the public and secret key (this key) of the
@@ -56,6 +59,7 @@ class Key(Protocol):
         ...
 
     @property
+    @abstractmethod
     def can_compute_symmetric_keys(self) -> bool:
         """A predicate returning true if this key instance can perform
         read/write key derivation. This is usually determined by

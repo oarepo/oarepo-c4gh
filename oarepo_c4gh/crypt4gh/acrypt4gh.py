@@ -3,7 +3,7 @@
 """
 
 from abc import ABC, abstractmethod
-from .aheader import ACrypt4GHHeader
+from .header4gh import Header4GH
 from typing import Generator
 from .data_block import DataBlock
 
@@ -16,7 +16,7 @@ class ACrypt4GH(ABC):
 
     @property
     @abstractmethod
-    def header(self) -> ACrypt4GHHeader:
+    def header(self) -> Header4GH:
         """Must return an implementaiton of abstract header."""
         pass
 
