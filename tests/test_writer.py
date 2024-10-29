@@ -15,6 +15,7 @@ import io
 from oarepo_c4gh.crypt4gh.writer import Crypt4GHWriter
 from oarepo_c4gh.crypt4gh.filter.add_recipient import AddRecipientFilter
 from oarepo_c4gh.crypt4gh.filter.filter import Filter
+from oarepo_c4gh.crypt4gh.filter.only_readable import OnlyReadableFilter
 
 
 class TestACrypt4GHHeader(unittest.TestCase):
@@ -90,6 +91,10 @@ class TestCrypt4GHFilter(unittest.TestCase):
         assert (
             header.reader_keys_used[0] == bkey.public_key
         ), "Bob's key expected"
+        onlyread = OnlyReadableFilter(crypt4ghb)
+        ostream2 = io.BytesIO()
+        writer2 = Crypt4GHWriter(onlyread, ostream2)
+        writer2.write()
 
 
 if __name__ == "__main__":
