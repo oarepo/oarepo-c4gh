@@ -3,16 +3,16 @@ from given input stream.
 
 """
 
-from .stream.header_packet import StreamHeaderPacket
-from ..key import Key, KeyCollection
+from .header_packet import StreamHeaderPacket
+from ...key import Key, KeyCollection
 import io
-from .util import read_crypt4gh_stream_le_uint32
-from ..exceptions import Crypt4GHHeaderException
-from .dek_collection import DEKCollection
-from .dek import DEK
-from .analyzer import Analyzer
+from ..util import read_crypt4gh_stream_le_uint32
+from ...exceptions import Crypt4GHHeaderException
+from ..dek_collection import DEKCollection
+from ..dek import DEK
+from ..analyzer import Analyzer
 from typing import Union
-from .common.header import Header
+from ..common.header import Header
 
 
 CRYPT4GH_MAGIC = b"crypt4gh"
@@ -40,7 +40,7 @@ def check_crypt4gh_magic(magic_bytes: bytes) -> None:
         )
 
 
-class StreamHeader4GH(Header):
+class StreamHeader(Header):
     """The instance of this class represents the Crypt4GH header which
     is basically a collection (a list internally) of all header
     packets. It contains both the packets it can decrypt and those it
