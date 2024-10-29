@@ -1,4 +1,4 @@
-"""xxx
+"""The actual recipient adding implementation in a header filter.
 
 """
 from .header import FilterHeader
@@ -13,7 +13,19 @@ from ...key import Key
 
 
 class AddRecipientHeader(FilterHeader):
+    """This class implements a simple filter that adds all readable
+    packets to the packet list - but encrypted for new recipient(s).
+
+    """
     def __init__(self, original: Header, recipients: List[Key]):
+        """Just initializes the baseline header filter and stores the
+        list of recipients for actual processing later.
+
+        Parameters:
+            original: the original container header
+            recipients: a list of recipients' public keys to add
+
+        """
         super().__init__(original)
         self._recipients_to_add = recipients
 

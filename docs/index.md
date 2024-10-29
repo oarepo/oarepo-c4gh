@@ -55,14 +55,14 @@ with actual container data is straightforward:
 from oarepo_c4gh import Crypt4GH
 
 with open("hello.txt.c4gh") as f:
-	crypt4gh = Crypt4GH(my_secret_key, f)
+	container = Crypt4GH(my_secret_key, f)
 ```
 
 To process the data blocks from the initialized container a single-use
 iterator is provided:
 
 ```python
-for block in crypt4gh.data_blocks:
+for block in container.data_blocks:
     if block.is_deciphered:
 	    print(block.cleartext)
 	else:
@@ -73,7 +73,7 @@ If only deciphered blocks are to be processed, the clear_blocks
 iterator can be used:
 
 ```python
-for block in crypt4gh.clear_blocks:
+for block in container.clear_blocks:
 	print(block.cleartext)
 ```
 
@@ -93,7 +93,7 @@ my_other_secret_key = C4GHKey.from_file(
 )
 my_keys = KeyCollection(my_secret_key, my_other_secret_key)
 with open("hello.txt.c4gh") as f:
-	crypt4gh = Crypt4GH(my_keys, f)
+	container = Crypt4GH(my_keys, f)
 ```
 
 ### Container Serialization
@@ -105,7 +105,7 @@ original input.
 ```python
 from oarepo_cg4h import Crypt4GHWriter
 
-writer = Crypt4GHWriter(crypt4gh, open("output.c4gh", "w"))
+writer = Crypt4GHWriter(container, open("output.c4gh", "w"))
 writer.write()
 ```
 
@@ -128,9 +128,8 @@ my_other_secret_key = C4GHKey.from_file(
   lambda: "other_password"
 )
 my_keys = KeyCollection(my_secret_key, my_other_secret_key)
-crypt4gh = Crypt4GH(my_keys, open("hello.txt.c4gh"))
-filter4gh = Crypt4GHFilter(crypt4gh)
-filter4gh.add_recipient(alice_pub)
-writer = Crypt4GHWriter(filter4gh, open("output.c4gh", "w"))
+orig_container = Crypt4GH(my_keys, open("hello.txt.c4gh"))
+new_container = AddRecipientFilter(orig_container, alice_pub)
+writer = Crypt4GHWriter(new_container, open("output.c4gh", "w"))
 writer.write()
 ```
