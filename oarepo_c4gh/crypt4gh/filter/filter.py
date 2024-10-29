@@ -11,7 +11,7 @@ from ..common.data_block import DataBlock
 from .header import FilterHeader
 
 
-class Crypt4GHFilter(Proto4GH):
+class Filter(Proto4GH):
     """The whole container filter which actually filters only header
     packets but for the writer the whole interface is needed.
 
@@ -26,20 +26,11 @@ class Crypt4GHFilter(Proto4GH):
 
         """
         self._original = original
-        self._header = FilterHeader(original.header)
-
-    def add_recipient(self, public_key: bytes) -> None:
-        """Passes the public key to the header filter instance.
-
-        Parameters:
-            public_key: the reader key to add.
-        """
-        self._header.add_recipient(public_key)
 
     @property
     def header(self) -> Header:
         """Returns the filtered header instance."""
-        return self._header
+        return self._original._header
 
     @property
     def data_blocks(self) -> Generator[DataBlock, None, None]:

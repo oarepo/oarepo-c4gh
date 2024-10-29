@@ -13,7 +13,8 @@ from _test_data import (
 from oarepo_c4gh.crypt4gh.crypt4gh import Crypt4GH
 import io
 from oarepo_c4gh.crypt4gh.writer import Crypt4GHWriter
-from oarepo_c4gh.crypt4gh.filter.filter4gh import Crypt4GHFilter
+from oarepo_c4gh.crypt4gh.filter.add_recipient import AddRecipientFilter
+from oarepo_c4gh.crypt4gh.filter.filter import Filter
 
 
 class TestACrypt4GHHeader(unittest.TestCase):
@@ -65,7 +66,7 @@ class TestCrypt4GHFilter(unittest.TestCase):
     def test_identity(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
-        filter4gh = Crypt4GHFilter(crypt4gh)
+        filter4gh = Filter(crypt4gh)
         ostream = io.BytesIO()
         writer = Crypt4GHWriter(filter4gh, ostream)
         writer.write()
@@ -76,9 +77,8 @@ class TestCrypt4GHFilter(unittest.TestCase):
     def test_roundtrip(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
-        filter4gh = Crypt4GHFilter(crypt4gh)
         bkey = C4GHKey.from_bytes(bob_sec_bstr, lambda: bob_sec_password)
-        filter4gh.add_recipient(bkey.public_key)
+        filter4gh = AddRecipientFilter(crypt4gh, bkey.public_key)
         ostream = io.BytesIO()
         writer = Crypt4GHWriter(filter4gh, ostream)
         writer.write()
