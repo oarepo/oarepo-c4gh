@@ -1,7 +1,6 @@
-"""Implementation of single Crypt4GH header packet parser.
+"""Implementation of single Crypt4GH header packet stream parser.
 
 """
-
 from ..common.header_packet import HeaderPacket
 from ...key import KeyCollection
 import io

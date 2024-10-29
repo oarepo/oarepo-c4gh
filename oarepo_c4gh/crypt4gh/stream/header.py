@@ -41,10 +41,8 @@ def check_crypt4gh_magic(magic_bytes: bytes) -> None:
 
 
 class StreamHeader(Header):
-    """The instance of this class represents the Crypt4GH header which
-    is basically a collection (a list internally) of all header
-    packets. It contains both the packets it can decrypt and those it
-    cannot.
+    """The constructor of this class loads the Crypt4GH header from
+    given stream.
 
     """
 

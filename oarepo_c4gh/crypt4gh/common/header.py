@@ -1,4 +1,4 @@
-"""Abstract base class for header implementation.
+"""Protocol for header implementation.
 
 """
 
@@ -6,8 +6,10 @@ from typing import Protocol, abstractmethod
 
 
 class Header(Protocol):
-    """This is an abstract class which guarantees that a header
-    packets collection is available by its descendants.
+    """This is a protocol class which guarantees that a header packets
+    collection is available by its descendants. The properties
+    provided are a list of packets - both readable and unreadable -
+    and header metadata fields magic_bytes and version.
 
     """
 
@@ -15,13 +17,13 @@ class Header(Protocol):
     @abstractmethod
     def packets(self) -> list:
         """Must return original or transformed list of header packets."""
-        pass
+        ...
 
     @property
     @abstractmethod
     def magic_bytes(self) -> bytes:
         """Must return the original magic bytes."""
-        pass
+        ...
 
     @property
     @abstractmethod
@@ -30,4 +32,4 @@ class Header(Protocol):
         container. Must always return 1.
 
         """
-        pass
+        ...

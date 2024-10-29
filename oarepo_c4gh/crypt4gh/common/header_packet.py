@@ -1,4 +1,4 @@
-"""Interface for packet headers.
+"""Header packet data structure.
 
 """
 

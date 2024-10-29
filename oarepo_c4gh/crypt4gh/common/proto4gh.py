@@ -1,4 +1,4 @@
-"""Abstract base class for container implementation.
+"""Protocol for container implementation.
 
 """
 
@@ -9,8 +9,7 @@ from .data_block import DataBlock
 
 
 class Proto4GH(Protocol):
-    """An abstract class ensuring a header and data packets are
-    available.
+    """A protocol ensuring a header and data packets are available.
 
     """
 
