@@ -12,7 +12,7 @@ from .dek_collection import DEKCollection
 from .dek import DEK
 from .analyzer import Analyzer
 from typing import Union
-from .common.header import Header4GH
+from .common.header import Header
 
 
 CRYPT4GH_MAGIC = b"crypt4gh"
@@ -40,7 +40,7 @@ def check_crypt4gh_magic(magic_bytes: bytes) -> None:
         )
 
 
-class StreamHeader4GH(Header4GH):
+class StreamHeader4GH(Header):
     """The instance of this class represents the Crypt4GH header which
     is basically a collection (a list internally) of all header
     packets. It contains both the packets it can decrypt and those it

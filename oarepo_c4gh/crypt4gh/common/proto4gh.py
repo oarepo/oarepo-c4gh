@@ -3,7 +3,7 @@
 """
 
 from typing import Protocol, abstractmethod
-from .header import Header4GH
+from .header import Header
 from typing import Generator
 from .data_block import DataBlock
 
@@ -16,7 +16,7 @@ class Proto4GH(Protocol):
 
     @property
     @abstractmethod
-    def header(self) -> Header4GH:
+    def header(self) -> Header:
         """Must return an implementaiton of abstract header."""
         ...
 

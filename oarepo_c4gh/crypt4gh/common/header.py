@@ -5,7 +5,7 @@
 from typing import Protocol, abstractmethod
 
 
-class Header4GH(Protocol):
+class Header(Protocol):
     """This is an abstract class which guarantees that a header
     packets collection is available by its descendants.
 

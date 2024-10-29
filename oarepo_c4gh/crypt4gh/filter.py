@@ -5,7 +5,7 @@ and/or removed) header packets.
 """
 
 from .common.proto4gh import Proto4GH
-from .common.header import Header4GH
+from .common.header import Header
 from typing import Generator
 from .common.data_block import DataBlock
 from ..key.software import SoftwareKey
@@ -15,13 +15,13 @@ import secrets
 from .common.header_packet import HeaderPacket
 
 
-class Crypt4GHHeaderFilter(Header4GH):
+class Crypt4GHHeaderFilter(Header):
     """As the header has its own interface, this class implements such
     interface for filtered header.
 
     """
 
-    def __init__(self, original: Header4GH) -> None:
+    def __init__(self, original: Header) -> None:
         """Setup to match original.
 
         Parameters:
@@ -120,7 +120,7 @@ class Crypt4GHFilter(Proto4GH):
         self._header.add_recipient(public_key)
 
     @property
-    def header(self) -> Header4GH:
+    def header(self) -> Header:
         """Returns the filtered header instance."""
         return self._header
 

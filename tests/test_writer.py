@@ -1,6 +1,6 @@
 import unittest
 
-from oarepo_c4gh.crypt4gh.common.header import Header4GH
+from oarepo_c4gh.crypt4gh.common.header import Header
 from oarepo_c4gh.crypt4gh.common.proto4gh import Proto4GH
 from oarepo_c4gh.key.c4gh import C4GHKey
 from _test_data import (
@@ -19,7 +19,7 @@ from oarepo_c4gh.crypt4gh.filter import Crypt4GHFilter
 class TestACrypt4GHHeader(unittest.TestCase):
 
     def test_abstract_packets(self):
-        class MyHeader4GH(Header4GH):
+        class MyHeader4GH(Header):
             pass
         MyHeader4GH.__abstractmethods__ = set()
         hdr = MyHeader4GH()
