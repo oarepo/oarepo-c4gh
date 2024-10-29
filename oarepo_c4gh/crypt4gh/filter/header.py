@@ -1,6 +1,7 @@
 """This module implements filtered header on top of other Header
 implementation.
 """
+
 from ..common.header import Header
 from ...key.software import SoftwareKey
 import io
@@ -86,5 +87,3 @@ class FilterHeader(Header):
     def version(self) -> int:
         """Returns the original version."""
         return self._original.version
-
-

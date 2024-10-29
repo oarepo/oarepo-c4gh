@@ -9,20 +9,24 @@ implementation.
 Abstract Classes
 ----------------
 
-::: oarepo_c4gh.crypt4gh.aheader
+::: oarepo_c4gh.crypt4gh.common.header_packet
 
-::: oarepo_c4gh.crypt4gh.acrypt4gh
+::: oarepo_c4gh.crypt4gh.common.header
+
+::: oarepo_c4gh.crypt4gh.common.proto4gh
+
+::: oarepo_c4gh.crypt4gh.common.data_block
 
 Container Components
 --------------------
 
 ::: oarepo_c4gh.crypt4gh.crypt4gh
 
-::: oarepo_c4gh.crypt4gh.header
+::: oarepo_c4gh.crypt4gh.stream.stream4gh
 
-::: oarepo_c4gh.crypt4gh.header_packet
+::: oarepo_c4gh.crypt4gh.stream.header
 
-::: oarepo_c4gh.crypt4gh.data_block
+::: oarepo_c4gh.crypt4gh.stream.header_packet
 
 Data Keys
 ---------
@@ -43,4 +47,7 @@ Stream Writer
 
 ::: oarepo_c4gh.crypt4gh.writer
 
-::: oarepo_c4gh.crypt4gh.filter
+::: oarepo_c4gh.crypt4gh.filter.filter4gh
+
+::: oarepo_c4gh.crypt4gh.filter.header
+

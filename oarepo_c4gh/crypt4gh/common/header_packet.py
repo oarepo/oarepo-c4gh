@@ -1,6 +1,7 @@
 """Interface for packet headers.
 
 """
+
 from ...exceptions import Crypt4GHHeaderPacketException
 
 
@@ -28,7 +29,6 @@ class HeaderPacket:
         self._packet_type = packet_type
         self._data_encryption_method = data_encryption_method
         self._data_encryption_key = data_encryption_key
-
 
     @property
     def is_data_encryption_parameters(self) -> bool:

@@ -21,6 +21,7 @@ class TestACrypt4GHHeader(unittest.TestCase):
     def test_abstract_packets(self):
         class MyHeader4GH(Header):
             pass
+
         MyHeader4GH.__abstractmethods__ = set()
         hdr = MyHeader4GH()
         assert hdr.packets is None, "Implementation in abstract class"
@@ -30,6 +31,7 @@ class TestACrypt4GHHeader(unittest.TestCase):
     def test_abstract_container(self):
         class MyCrypt4GH(Proto4GH):
             pass
+
         MyCrypt4GH.__abstractmethods__ = set()
         c4gh = MyCrypt4GH()
         assert c4gh.header is None, "Implementation in abstract class"

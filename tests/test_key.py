@@ -25,6 +25,7 @@ class TestKeyImplementation(unittest.TestCase):
 
     def test_abstract_implementation(self):
         from oarepo_c4gh import Key
+
         class MyKey(Key):
             pass
 
