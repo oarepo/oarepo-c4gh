@@ -1,21 +1,15 @@
-"""This module implements a filtered Crypt4GH container backed by
-other Crypt4GH container but presenting filtered (added, changed
-and/or removed) header packets.
-
+"""This module implements filtered header on top of other Header
+implementation.
 """
-
-from .common.proto4gh import Proto4GH
-from .common.header import Header
-from typing import Generator
-from .common.data_block import DataBlock
-from ..key.software import SoftwareKey
-from nacl.bindings import crypto_aead_chacha20poly1305_ietf_encrypt
+from ..common.header import Header
+from ...key.software import SoftwareKey
 import io
 import secrets
-from .common.header_packet import HeaderPacket
+from nacl.bindings import crypto_aead_chacha20poly1305_ietf_encrypt
+from ..common.header_packet import HeaderPacket
 
 
-class Crypt4GHHeaderFilter(Header):
+class FilterHeader(Header):
     """As the header has its own interface, this class implements such
     interface for filtered header.
 
@@ -94,37 +88,3 @@ class Crypt4GHHeaderFilter(Header):
         return self._original.version
 
 
-class Crypt4GHFilter(Proto4GH):
-    """The whole container filter which actually filters only header
-    packets but for the writer the whole interface is needed.
-
-    """
-
-    def __init__(self, original: Proto4GH) -> None:
-        """Only prepares the filtered header and original container
-        with original blocks.
-
-        Parameters:
-            original: the original container to be filtered.
-
-        """
-        self._original = original
-        self._header = Crypt4GHHeaderFilter(original.header)
-
-    def add_recipient(self, public_key: bytes) -> None:
-        """Passes the public key to the header filter instance.
-
-        Parameters:
-            public_key: the reader key to add.
-        """
-        self._header.add_recipient(public_key)
-
-    @property
-    def header(self) -> Header:
-        """Returns the filtered header instance."""
-        return self._header
-
-    @property
-    def data_blocks(self) -> Generator[DataBlock, None, None]:
-        """Returns the iterator for the original data blocks."""
-        return self._original.data_blocks

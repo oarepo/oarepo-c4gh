@@ -13,7 +13,7 @@ from _test_data import (
 from oarepo_c4gh.crypt4gh.crypt4gh import Crypt4GH
 import io
 from oarepo_c4gh.crypt4gh.writer import Crypt4GHWriter
-from oarepo_c4gh.crypt4gh.filter import Crypt4GHFilter
+from oarepo_c4gh.crypt4gh.filter.filter4gh import Crypt4GHFilter
 
 
 class TestACrypt4GHHeader(unittest.TestCase):
