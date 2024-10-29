@@ -3,7 +3,7 @@
 """
 
 from typing import Protocol, abstractmethod
-from .header4gh import Header4GH
+from .header import Header4GH
 from typing import Generator
 from .data_block import DataBlock
 

@@ -1,7 +1,7 @@
 import unittest
 
-from oarepo_c4gh.crypt4gh.header4gh import Header4GH
-from oarepo_c4gh.crypt4gh.proto4gh import Proto4GH
+from oarepo_c4gh.crypt4gh.common.header import Header4GH
+from oarepo_c4gh.crypt4gh.common.proto4gh import Proto4GH
 from oarepo_c4gh.key.c4gh import C4GHKey
 from _test_data import (
     alice_sec_bstr,

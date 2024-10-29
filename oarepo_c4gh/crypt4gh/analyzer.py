@@ -2,8 +2,8 @@
 Module with the Crypt4GH container analyzer.
 """
 
-from .header_packet import HeaderPacket
-from .data_block import DataBlock
+from .common.header_packet import HeaderPacket
+from .common.data_block import DataBlock
 
 
 class Analyzer:

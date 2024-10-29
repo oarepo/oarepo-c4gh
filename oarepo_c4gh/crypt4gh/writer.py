@@ -2,7 +2,7 @@
 
 """
 
-from .proto4gh import Proto4GH
+from .common.proto4gh import Proto4GH
 import io
 
 

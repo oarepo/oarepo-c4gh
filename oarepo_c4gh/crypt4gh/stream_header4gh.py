@@ -3,7 +3,7 @@ from given input stream.
 
 """
 
-from .header_packet import HeaderPacket
+from .common.header_packet import HeaderPacket
 from ..key import Key, KeyCollection
 import io
 from .util import read_crypt4gh_stream_le_uint32
@@ -12,7 +12,7 @@ from .dek_collection import DEKCollection
 from .dek import DEK
 from .analyzer import Analyzer
 from typing import Union
-from .header4gh import Header4GH
+from .common.header import Header4GH
 
 
 CRYPT4GH_MAGIC = b"crypt4gh"

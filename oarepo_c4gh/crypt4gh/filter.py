@@ -4,15 +4,15 @@ and/or removed) header packets.
 
 """
 
-from .proto4gh import Proto4GH
-from .header4gh import Header4GH
+from .common.proto4gh import Proto4GH
+from .common.header import Header4GH
 from typing import Generator
-from .data_block import DataBlock
+from .common.data_block import DataBlock
 from ..key.software import SoftwareKey
 from nacl.bindings import crypto_aead_chacha20poly1305_ietf_encrypt
 import io
 import secrets
-from .header_packet import HeaderPacket
+from .common.header_packet import HeaderPacket
 
 
 class Crypt4GHHeaderFilter(Header4GH):

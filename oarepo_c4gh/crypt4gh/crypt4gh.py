@@ -6,10 +6,10 @@ from ..key import Key, KeyCollection
 import io
 from .stream_header4gh import StreamHeader4GH
 from ..exceptions import Crypt4GHProcessedException
-from .data_block import DataBlock
+from .common.data_block import DataBlock
 from .analyzer import Analyzer
 from typing import Generator, Union
-from .proto4gh import Proto4GH
+from .common.proto4gh import Proto4GH
 
 
 class Crypt4GH(Proto4GH):

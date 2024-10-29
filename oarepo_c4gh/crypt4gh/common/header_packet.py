@@ -2,12 +2,12 @@
 
 """
 
-from ..key import KeyCollection
+from ...key import KeyCollection
 import io
-from .util import read_crypt4gh_stream_le_uint32, read_crypt4gh_bytes_le_uint32
+from ..util import read_crypt4gh_stream_le_uint32, read_crypt4gh_bytes_le_uint32
 from nacl.bindings import crypto_aead_chacha20poly1305_ietf_decrypt
 from nacl.exceptions import CryptoError
-from ..exceptions import Crypt4GHHeaderPacketException
+from ...exceptions import Crypt4GHHeaderPacketException
 
 
 class HeaderPacket:
