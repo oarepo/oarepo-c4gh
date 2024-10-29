@@ -2,14 +2,14 @@
 
 """
 
-from .acrypt4gh import ACrypt4GH
+from .proto4gh import Proto4GH
 import io
 
 
 class Crypt4GHWriter:
     """Simple writer which performs just one operation."""
 
-    def __init__(self, container: ACrypt4GH, ostream: io.RawIOBase) -> None:
+    def __init__(self, container: Proto4GH, ostream: io.RawIOBase) -> None:
         """Can be wrapped around originally loaded Crypt4GH container
         or something compatible (like filtered container).
 

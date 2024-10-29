@@ -1,7 +1,7 @@
 import unittest
 
 from oarepo_c4gh.crypt4gh.header4gh import Header4GH
-from oarepo_c4gh.crypt4gh.acrypt4gh import ACrypt4GH
+from oarepo_c4gh.crypt4gh.proto4gh import Proto4GH
 from oarepo_c4gh.key.c4gh import C4GHKey
 from _test_data import (
     alice_sec_bstr,
@@ -28,8 +28,10 @@ class TestACrypt4GHHeader(unittest.TestCase):
         assert hdr.version is None, "Implementation in abstract class"
 
     def test_abstract_container(self):
-        ACrypt4GH.__abstractmethods__ = set()
-        c4gh = ACrypt4GH()
+        class MyCrypt4GH(Proto4GH):
+            pass
+        MyCrypt4GH.__abstractmethods__ = set()
+        c4gh = MyCrypt4GH()
         assert c4gh.header is None, "Implementation in abstract class"
         assert c4gh.data_blocks is None, "Implementation in abstract class"
 

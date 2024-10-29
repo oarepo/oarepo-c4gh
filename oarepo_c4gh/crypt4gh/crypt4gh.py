@@ -9,10 +9,10 @@ from ..exceptions import Crypt4GHProcessedException
 from .data_block import DataBlock
 from .analyzer import Analyzer
 from typing import Generator, Union
-from .acrypt4gh import ACrypt4GH
+from .proto4gh import Proto4GH
 
 
-class Crypt4GH(ACrypt4GH):
+class Crypt4GH(Proto4GH):
     """An instance of this class represents a Crypt4GH container and
     provides stream processing capabilities of both header packets and
     data blocks. The input is processed lazily as needed and the

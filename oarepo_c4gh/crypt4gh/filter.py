@@ -4,7 +4,7 @@ and/or removed) header packets.
 
 """
 
-from .acrypt4gh import ACrypt4GH
+from .proto4gh import Proto4GH
 from .header4gh import Header4GH
 from typing import Generator
 from .data_block import DataBlock
@@ -94,13 +94,13 @@ class Crypt4GHHeaderFilter(Header4GH):
         return self._original.version
 
 
-class Crypt4GHFilter(ACrypt4GH):
+class Crypt4GHFilter(Proto4GH):
     """The whole container filter which actually filters only header
     packets but for the writer the whole interface is needed.
 
     """
 
-    def __init__(self, original: ACrypt4GH) -> None:
+    def __init__(self, original: Proto4GH) -> None:
         """Only prepares the filtered header and original container
         with original blocks.
 
