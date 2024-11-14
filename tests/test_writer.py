@@ -16,6 +16,7 @@ from oarepo_c4gh.crypt4gh.writer import Crypt4GHWriter
 from oarepo_c4gh.crypt4gh.filter.add_recipient import AddRecipientFilter
 from oarepo_c4gh.crypt4gh.filter.filter import Filter
 from oarepo_c4gh.crypt4gh.filter.only_readable import OnlyReadableFilter
+from oarepo_c4gh.key.external_software import ExternalSoftwareKey
 
 
 class TestACrypt4GHHeader(unittest.TestCase):

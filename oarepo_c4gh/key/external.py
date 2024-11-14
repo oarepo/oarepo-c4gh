@@ -34,7 +34,8 @@ class ExternalKey(Key):
     def compute_write_key(self, reader_public_key: bytes) -> bytes:
         """Computes the write key using this instance's private key
         and the provided reader public key. See
-        [Software.compute_write_key] for details.
+        [`Software.compute_write_key`][oarepo_c4gh.key.software.SoftwareKey.compute_write_key]
+        for details.
 
         Parameters:
             reader_public_key: the reader public key (point) in compressed format
@@ -48,12 +49,13 @@ class ExternalKey(Key):
         the_hash = blake2b(digest_size=64)
         the_hash.update(hash_source)
         digest = the_hash.digest()
-        return digest[32:]
+        return digest[:32]
 
     def compute_read_key(self, writer_public_key: bytes) -> bytes:
         """Computes the reader key using this instance's private key
         and provided writer public key. See
-        [Software.compute_read_key] for details.
+        [`Software.compute_read_key`][oarepo_c4gh.key.software.SoftwareKey.compute_read_key]
+        for details.
 
         Parameters:
             writer_public_key: the writer public key (point) in compressed format

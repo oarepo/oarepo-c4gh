@@ -24,6 +24,7 @@ from oarepo_c4gh.exceptions import (
 )
 from oarepo_c4gh.crypt4gh.dek import DEK
 from oarepo_c4gh.key.key_collection import KeyCollection
+from oarepo_c4gh.key.external_software import ExternalSoftwareKey
 
 
 def _create_crypt4gh_with_bad_key():
@@ -300,6 +301,48 @@ class TestCrypt4GH(unittest.TestCase):
         crypt4gh = Crypt4GH(
             keyc, io.BytesIO(hello_world_encrypted), analyze=True
         )
+
+
+class TestExternalKey(unittest.TestCase):
+    def test_external_software(self):
+        # see above hello_header
+        akey0 = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        akey = ExternalSoftwareKey(akey0)
+        crypt4gh = Crypt4GH(
+            akey, io.BytesIO(hello_world_encrypted), analyze=True
+        )
+        header = crypt4gh.header
+        packets = header.packets
+        assert (
+            len(packets) == 1
+        ), f"Invalid number of header packets - {len(packets)}"
+        dek_packet = packets[0]
+        assert dek_packet.is_readable, "Cannot decrypt header packet"
+        assert dek_packet.is_data_encryption_parameters, "Invalid packet type"
+        assert dek_packet.packet_data is not None, "Packet data is not kept"
+        assert (
+            dek_packet.data_encryption_key is not None
+        ), "Dit not get Data Encryption Key"
+        assert (
+            not dek_packet.is_edit_list
+        ), "Incorrect predicate result (both Edit List and Data Encryption Parameters)"
+        assert not header.deks.empty, "No DEKs found"
+        assert (
+            dek_packet.reader_key is not None
+        ), "No reader key for DEK packet"
+        assert (
+            header.deks[0].key == akey.public_key
+        ), "DEK not unlocked by used key"
+        assert header.reader_keys_used == [
+            akey.public_key
+        ], "Alice's key not collected as successfull reader"
+        assert (
+            dek_packet.packet_type == 0
+        ), "DEK packet must have packet_type 0"
+        assert (
+            dek_packet.content is not None
+        ), "DEK packet must have readable content"
+        assert dek_packet.length > 0, "Non-positive length of DEK packet"
 
 
 if __name__ == "__main__":

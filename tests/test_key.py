@@ -1,5 +1,15 @@
 import unittest
 from oarepo_c4gh.key.external import ExternalKey
+from _test_data import (
+    alice_pub_bstr,
+    alice_sec_bstr,
+    alice_sec_password,
+    bob_sec_bstr,
+    bob_sec_password,
+)
+from oarepo_c4gh.key.external_software import ExternalSoftwareKey
+from oarepo_c4gh.exceptions import Crypt4GHKeyException
+from oarepo_c4gh.key.c4gh import C4GHKey
 
 
 class TestKeyImplementation(unittest.TestCase):
@@ -66,6 +76,21 @@ class TestExternalKey(unittest.TestCase):
         assert (
             key.compute_ecdh(bytes()) == None
         ), "Abstract ExternalKey should not compute ECDH"
+
+    def test_external_software_private_required(self):
+        akey0 = C4GHKey.from_bytes(alice_pub_bstr)
+        self.assertRaises(
+            Crypt4GHKeyException, lambda: ExternalSoftwareKey(akey0)
+        )
+
+    def test_external_software_computing(self):
+        akey0 = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        akey = ExternalSoftwareKey(akey0)
+        bkey0 = C4GHKey.from_bytes(bob_sec_bstr, lambda: bob_sec_password)
+        bkey = ExternalSoftwareKey(bkey0)
+        asymm = akey.compute_write_key(bkey.public_key)
+        bsymm = bkey.compute_read_key(akey.public_key)
+        assert asymm == bsymm, "Incorrect reader/writer keys computed"
 
 
 if __name__ == "__main__":
