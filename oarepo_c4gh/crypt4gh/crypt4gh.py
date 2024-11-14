@@ -9,4 +9,5 @@ from .stream.stream4gh import Stream4GH
 class Crypt4GH(Stream4GH):
     """This class differs only in its name from the underlying
     Stream4GH."""
+
     pass

@@ -9,9 +9,7 @@ from .data_block import DataBlock
 
 
 class Proto4GH(Protocol):
-    """A protocol ensuring a header and data packets are available.
-
-    """
+    """A protocol ensuring a header and data packets are available."""
 
     @property
     @abstractmethod

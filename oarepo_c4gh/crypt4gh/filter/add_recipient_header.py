@@ -1,6 +1,7 @@
 """The actual recipient adding implementation in a header filter.
 
 """
+
 from .header import FilterHeader
 from nacl.bindings import crypto_aead_chacha20poly1305_ietf_encrypt
 from ...key.software import SoftwareKey
@@ -17,6 +18,7 @@ class AddRecipientHeader(FilterHeader):
     packets to the packet list - but encrypted for new recipient(s).
 
     """
+
     def __init__(self, original: Header, recipients: List[Key]):
         """Just initializes the baseline header filter and stores the
         list of recipients for actual processing later.
@@ -29,7 +31,6 @@ class AddRecipientHeader(FilterHeader):
         super().__init__(original)
         self._recipients_to_add = recipients
 
-    
     @property
     def packets(self) -> list:
         """Returns the filtered packets with added recipients. Both

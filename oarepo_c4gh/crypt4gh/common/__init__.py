@@ -1,6 +1,7 @@
 """A convenience module providing all common interfaces in one bundle.
 
 """
+
 from .header import Header
 from .proto4gh import Proto4GH
 from .header_packet import HeaderPacket

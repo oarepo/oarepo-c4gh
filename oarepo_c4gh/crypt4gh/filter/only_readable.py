@@ -2,6 +2,7 @@
 non-readable packets from its header.
 
 """
+
 from .filter import Filter
 from ..common.proto4gh import Proto4GH
 from .only_readable_header import OnlyReadableHeader
