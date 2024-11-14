@@ -1,4 +1,5 @@
 import unittest
+from oarepo_c4gh.key.external import ExternalKey
 
 
 class TestKeyImplementation(unittest.TestCase):
@@ -44,6 +45,20 @@ class TestKeyImplementation(unittest.TestCase):
             not key.can_compute_symmetric_keys
         ), "Abstract Key class reports ability to compute symmetric keys"
 
+class TestExternalKey(unittest.TestCase):
+    def test_compute_predicate(self):
+        class MyExKey(ExternalKey):
+            pass
+        MyExKey.__abstractmethods__ = set()
+        key = MyExKey()
+        assert key.can_compute_symmetric_keys, "External key should compute symmetric keys"
+
+    def test_no_ecdh_computation(self):
+        class MyExKey(ExternalKey):
+            pass
+        MyExKey.__abstractmethods__ = set()
+        key = MyExKey()
+        assert key.compute_ecdh(bytes()) == None, "Abstract ExternalKey should not compute ECDH"
 
 if __name__ == "__main__":
     unittest.main()

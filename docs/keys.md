@@ -17,3 +17,8 @@ Implementations
 ::: oarepo_c4gh.key.c4gh
 
 ::: oarepo_c4gh.key.key_collection
+
+External Keys
+-------------
+
+::: oarepo_c4gh.key.external
