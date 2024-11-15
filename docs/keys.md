@@ -24,3 +24,5 @@ External Keys
 ::: oarepo_c4gh.key.external
 
 ::: oarepo_c4gh.key.external_software
+
+::: oarepo_c4gh.key.yubikey
