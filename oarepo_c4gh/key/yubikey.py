@@ -56,10 +56,10 @@ class YubiKey(ExternalKey):
 
             # Must be "OK Message ..."
             hello_dgram = client.recv(4096)
-            print(hello_dgram)
+            # print(hello_dgram)
             hello_msg, hello_rest = line_from_dgram(hello_dgram)
-            print(hello_msg)
-            print(hello_rest)
+            # print(hello_msg)
+            # print(hello_rest)
             if hello_msg[0:2] != b"OK":
                 print("invalid greeting")
             if len(hello_rest) > 0:
@@ -69,40 +69,79 @@ class YubiKey(ExternalKey):
             client.send(b"HAVEKEY --list=1000\n")
             # Must be only one
             havekey_dgram = client.recv(4096)
-            print(havekey_dgram)
+            # print(havekey_dgram)
             havekey_data, havekey_rest1 = line_from_dgram(havekey_dgram)
-            print(havekey_data)
+            # print(havekey_data)
             havekey_msg, havekey_rest2 = line_from_dgram(havekey_rest1)
-            print(havekey_msg)
-            print(havekey_rest2)
-            print(len(havekey_data[2:]))
+            # print(havekey_msg)
+            # print(havekey_rest2)
+            # print(len(havekey_data[2:]))
             keygrips_data = decode_assuan_buffer(havekey_data[2:])
-            print(keygrips_data)
-            print(len(keygrips_data))
+            # print(keygrips_data)
+            # print(len(keygrips_data))
             num_keygrips = len(keygrips_data) // 20
             if num_keygrips * 20 != len(keygrips_data):
                 print("invalid keygrips data length")
-            print(f"num_keygrips: {num_keygrips}")
-            keygrips = [keygrip_to_hex(keygrips_data[idx*20:idx*20+20]) for idx in range(num_keygrips)]
-            print(keygrips)
+            # print(f"num_keygrips: {num_keygrips}")
+            keygrips = [
+                keygrip_to_hex(keygrips_data[idx * 20 : idx * 20 + 20])
+                for idx in range(num_keygrips)
+            ]
+            # print(keygrips)
 
-            # Send KEYINFO
-            # Read S KEYINFO
-            # Send READKEY
-            # Read D S-Exp
+            # Get detailed information for all keygrips, find Curve25519 one
+            for keygrip in keygrips:
+                # Send READKEY
+                client.send(b"READKEY " + keygrip + b"\n")
+
+                # Read D S-Exp
+                key_dgram = client.recv(4096)
+                key_line, key_rest = line_from_dgram(key_dgram)
+                # print(key_line)
+                key_struct = parse_binary_sexp(key_line[2:])
+                if key_struct is None:
+                    continue
+                if len(key_struct) < 2:
+                    continue
+                if key_struct[0] != b"public-key":
+                    continue
+                if len(key_struct[1]) < 1:
+                    continue
+                if key_struct[1][0] != b"ecc":
+                    continue
+                curve_struct = next(v for v in key_struct[1][1:] if v[0] == b"curve")
+                if curve_struct is None:
+                    continue
+                if len(curve_struct) < 2:
+                    continue
+                if curve_struct[1] != b"Curve25519":
+                    continue
+                q_struct = next(v for v in key_struct[1][1:] if v[0] == b"q")
+                if q_struct is None:
+                    continue
+                if len(q_struct) < 2:
+                    continue
+                #print(key_struct)
+                #print(curve_struct)
+                #print(q_struct)
+                self._public_key = q_struct[1]
+                break
+
+            # Done
             client.close()
         return self._public_key
 
     def connect_agent(self) -> IO:
-        """Establishes connection to gpg-agent.
-
-        """
+        """Establishes connection to gpg-agent."""
         try:
             client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             client.connect(self._socket_path)
             return client
         except:
-            raise Crypt4GHKeyException("Cannot establish connection to gpg-agent.")
+            raise Crypt4GHKeyException(
+                "Cannot establish connection to gpg-agent."
+            )
+
 
 def line_from_dgram(dgram: bytes) -> (bytes, bytes):
     """Reads single line from given raw data and returns two values:
@@ -114,7 +153,8 @@ def line_from_dgram(dgram: bytes) -> (bytes, bytes):
     lf_idx = dgram.find(b"\n")
     if (lf_idx == -1) or (lf_idx == (len(dgram) - 1)):
         return dgram, b""
-    return dgram[:lf_idx], dgram[lf_idx+1:]
+    return dgram[:lf_idx], dgram[lf_idx + 1 :]
+
 
 def decode_assuan_buffer(buf: bytes) -> bytes:
     """Decodes assuan binary buffer with "%xx" replacements for
@@ -129,14 +169,15 @@ def decode_assuan_buffer(buf: bytes) -> bytes:
     result = b""
     idx = 0
     while idx < len(buf):
-        if buf[idx:idx+1] == b"%":
+        if buf[idx : idx + 1] == b"%":
             hh = buf[idx + 1 : idx + 3].decode("ascii")
             result = result + int(hh, 16).to_bytes(1)
             idx = idx + 3
         else:
-            result = result + buf[idx:idx+1]
+            result = result + buf[idx : idx + 1]
             idx = idx + 1
     return result
+
 
 def keygrip_to_hex(kg: bytes) -> bytes:
     """Converts to hexadecimal representation suitable for KEYINFO and
@@ -152,3 +193,37 @@ def keygrip_to_hex(kg: bytes) -> bytes:
     for b in kg:
         result = result + hex(0x100 + b)[3:].upper().encode("ascii")
     return result
+
+def parse_binary_sexp(data: bytes) -> list:
+    """Reads libassuan binary S-Expression data into a nested lists
+    structure.
+
+    Parameters:
+        data: binary encoding of S-Expressions
+
+    Returns:
+        List bytes and lists.
+
+    """
+    root = []
+    stack = [root]
+    idx = 0
+    while idx < len(data):
+        if data[idx:idx + 1] == b"(":
+            lst = []
+            stack[len(stack) - 1].append(lst)
+            stack.append(lst)
+            idx = idx + 1
+        elif data[idx:idx + 1] == b")":
+            stack = stack[:len(stack) - 1]
+            idx = idx + 1
+        else:
+            sep_idx = data.find(b":", idx)
+            if sep_idx < 0:
+                return None
+            token_len = int(data[idx:sep_idx].decode("ascii"))
+            stack[len(stack) - 1].append(data[sep_idx + 1:sep_idx+1+token_len])
+            idx = sep_idx + token_len + 1
+    if len(root) == 0:
+        return None
+    return root[0]
