@@ -5,7 +5,7 @@ application through `gpg-agent`'s protocol.
 This is not a "real" HSM and it is provided only for testing purposes
 in a non-production environment without actual HSM.
 
-There are many assumptions for correctly using this module:
+There are many assumptions:
 
 - compatible YubiKey must be present in the system
 - gpg-agent must be configured and running
@@ -43,23 +43,38 @@ class YubiKey(ExternalKey):
             )
         self._socket_path = socket_path
         self._public_key = None
+        self._keygrip = None
 
     def compute_ecdh(self, public_point: bytes) -> bytes:
         """..."""
-        pass
+        self.ensure_public_key()
+        client = self.connect_agent()
+        # SETKEY keygrip
+        client.send(b"SETKEY " + self._keygrip + b"\n")
+        # PKDECRYPT
+        client.send(b"PKDECRYPT\n")
+        # D send static encoded data
+        client.send(b"D (7:enc-val(4:ecdh(1:e33:@" + public_point + b")))\n")
+        # END
+        client.send(b"END\n")
+        # retrieve result
 
-    @property
-    def public_key(self) -> bytes:
-        """Returns the underlying public key."""
+        # Done
+        client.close()
+        return None
+
+    def ensure_public_key(self):
+        """Loads the public key and stores its keygrip from the
+        OpenPGP Card. This method is a no-op if the key was loaded
+        before.
+
+        """
         if self._public_key is None:
             client = self.connect_agent()
 
             # Must be "OK Message ..."
             hello_dgram = client.recv(4096)
-            # print(hello_dgram)
             hello_msg, hello_rest = line_from_dgram(hello_dgram)
-            # print(hello_msg)
-            # print(hello_rest)
             if hello_msg[0:2] != b"OK":
                 print("invalid greeting")
             if len(hello_rest) > 0:
@@ -69,25 +84,16 @@ class YubiKey(ExternalKey):
             client.send(b"HAVEKEY --list=1000\n")
             # Must be only one
             havekey_dgram = client.recv(4096)
-            # print(havekey_dgram)
             havekey_data, havekey_rest1 = line_from_dgram(havekey_dgram)
-            # print(havekey_data)
             havekey_msg, havekey_rest2 = line_from_dgram(havekey_rest1)
-            # print(havekey_msg)
-            # print(havekey_rest2)
-            # print(len(havekey_data[2:]))
             keygrips_data = decode_assuan_buffer(havekey_data[2:])
-            # print(keygrips_data)
-            # print(len(keygrips_data))
             num_keygrips = len(keygrips_data) // 20
             if num_keygrips * 20 != len(keygrips_data):
                 print("invalid keygrips data length")
-            # print(f"num_keygrips: {num_keygrips}")
             keygrips = [
                 keygrip_to_hex(keygrips_data[idx * 20 : idx * 20 + 20])
                 for idx in range(num_keygrips)
             ]
-            # print(keygrips)
 
             # Get detailed information for all keygrips, find Curve25519 one
             for keygrip in keygrips:
@@ -97,7 +103,6 @@ class YubiKey(ExternalKey):
                 # Read D S-Exp
                 key_dgram = client.recv(4096)
                 key_line, key_rest = line_from_dgram(key_dgram)
-                # print(key_line)
                 key_struct = parse_binary_sexp(key_line[2:])
                 if key_struct is None:
                     continue
@@ -109,7 +114,9 @@ class YubiKey(ExternalKey):
                     continue
                 if key_struct[1][0] != b"ecc":
                     continue
-                curve_struct = next(v for v in key_struct[1][1:] if v[0] == b"curve")
+                curve_struct = next(
+                    v for v in key_struct[1][1:] if v[0] == b"curve"
+                )
                 if curve_struct is None:
                     continue
                 if len(curve_struct) < 2:
@@ -121,14 +128,17 @@ class YubiKey(ExternalKey):
                     continue
                 if len(q_struct) < 2:
                     continue
-                #print(key_struct)
-                #print(curve_struct)
-                #print(q_struct)
                 self._public_key = q_struct[1]
+                self._keygrip = keygrip
                 break
 
             # Done
             client.close()
+
+    @property
+    def public_key(self) -> bytes:
+        """Returns the underlying public key."""
+        self.ensure_public_key()
         return self._public_key
 
     def connect_agent(self) -> IO:
@@ -194,6 +204,7 @@ def keygrip_to_hex(kg: bytes) -> bytes:
         result = result + hex(0x100 + b)[3:].upper().encode("ascii")
     return result
 
+
 def parse_binary_sexp(data: bytes) -> list:
     """Reads libassuan binary S-Expression data into a nested lists
     structure.
@@ -202,27 +213,29 @@ def parse_binary_sexp(data: bytes) -> list:
         data: binary encoding of S-Expressions
 
     Returns:
-        List bytes and lists.
+        List of bytes and lists.
 
     """
     root = []
     stack = [root]
     idx = 0
     while idx < len(data):
-        if data[idx:idx + 1] == b"(":
+        if data[idx : idx + 1] == b"(":
             lst = []
             stack[len(stack) - 1].append(lst)
             stack.append(lst)
             idx = idx + 1
-        elif data[idx:idx + 1] == b")":
-            stack = stack[:len(stack) - 1]
+        elif data[idx : idx + 1] == b")":
+            stack = stack[: len(stack) - 1]
             idx = idx + 1
         else:
             sep_idx = data.find(b":", idx)
             if sep_idx < 0:
                 return None
             token_len = int(data[idx:sep_idx].decode("ascii"))
-            stack[len(stack) - 1].append(data[sep_idx + 1:sep_idx+1+token_len])
+            stack[len(stack) - 1].append(
+                data[sep_idx + 1 : sep_idx + 1 + token_len]
+            )
             idx = sep_idx + token_len + 1
     if len(root) == 0:
         return None
