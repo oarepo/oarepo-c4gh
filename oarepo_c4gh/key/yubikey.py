@@ -47,11 +47,14 @@ class YubiKey(ExternalKey):
         self._keygrip = None
 
     def compute_ecdh(self, public_point: bytes) -> bytes:
-        """..."""
-        print()
-        print("compute_ecdh")
-        print(public_point)
-        print(len(public_point))
+        """Computes the result of finishing the ECDH key exchange.
+
+        Parameters:
+            public_point: the other party public point (compressed coordinates, 32 bytes)
+
+        Returns:
+            The resulting shared secret point (compressed coordinates, 32 bytes).
+        """
         self.ensure_public_key()
         client = self.connect_agent()
         expect_assuan_OK(client)
@@ -86,8 +89,7 @@ class YubiKey(ExternalKey):
             line, rest = line_from_dgram(msg)
             msg = rest
             if line[:4] == b"ERR ":
-                print("error" + line.decode("ascii"))
-                break
+                raise Crypt4GHKeyException("Assian error: " + line.decode("ascii"))
             if line[:2] == b"D ":
                 data = line[2:]
                 struct = parse_binary_sexp(line[2:])
@@ -119,7 +121,7 @@ class YubiKey(ExternalKey):
             keygrips_data = decode_assuan_buffer(havekey_data[2:])
             num_keygrips = len(keygrips_data) // 20
             if num_keygrips * 20 != len(keygrips_data):
-                print("invalid keygrips data length")
+                raise Crypt4GHKeyException(f"invalid keygrips data length: {len(keygrips_data)}")
             keygrips = [
                 keygrip_to_hex(keygrips_data[idx * 20 : idx * 20 + 20])
                 for idx in range(num_keygrips)
@@ -307,9 +309,9 @@ def expect_assuan_OK(client: IO) -> None:
         client: active assuan socket connection
 
     """
-    hello_dgram = client.recv(4096)
-    hello_msg, hello_rest = line_from_dgram(hello_dgram)
-    if hello_msg[0:2] != b"OK":
-        print("invalid greeting")
-    if len(hello_rest) > 0:
-        print("linenoise after greeting")
+    ok_dgram = client.recv(4096)
+    ok_msg, ok_rest = line_from_dgram(ok_dgram)
+    if ok_msg[0:2] != b"OK":
+        raise Crypt4GHKeyException("Expected Assuan OK message")
+    if len(ok_rest) > 0:
+        raise Crypt4GHKeyException("Line noise after Assuan OK")
