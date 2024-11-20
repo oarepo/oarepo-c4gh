@@ -19,6 +19,7 @@ from ..exceptions import Crypt4GHKeyException
 import os
 from typing import IO
 import socket
+import time
 
 
 class YubiKey(ExternalKey):
@@ -49,19 +50,45 @@ class YubiKey(ExternalKey):
         """..."""
         self.ensure_public_key()
         client = self.connect_agent()
+        expect_assuan_OK(client)
+
         # SETKEY keygrip
-        client.send(b"SETKEY " + self._keygrip + b"\n")
+        skm = b"SETKEY " + self._keygrip + b"\n"
+        client.send(skm)
+        expect_assuan_OK(client)
+
         # PKDECRYPT
         client.send(b"PKDECRYPT\n")
+        pdm = client.recv(4096)
+        # not used, might contain S configuration messages or INQUIRE for CIPHERTEXT
+
         # D send static encoded data
-        client.send(b"D (7:enc-val(4:ecdh(1:e33:@" + public_point + b")))\n")
+        evm = b"D (7:enc-val(4:ecdh(1:e33:@" + public_point + b")))\n"
+        client.send(evm)
+
         # END
         client.send(b"END\n")
-        # retrieve result
+
+        # retrieve result - drop all messages without data
+        msg = b""
+        result = None
+        while True:
+            if msg == b"":
+                msg = client.recv(4096)
+            line, rest = line_from_dgram(msg)
+            msg = rest
+            if line[:4] == b"ERR ":
+                print("error")
+                break
+            if line[:2] == b"D ":
+                data = line[2:]
+                struct = parse_binary_sexp(line[2:])
+                result = struct[1][1:]
+                break
 
         # Done
         client.close()
-        return None
+        return result
 
     def ensure_public_key(self):
         """Loads the public key and stores its keygrip from the
@@ -73,12 +100,7 @@ class YubiKey(ExternalKey):
             client = self.connect_agent()
 
             # Must be "OK Message ..."
-            hello_dgram = client.recv(4096)
-            hello_msg, hello_rest = line_from_dgram(hello_dgram)
-            if hello_msg[0:2] != b"OK":
-                print("invalid greeting")
-            if len(hello_rest) > 0:
-                print("linenoise after greeting")
+            expect_assuan_OK(client)
 
             # Now send request for all keys
             client.send(b"HAVEKEY --list=1000\n")
@@ -231,7 +253,7 @@ def parse_binary_sexp(data: bytes) -> list:
         else:
             sep_idx = data.find(b":", idx)
             if sep_idx < 0:
-                return None
+                break
             token_len = int(data[idx:sep_idx].decode("ascii"))
             stack[len(stack) - 1].append(
                 data[sep_idx + 1 : sep_idx + 1 + token_len]
@@ -240,3 +262,12 @@ def parse_binary_sexp(data: bytes) -> list:
     if len(root) == 0:
         return None
     return root[0]
+
+
+def expect_assuan_OK(client: IO) -> None:
+    hello_dgram = client.recv(4096)
+    hello_msg, hello_rest = line_from_dgram(hello_dgram)
+    if hello_msg[0:2] != b"OK":
+        print("invalid greeting")
+    if len(hello_rest) > 0:
+        print("linenoise after greeting")
