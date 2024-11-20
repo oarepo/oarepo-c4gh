@@ -48,6 +48,10 @@ class YubiKey(ExternalKey):
 
     def compute_ecdh(self, public_point: bytes) -> bytes:
         """..."""
+        print()
+        print("compute_ecdh")
+        print(public_point)
+        print(len(public_point))
         self.ensure_public_key()
         client = self.connect_agent()
         expect_assuan_OK(client)
@@ -63,7 +67,11 @@ class YubiKey(ExternalKey):
         # not used, might contain S configuration messages or INQUIRE for CIPHERTEXT
 
         # D send static encoded data
-        evm = b"D (7:enc-val(4:ecdh(1:e33:@" + public_point + b")))\n"
+        evm = (
+            b"D (7:enc-val(4:ecdh(1:e33:@"
+            + encode_assuan_buffer(public_point)
+            + b")))\n"
+        )
         client.send(evm)
 
         # END
@@ -78,7 +86,7 @@ class YubiKey(ExternalKey):
             line, rest = line_from_dgram(msg)
             msg = rest
             if line[:4] == b"ERR ":
-                print("error")
+                print("error" + line.decode("ascii"))
                 break
             if line[:2] == b"D ":
                 data = line[2:]
@@ -150,7 +158,7 @@ class YubiKey(ExternalKey):
                     continue
                 if len(q_struct) < 2:
                     continue
-                self._public_key = q_struct[1]
+                self._public_key = q_struct[1][1:]
                 self._keygrip = keygrip
                 break
 
@@ -211,6 +219,33 @@ def decode_assuan_buffer(buf: bytes) -> bytes:
     return result
 
 
+def encode_assuan_buffer(buf: bytes) -> bytes:
+    """Encodes assuan binary buffer by replacing occurences of \r, \n
+    and % with %0D, %0A and %25 respectively.
+
+    Parameters:
+        buf: the buffer to encode (for sending typically)
+
+    Returns:
+        The encoded binary data that can be directly sent to assuan server.
+
+    """
+    result = b""
+    idx = 0
+    while idx < len(buf):
+        b = buf[idx : idx + 1]
+        if b == b"\n":
+            result = result + b"%0A"
+        elif b == b"\r":
+            result = result + b"%0D"
+        elif b == b"%":
+            result = result + b"%25"
+        else:
+            result = result + b
+        idx = idx + 1
+    return result
+
+
 def keygrip_to_hex(kg: bytes) -> bytes:
     """Converts to hexadecimal representation suitable for KEYINFO and
     READKEY commands.
@@ -265,6 +300,13 @@ def parse_binary_sexp(data: bytes) -> list:
 
 
 def expect_assuan_OK(client: IO) -> None:
+    """If the next message received does not start with b"OK", signals
+    an error.
+
+    Parameters:
+        client: active assuan socket connection
+
+    """
     hello_dgram = client.recv(4096)
     hello_msg, hello_rest = line_from_dgram(hello_dgram)
     if hello_msg[0:2] != b"OK":
