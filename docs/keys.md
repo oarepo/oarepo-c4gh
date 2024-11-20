@@ -25,4 +25,4 @@ External Keys
 
 ::: oarepo_c4gh.key.external_software
 
-::: oarepo_c4gh.key.yubikey
+::: oarepo_c4gh.key.gpg_agent

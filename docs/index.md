@@ -54,7 +54,7 @@ with actual container data is straightforward:
 ```python
 from oarepo_c4gh import Crypt4GH
 
-with open("hello.txt.c4gh") as f:
+with open("hello.txt.c4gh", "rb") as f:
 	container = Crypt4GH(my_secret_key, f)
 ```
 
@@ -92,7 +92,7 @@ my_other_secret_key = C4GHKey.from_file(
   lambda: "other_password"
 )
 my_keys = KeyCollection(my_secret_key, my_other_secret_key)
-with open("hello.txt.c4gh") as f:
+with open("hello.txt.c4gh", "rb") as f:
 	container = Crypt4GH(my_keys, f)
 ```
 
@@ -105,7 +105,7 @@ original input.
 ```python
 from oarepo_cg4h import Crypt4GHWriter
 
-writer = Crypt4GHWriter(container, open("output.c4gh", "w"))
+writer = Crypt4GHWriter(container, open("output.c4gh", "wb"))
 writer.write()
 ```
 
@@ -128,8 +128,8 @@ my_other_secret_key = C4GHKey.from_file(
   lambda: "other_password"
 )
 my_keys = KeyCollection(my_secret_key, my_other_secret_key)
-orig_container = Crypt4GH(my_keys, open("hello.txt.c4gh"))
+orig_container = Crypt4GH(my_keys, open("hello.txt.c4gh", "rb"))
 new_container = AddRecipientFilter(orig_container, alice_pub)
-writer = Crypt4GHWriter(new_container, open("output.c4gh", "w"))
+writer = Crypt4GHWriter(new_container, open("output.c4gh", "wb"))
 writer.write()
 ```
