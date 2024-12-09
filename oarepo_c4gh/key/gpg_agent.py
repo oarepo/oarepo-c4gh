@@ -20,6 +20,9 @@ import os
 from typing import IO
 import socket
 import time
+from hashlib import sha1
+from base64 import b32encode
+import string
 
 
 class GPGAgentKey(ExternalKey):
@@ -29,13 +32,14 @@ class GPGAgentKey(ExternalKey):
 
     """
 
-    def __init__(self, socket_path: str) -> None:
+    def __init__(self, socket_path: str = None, home_dir: str = None) -> None:
         """Initializes the instance by storing the path to
         `gpg-agent`'s socket. It verifies the socket's existence but
         performs no connection yet.
 
         Parameters:
             socket_path: path to `gpg-agent`'s socket - usually `/run/user/$UID/gnupg/S.gpg-agent`
+            home_dir: path to gpg homedir, used for computing socked path
 
         """
         if not os.path.exists(socket_path):
@@ -89,7 +93,9 @@ class GPGAgentKey(ExternalKey):
             line, rest = line_from_dgram(msg)
             msg = rest
             if line[:4] == b"ERR ":
-                raise Crypt4GHKeyException("Assian error: " + line.decode("ascii"))
+                raise Crypt4GHKeyException(
+                    "Assian error: " + line.decode("ascii")
+                )
             if line[:2] == b"D ":
                 data = line[2:]
                 struct = parse_binary_sexp(line[2:])
@@ -121,7 +127,9 @@ class GPGAgentKey(ExternalKey):
             keygrips_data = decode_assuan_buffer(havekey_data[2:])
             num_keygrips = len(keygrips_data) // 20
             if num_keygrips * 20 != len(keygrips_data):
-                raise Crypt4GHKeyException(f"invalid keygrips data length: {len(keygrips_data)}")
+                raise Crypt4GHKeyException(
+                    f"invalid keygrips data length: {len(keygrips_data)}"
+                )
             keygrips = [
                 keygrip_to_hex(keygrips_data[idx * 20 : idx * 20 + 20])
                 for idx in range(num_keygrips)
@@ -315,3 +323,66 @@ def expect_assuan_OK(client: IO) -> None:
         raise Crypt4GHKeyException("Expected Assuan OK message")
     if len(ok_rest) > 0:
         raise Crypt4GHKeyException("Line noise after Assuan OK")
+
+
+gen_b32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+gpg_b32 = "ybndrfg8ejkmcpqxot1uwisza345h769"
+
+gpg_trans = str.maketrans(gen_b32, gpg_b32)
+
+
+def compute_socket_dir_hash(path: str) -> str:
+    """Computes partial message digest of given path to be used as
+    shortened path component in the base socket directory path. The
+    implemenation is compatible with gnupg's homedir.c and zb32.c as
+    well as with libgcrypt's SHA1 message digest.
+
+    Parameters:
+        path: canonical (as understood by gnupg) path to the original directory
+
+    """
+    bpath = path.encode()
+    md = sha1(path.encode()).digest()
+    md15 = md[:15]
+    b32 = b32encode(md15)
+    s32 = b32.decode("ascii")
+    z32 = s32.translate(gpg_trans)
+    return z32
+
+
+def compute_run_gnupg_base() -> str:
+    """Computes possible gnupg's run directories and verifies their
+    existence.
+
+    Returns:
+        The actual gnupg's run directory of current user.
+
+    """
+    bases = ["/run/gnupg", "/run", "/var/run/gnupg", "/var/run"]
+    uid = os.getuid()
+    ubases = [f"{base}/user/{uid}" for base in bases]
+    for ubase in ubases:
+        if os.path.isdir(ubase):
+            return f"{ubase}/gnupg"
+    raise ArgumentError("Cannot find GnuPG run base directory")
+
+
+def compute_socket_dir(homedir: str = None) -> str:
+    """Computes the actual socket dir used by gpg-agent based on given
+    homedir (the private key storage directory).
+
+    If given directory is None, returns the root run directory for
+    gnupg (as required by gpg-agent).
+
+    Parameters:
+        homedir: canonical path to the directory
+
+    Returns:
+        Socket base directory.
+
+    """
+    base = compute_run_gnupg_base()
+    if homedir is not None:
+        dhash = compute_socket_dir_hash(homedir)
+        return f"{base}/d.{dhash}"
+    return base
