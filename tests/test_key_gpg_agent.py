@@ -71,9 +71,15 @@ class TestGPGAgentKey(unittest.TestCase):
         os.system(
             f"gpg --homedir {homedir} --batch --passphrase '' --quick-gen-key HSM ed25519"
         )
+        os.system(
+            f"gpg --homedir {homedir} --list-keys"
+        )
+        os.system(
+            f"gpg --version"
+        )
         os.system(f"gpg-agent --homedir {homedir} --daemon")
         key = GPGAgentKey(home_dir=homedir)
-        key.public_key
+        print(key.public_key)
         tempdir.cleanup()
 
 
