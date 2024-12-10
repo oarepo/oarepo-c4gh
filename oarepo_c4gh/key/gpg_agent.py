@@ -11,6 +11,7 @@ There are many assumptions:
 - gpg-agent must be configured and running
 - there must not be any other key configured in gpg
 - no other application should be accessing gpg-agent
+- works only with gpg 2.4.x
 
 """
 
