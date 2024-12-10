@@ -17,7 +17,7 @@ There are many assumptions:
 from .external import ExternalKey
 from ..exceptions import Crypt4GHKeyException
 import os
-from typing import IO
+from typing import IO, List
 import socket
 import time
 from hashlib import sha1
@@ -42,11 +42,14 @@ class GPGAgentKey(ExternalKey):
             home_dir: path to gpg homedir, used for computing socked path
 
         """
-        if not os.path.exists(socket_path):
-            raise Crypt4GHKeyException(
-                "Cannot initialize YubiKey with non-existent gpg-agent path."
-            )
         self._socket_path = socket_path
+        if self._socket_path is None:
+            socket_dir = compute_socket_dir(home_dir)
+            self._socket_path = f"{socket_dir}/S.gpg-agent"
+        if not os.path.exists(self._socket_path):
+            raise Crypt4GHKeyException(
+                "Cannot initialize GPGAgentKey with non-existent gpg-agent path."
+            )
         self._public_key = None
         self._keygrip = None
 
@@ -299,7 +302,10 @@ def parse_binary_sexp(data: bytes) -> list:
             sep_idx = data.find(b":", idx)
             if sep_idx < 0:
                 break
-            token_len = int(data[idx:sep_idx].decode("ascii"))
+            len_str = data[idx:sep_idx].decode("ascii")
+            if len(len_str) == 0:
+                break
+            token_len = int(len_str)
             stack[len(stack) - 1].append(
                 data[sep_idx + 1 : sep_idx + 1 + token_len]
             )
@@ -350,7 +356,9 @@ def compute_socket_dir_hash(path: str) -> str:
     return z32
 
 
-def compute_run_gnupg_base() -> str:
+def compute_run_gnupg_base(
+    bases: List[str] = ["/run/gnupg", "/run", "/var/run/gnupg", "/var/run"]
+) -> str:
     """Computes possible gnupg's run directories and verifies their
     existence.
 
@@ -358,7 +366,6 @@ def compute_run_gnupg_base() -> str:
         The actual gnupg's run directory of current user.
 
     """
-    bases = ["/run/gnupg", "/run", "/var/run/gnupg", "/var/run"]
     uid = os.getuid()
     ubases = [f"{base}/user/{uid}" for base in bases]
     for ubase in ubases:
