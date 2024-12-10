@@ -11,6 +11,17 @@ from oarepo_c4gh.key.gpg_agent import (
 )
 from oarepo_c4gh.exceptions import Crypt4GHKeyException
 import socket
+from _test_data import (
+    alice_sec_bstr,
+    alice_sec_password,
+    hello_world_encrypted,
+)
+from oarepo_c4gh.key.c4gh import C4GHKey
+from oarepo_c4gh.crypt4gh.crypt4gh import Crypt4GH
+import io
+from oarepo_c4gh.crypt4gh.filter.add_recipient import AddRecipientFilter
+from oarepo_c4gh.crypt4gh.writer import Crypt4GHWriter
+from oarepo_c4gh.key.software import SoftwareKey
 
 
 class TestGPGAgentKey(unittest.TestCase):
@@ -30,9 +41,10 @@ class TestGPGAgentKey(unittest.TestCase):
         r, w = socket.socketpair()
         w.send(b"KO\n")
         self.assertRaises(Crypt4GHKeyException, lambda: expect_assuan_OK(r))
+        w.close()
+        r, w = socket.socketpair()
         w.send(b"OK\nnoise")
         self.assertRaises(Crypt4GHKeyException, lambda: expect_assuan_OK(r))
-        r.close()
         w.close()
 
     def test_assuan_binary_sexps(self):
@@ -69,11 +81,26 @@ class TestGPGAgentKey(unittest.TestCase):
         tempdir = tempfile.TemporaryDirectory()
         homedir = tempdir.name
         os.system(
-            f"gpg --homedir {homedir} --batch --passphrase '' --quick-gen-key HSM ed25519"
+            f"gpg --homedir {homedir} --batch --passphrase '' --default-new-key-algo ed25519/cert,sign+cv25519/encr --quick-gen-key HSM"
         )
-        os.system(f"gpg-agent --homedir {homedir} --daemon")
+        # Gets started automatically by previous command:
+        # os.system(f"gpg-agent --homedir {homedir} --daemon")
         key = GPGAgentKey(home_dir=homedir)
-        key.public_key
+        assert key is not None, "Cannot get cv25519 key from gpg-agent"
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        filter4gh = AddRecipientFilter(crypt4gh, key.public_key)
+        ostream = io.BytesIO()
+        writer = Crypt4GHWriter(filter4gh, ostream)
+        writer.write()
+        crypt4ghb = Crypt4GH(key, io.BytesIO(ostream.getvalue()))
+        header = crypt4ghb.header
+        packets = header.packets
+        assert len(packets) == 2, "Exactly two header packets expected"
+        assert len(header.reader_keys_used) == 1, "One reader key expected"
+        assert (
+            header.reader_keys_used[0] == key.public_key
+        ), "HSM key expected"
         tempdir.cleanup()
 
 

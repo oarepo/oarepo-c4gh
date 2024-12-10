@@ -11,6 +11,7 @@ There are many assumptions:
 - gpg-agent must be configured and running
 - there must not be any other key configured in gpg
 - no other application should be accessing gpg-agent
+- works only with gpg 2.4.x
 
 """
 
@@ -93,7 +94,8 @@ class GPGAgentKey(ExternalKey):
         while True:
             if msg == b"":
                 msg = client.recv(4096)
-            line, rest = line_from_dgram(msg)
+            line0, rest = line_from_dgram(msg)
+            line = decode_assuan_buffer(line0)
             msg = rest
             if line[:4] == b"ERR ":
                 raise Crypt4GHKeyException(
@@ -145,7 +147,8 @@ class GPGAgentKey(ExternalKey):
 
                 # Read D S-Exp
                 key_dgram = client.recv(4096)
-                key_line, key_rest = line_from_dgram(key_dgram)
+                key_line0, key_rest = line_from_dgram(key_dgram)
+                key_line = decode_assuan_buffer(key_line0)
                 key_struct = parse_binary_sexp(key_line[2:])
                 if (
                     (key_struct is None)
@@ -324,8 +327,10 @@ def expect_assuan_OK(client: IO) -> None:
     ok_dgram = client.recv(4096)
     ok_msg, ok_rest = line_from_dgram(ok_dgram)
     if ok_msg[0:2] != b"OK":
+        client.close()
         raise Crypt4GHKeyException("Expected Assuan OK message")
     if len(ok_rest) > 0:
+        client.close()
         raise Crypt4GHKeyException("Line noise after Assuan OK")
 
 

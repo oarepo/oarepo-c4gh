@@ -144,4 +144,5 @@ class SoftwareKey(Key):
 
     @classmethod
     def generate(self) -> None:
-        return SoftwareKey(secrets.token_bytes(32))
+        token = secrets.token_bytes(32)
+        return SoftwareKey(token)
