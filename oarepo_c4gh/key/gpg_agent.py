@@ -147,24 +147,22 @@ class GPGAgentKey(ExternalKey):
                 key_dgram = client.recv(4096)
                 key_line, key_rest = line_from_dgram(key_dgram)
                 key_struct = parse_binary_sexp(key_line[2:])
-                if key_struct is None:
-                    continue
-                if len(key_struct) < 2:
-                    continue
-                if key_struct[0] != b"public-key":
-                    continue
-                if len(key_struct[1]) < 1:
-                    continue
-                if key_struct[1][0] != b"ecc":
+                if (
+                    (key_struct is None)
+                    or (len(key_struct) < 2)
+                    or (key_struct[0] != b"public-key")
+                    or (len(key_struct[1])) < 1
+                    or (key_struct[1][0] != b"ecc")
+                ):
                     continue
                 curve_struct = next(
                     v for v in key_struct[1][1:] if v[0] == b"curve"
                 )
-                if curve_struct is None:
-                    continue
-                if len(curve_struct) < 2:
-                    continue
-                if curve_struct[1] != b"Curve25519":
+                if (
+                    (curve_struct is None)
+                    or (len(curve_struct) < 2)
+                    or (curve_struct[1] != b"Curve25519")
+                ):
                     continue
                 q_struct = next(v for v in key_struct[1][1:] if v[0] == b"q")
                 if q_struct is None:
