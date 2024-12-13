@@ -8,6 +8,7 @@ from oarepo_c4gh.key.gpg_agent import (
     parse_binary_sexp,
     encode_assuan_buffer,
     decode_assuan_buffer,
+    compute_socket_dir,
 )
 from oarepo_c4gh.exceptions import Crypt4GHKeyException
 import socket
@@ -22,6 +23,7 @@ import io
 from oarepo_c4gh.crypt4gh.filter.add_recipient import AddRecipientFilter
 from oarepo_c4gh.crypt4gh.writer import Crypt4GHWriter
 from oarepo_c4gh.key.software import SoftwareKey
+from threading import Thread
 
 
 class TestGPGAgentKey(unittest.TestCase):
@@ -123,6 +125,42 @@ class TestGPGAgentKey(unittest.TestCase):
         assert key is not None, "Cannot get gpg-agent key"
         assert key.public_key is None, "No key with other ECC"
         tempdir.cleanup()
+
+    def test_ERR_injection(self):
+        tmpf = tempfile.NamedTemporaryFile()
+        socketpath = tmpf.name
+        tmpf.close()
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        server.bind(socketpath)
+        server.listen()
+
+        def responder():
+            scl, addr = server.accept()
+            # Banner
+            scl.send(b"OK Pleased to meet you\n")
+
+            # SETKEY
+            scl.recv(4096)
+            scl.send(b"OK\n")
+
+            # PKDECRYPT, D, END
+            msg1 = scl.recv(4096)
+            scl.send(b"INQUIRE\n")
+            msg2 = scl.recv(4096)
+            scl.send(b"ERR dummy error\n")
+            scl.close()
+
+        thr = Thread(target=responder)
+        thr.start()
+        key = GPGAgentKey(socket_path=socketpath)
+        key._public_key = b"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        key._keygrip = b"wwwwwwwwwwwwwwwwwwww"
+        self.assertRaises(
+            Crypt4GHKeyException,
+            lambda: key.compute_ecdh(b"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"),
+        )
+        thr.join()
+        server.close()
 
 
 if __name__ == "__main__":
