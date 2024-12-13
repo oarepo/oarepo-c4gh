@@ -163,14 +163,14 @@ class GPGAgentKey(ExternalKey):
                 curve_struct = next(
                     v for v in key_struct[1][1:] if v[0] == b"curve"
                 )
+                q_struct = next(v for v in key_struct[1][1:] if v[0] == b"q")
                 if (
                     (curve_struct is None)
                     or (len(curve_struct) < 2)
                     or (curve_struct[1] != b"Curve25519")
+                    or (q_struct is None)
+                    or (len(q_struct) < 2)
                 ):
-                    continue
-                q_struct = next(v for v in key_struct[1][1:] if v[0] == b"q")
-                if (q_struct is None) or (len(q_struct) < 2):
                     continue
                 self._public_key = q_struct[1][1:]
                 self._keygrip = keygrip
