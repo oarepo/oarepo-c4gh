@@ -98,8 +98,9 @@ class GPGAgentKey(ExternalKey):
             line = decode_assuan_buffer(line0)
             msg = rest
             if line[:4] == b"ERR ":
+                client.close()
                 raise Crypt4GHKeyException(
-                    "Assian error: " + line.decode("ascii")
+                    "Assuan error: " + line.decode("ascii")
                 )
             if line[:2] == b"D ":
                 data = line[2:]
@@ -132,6 +133,7 @@ class GPGAgentKey(ExternalKey):
             keygrips_data = decode_assuan_buffer(havekey_data[2:])
             num_keygrips = len(keygrips_data) // 20
             if num_keygrips * 20 != len(keygrips_data):
+                client.close()
                 raise Crypt4GHKeyException(
                     f"invalid keygrips data length: {len(keygrips_data)}"
                 )
@@ -168,9 +170,7 @@ class GPGAgentKey(ExternalKey):
                 ):
                     continue
                 q_struct = next(v for v in key_struct[1][1:] if v[0] == b"q")
-                if q_struct is None:
-                    continue
-                if len(q_struct) < 2:
+                if (q_struct is None) or (len(q_struct) < 2):
                     continue
                 self._public_key = q_struct[1][1:]
                 self._keygrip = keygrip
