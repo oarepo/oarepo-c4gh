@@ -101,6 +101,8 @@ class TestGPGAgentKey(unittest.TestCase):
         assert len(packets) == 2, "Exactly two header packets expected"
         assert len(header.reader_keys_used) == 1, "One reader key expected"
         assert header.reader_keys_used[0] == key.public_key, "HSM key expected"
+        key2 = GPGAgentKey(home_dir = homedir, keygrip = "00112233")
+        self.assertRaises(Crypt4GHKeyException, lambda: key2.public_key)
         tempdir.cleanup()
 
     def test_without_correct_keys_rsa(self):
@@ -110,8 +112,7 @@ class TestGPGAgentKey(unittest.TestCase):
             f"gpg --homedir {homedir} --batch --passphrase '' --default-new-key-algo rsa/cert,sign+rsa/encr --quick-gen-key HSM"
         )
         key = GPGAgentKey(home_dir=homedir)
-        assert key is not None, "Cannot get gpg-agent key"
-        assert key.public_key is None, "No key with RSA"
+        self.assertRaises(Crypt4GHKeyException, lambda: key.public_key)
         tempdir.cleanup()
 
     def test_without_correct_keys_ecdsa(self):
@@ -122,8 +123,7 @@ class TestGPGAgentKey(unittest.TestCase):
         )
         os.system(f"gpg --homedir {homedir} --list-keys")
         key = GPGAgentKey(home_dir=homedir)
-        assert key is not None, "Cannot get gpg-agent key"
-        assert key.public_key is None, "No key with other ECC"
+        self.assertRaises(Crypt4GHKeyException, lambda: key.public_key)
         tempdir.cleanup()
 
     def test_ERR_injection(self):

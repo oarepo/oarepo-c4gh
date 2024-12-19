@@ -33,7 +33,12 @@ class GPGAgentKey(ExternalKey):
 
     """
 
-    def __init__(self, socket_path: str = None, home_dir: str = None) -> None:
+    def __init__(
+        self,
+        socket_path: str = None,
+        home_dir: str = None,
+        keygrip: string = None,
+    ) -> None:
         """Initializes the instance by storing the path to
         `gpg-agent`'s socket. It verifies the socket's existence but
         performs no connection yet.
@@ -41,6 +46,7 @@ class GPGAgentKey(ExternalKey):
         Parameters:
             socket_path: path to `gpg-agent`'s socket - usually `/run/user/$UID/gnupg/S.gpg-agent`
             home_dir: path to gpg homedir, used for computing socked path
+            keygrip: hexadecimal representation of the keygrip
 
         """
         self._socket_path = socket_path
@@ -51,6 +57,7 @@ class GPGAgentKey(ExternalKey):
             raise Crypt4GHKeyException(
                 "Cannot initialize GPGAgentKey with non-existent gpg-agent path."
             )
+        self._req_keygrip = keygrip
         self._public_key = None
         self._keygrip = None
 
@@ -172,12 +179,19 @@ class GPGAgentKey(ExternalKey):
                     or (len(q_struct) < 2)
                 ):
                     continue
+                if (self._req_keygrip is not None) and (
+                    self._req_keygrip != keygrip
+                ):
+                    continue
                 self._public_key = q_struct[1][1:]
                 self._keygrip = keygrip
                 break
-
             # Done
             client.close()
+
+            # Error handling
+            if self._public_key is None:
+                raise Crypt4GHKeyException("Cannot determine public key")
 
     @property
     def public_key(self) -> bytes:
