@@ -26,3 +26,8 @@ External Keys
 ::: oarepo_c4gh.key.external_software
 
 ::: oarepo_c4gh.key.gpg_agent
+
+Key Serialization
+-----------------
+
+::: oarepo_c4gh.key.writer

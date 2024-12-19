@@ -26,6 +26,7 @@ from _test_data import (
     shark_pub_bstr,
 )
 from oarepo_c4gh.crypt4gh.util import parse_crypt4gh_bytes_le_uint
+from oarepo_c4gh.key.writer import C4GHPublicKeyWriter
 
 
 def _test_no_password_callback():
@@ -139,6 +140,13 @@ class TestC4GHKeyImplementation(unittest.TestCase):
             Crypt4GHKeyException,
             lambda: derive_c4gh_key(b"Unsupported", b"password", b"salt", 32),
         )
+
+    def test_reserialization(self):
+        akey = C4GHKey.from_bytes(alice_pub_bstr)
+        writer = C4GHPublicKeyWriter(akey)
+        ostr = io.BytesIO()
+        writer.write(ostr)
+        assert alice_pub_bstr == ostr.getvalue(), "Invalid reserialization"
 
 
 if __name__ == "__main__":
