@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   mkdocs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       PYTHON_VERSION: "3.12"
     steps:
