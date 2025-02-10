@@ -19,7 +19,6 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["oarepo_c4gh"]
 
 [project.urls]
 Homepage = "https://github.com/oarepo/oarepo-c4gh"
