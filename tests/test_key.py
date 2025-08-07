@@ -92,6 +92,18 @@ class TestExternalKey(unittest.TestCase):
         bsymm = bkey.compute_read_key(akey.public_key)
         assert asymm == bsymm, "Incorrect reader/writer keys computed"
 
+    def test_external_software_public_key(self):
+        akey0 = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        akey = ExternalSoftwareKey(akey0)
+        akey_pk1 = akey.public_key
+        akey_pk2 = akey.compute_ecdh(
+            b"\x09\x00\x00\x00\x00\x00\x00\x00"
+            b"\x00\x00\x00\x00\x00\x00\x00\x00"
+            b"\x00\x00\x00\x00\x00\x00\x00\x00"
+            b"\x00\x00\x00\x00\x00\x00\x00\x00"
+        )
+        assert akey_pk1 == akey_pk2, "Public key computation error"
+
 
 if __name__ == "__main__":
     unittest.main()
