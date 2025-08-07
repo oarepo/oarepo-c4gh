@@ -13,6 +13,9 @@ There are many assumptions:
 - no other application should be accessing gpg-agent
 - works only with gpg 2.4.x
 
+It is possible to use a gpg-agent socket from a different machine. See
+the `gpg-agent-forward.sh` script.
+
 """
 
 from .external import ExternalKey
