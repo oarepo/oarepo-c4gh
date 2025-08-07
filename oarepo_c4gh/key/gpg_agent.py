@@ -30,8 +30,8 @@ import string
 
 
 class GPGAgentKey(ExternalKey):
-    """And instance of this class uses `gpg-agent` to finalize the
-    ECDH computation. The actual key derivation is then performed by
+    """An instance of this class uses `gpg-agent` to finalize the ECDH
+    computation. The actual key derivation is then performed by
     ExternalKey's methods.
 
     """
