@@ -133,3 +133,36 @@ new_container = AddRecipientFilter(orig_container, alice_pub)
 writer = Crypt4GHWriter(new_container, open("output.c4gh", "wb"))
 writer.write()
 ```
+
+### Analyzing Container Structure
+
+For analyzing the structure of any container, `analyze=True` named (or
+the third positional) argument must be passed to the constructor.
+
+The analyzer itself provides only single public method and that is
+`to_dict` which returns a dictionary with results of the analysis.
+
+```python
+container = Crypt4GH(open("hello.txt.c4gh", "rb"), my_keys, analyze=True)
+rdict = container.analyzer.to_dict()
+print(rdict)
+```
+
+The result dictionary contains the following keys:
+
+* "header"
+* "readers"
+* "blocks"
+
+The "header" key contains a list of public reader keys corresponding
+to private keys used to decrypt particular packet or `False` if given
+header packet was not successfully decrypted.
+
+The "readers" key contains a complete list of all unique public keys
+corresponding to private keys used for decrypting any header packets
+in the analyzed container.
+
+The "blocks" key contains a list of either data encryption key index
+used for deciphering given block or `False` if given block was not
+decrypted. Usually the index is `0` but it can be otherwise in certain
+scenarios.
