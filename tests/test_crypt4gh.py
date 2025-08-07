@@ -29,7 +29,7 @@ from oarepo_c4gh.key.external_software import ExternalSoftwareKey
 
 def _create_crypt4gh_with_bad_key():
     akey = C4GHKey.from_bytes(alice_pub_bstr)
-    crypt4gh = Crypt4GH(akey, io.BytesIO(b""))
+    crypt4gh = Crypt4GH(io.BytesIO(b""), akey)
 
 
 def _test_hello_world_data_blocks(blocks):
@@ -41,7 +41,7 @@ def _test_hello_world_data_blocks(blocks):
 
 
 def _test_incorrect_magic_exception(akey):
-    crypt4gh = Crypt4GH(akey, io.BytesIO(b"NotC4GH!"), False)
+    crypt4gh = Crypt4GH(io.BytesIO(b"NotC4GH!"), akey, False)
     assert crypt4gh.header is not None
 
 
@@ -52,8 +52,8 @@ _short_packet_bytes = (
 
 def _test_short_packet_exception(akey):
     crypt4gh = Crypt4GH(
-        akey,
         io.BytesIO(_short_packet_bytes),
+        akey,
         False,
     )
     assert crypt4gh.header.packets is not None
@@ -61,11 +61,11 @@ def _test_short_packet_exception(akey):
 
 def _test_wrong_encryption_exception(akey):
     crypt4gh = Crypt4GH(
-        akey,
         io.BytesIO(
             b"crypt4gh\x01\x00\x00\x00\x01\x00\x00\x00"
             b"\x08\x00\x00\x00\x01\x00\x00\x00"
         ),
+        akey,
         False,
     )
     assert crypt4gh.header.packets is not None
@@ -86,13 +86,13 @@ class TestCrypt4GH(unittest.TestCase):
     def test_init_good_key(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(
-            akey, io.BytesIO(b"crypt4gh\x01\x00\x00\x00\x00\x00\x00\x00")
+            io.BytesIO(b"crypt4gh\x01\x00\x00\x00\x00\x00\x00\x00"), akey
         )
 
     def test_encrypted_hello_header(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(
-            akey, io.BytesIO(hello_world_encrypted), analyze=True
+            io.BytesIO(hello_world_encrypted), akey, analyze=True
         )
         header = crypt4gh.header
         packets = header.packets
@@ -130,20 +130,20 @@ class TestCrypt4GH(unittest.TestCase):
     def test_encrypted_hello_blocks(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(
-            akey, io.BytesIO(hello_world_encrypted), analyze=True
+            io.BytesIO(hello_world_encrypted), akey, analyze=True
         )
         _test_hello_world_data_blocks(crypt4gh.data_blocks)
 
     def test_encrypted_hello_blocks_as_clear(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(
-            akey, io.BytesIO(hello_world_encrypted), analyze=True
+            io.BytesIO(hello_world_encrypted), akey, analyze=True
         )
         _test_hello_world_data_blocks(crypt4gh.clear_blocks)
 
     def test_encrypted_blocks_restart(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        crypt4gh = Crypt4GH(io.BytesIO(hello_world_encrypted), akey)
         _test_hello_world_data_blocks(crypt4gh.data_blocks)
         self.assertRaises(
             Crypt4GHProcessedException,
@@ -153,7 +153,7 @@ class TestCrypt4GH(unittest.TestCase):
     def test_no_decryption(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(
-            akey, io.BytesIO(hello_world_encrypted), False, analyze=True
+            io.BytesIO(hello_world_encrypted), akey, False, analyze=True
         )
         num_blocks = 0
         for block in crypt4gh.data_blocks:
@@ -165,7 +165,7 @@ class TestCrypt4GH(unittest.TestCase):
 
     def test_deks_availability(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted), False)
+        crypt4gh = Crypt4GH(io.BytesIO(hello_world_encrypted), akey, False)
         assert not crypt4gh.header.deks.empty, "No DEKs read"
 
     def test_incorrect_magic(self):
@@ -177,7 +177,7 @@ class TestCrypt4GH(unittest.TestCase):
 
     def test_correct_magic_and_version(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted), False)
+        crypt4gh = Crypt4GH(io.BytesIO(hello_world_encrypted), akey, False)
         assert (
             crypt4gh.header.magic_bytes == b"crypt4gh"
         ), "Incorrect magic bytes returned"
@@ -200,7 +200,7 @@ class TestCrypt4GH(unittest.TestCase):
     def test_short_exception_code(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         try:
-            crypt4gh = Crypt4GH(akey, io.BytesIO(_short_packet_bytes))
+            crypt4gh = Crypt4GH(io.BytesIO(_short_packet_bytes), akey)
             assert crypt4gh.header.packets is not None
         except Crypt4GHHeaderPacketException as ex:
             assert ex.code == "HEADERPACKET", "Incorrect exception code"
@@ -209,20 +209,20 @@ class TestCrypt4GH(unittest.TestCase):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         self.assertRaises(
             Crypt4GHHeaderException,
-            lambda: Crypt4GH(akey, io.BytesIO(b"crypt4gh\x00\x00\x00\x02")),
+            lambda: Crypt4GH(io.BytesIO(b"crypt4gh\x00\x00\x00\x02"), akey),
         )
 
     def test_missing_private_key(self):
         akey = C4GHKey.from_bytes(alice_pub_bstr)
         self.assertRaises(
             Crypt4GHKeyException,
-            lambda: Crypt4GH(akey, io.BytesIO(hello_world_encrypted)),
+            lambda: Crypt4GH(io.BytesIO(hello_world_encrypted), akey),
         )
 
     def test_wrong_private_key(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(
-            akey, io.BytesIO(hello_world_bob_encrypted), analyze=True
+            io.BytesIO(hello_world_bob_encrypted), akey, analyze=True
         )
         assert crypt4gh.header.deks.empty, "Some DEKs from nowhere"
         self.assertRaises(
@@ -232,7 +232,7 @@ class TestCrypt4GH(unittest.TestCase):
 
     def test_dek_length_check(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted), False)
+        crypt4gh = Crypt4GH(io.BytesIO(hello_world_encrypted), akey, False)
         self.assertRaises(
             Crypt4GHDEKException,
             lambda: crypt4gh.header.deks.contains_dek(DEK(b"abcd", None)),
@@ -240,25 +240,25 @@ class TestCrypt4GH(unittest.TestCase):
 
     def test_corrupted_block(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_corrupted))
+        crypt4gh = Crypt4GH(io.BytesIO(hello_world_corrupted), akey)
         for block in crypt4gh.data_blocks:
             assert not block.is_deciphered, "Readable corrupted block"
 
     def test_edit_list_packet(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_alice_range))
+        crypt4gh = Crypt4GH(io.BytesIO(hello_alice_range), akey)
         for block in crypt4gh.data_blocks:
             assert block.is_deciphered
 
     def test_unknown_packet(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_unknown_packet))
+        crypt4gh = Crypt4GH(io.BytesIO(hello_unknown_packet), akey)
         for block in crypt4gh.data_blocks:
             assert block.is_deciphered
 
     def test_unknown_encryption_method(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_unknown_method))
+        crypt4gh = Crypt4GH(io.BytesIO(hello_unknown_method), akey)
 
         def _process():
             for block in crypt4gh.data_blocks:
@@ -268,7 +268,7 @@ class TestCrypt4GH(unittest.TestCase):
 
     def test_short_block_decryption(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted[:136]))
+        crypt4gh = Crypt4GH(io.BytesIO(hello_world_encrypted[:136]), akey)
         count = 0
         for block in crypt4gh.data_blocks:
             count = count + 1
@@ -277,7 +277,7 @@ class TestCrypt4GH(unittest.TestCase):
     def test_analyzer_result(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(
-            akey, io.BytesIO(hello_world_encrypted), analyze=True
+            io.BytesIO(hello_world_encrypted), akey, analyze=True
         )
         for block in crypt4gh.data_blocks:
             pass
@@ -299,7 +299,7 @@ class TestCrypt4GH(unittest.TestCase):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         keyc = KeyCollection(akey)
         crypt4gh = Crypt4GH(
-            keyc, io.BytesIO(hello_world_encrypted), analyze=True
+            io.BytesIO(hello_world_encrypted), keyc, analyze=True
         )
 
 
@@ -309,7 +309,7 @@ class TestExternalKey(unittest.TestCase):
         akey0 = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         akey = ExternalSoftwareKey(akey0)
         crypt4gh = Crypt4GH(
-            akey, io.BytesIO(hello_world_encrypted), analyze=True
+            io.BytesIO(hello_world_encrypted), akey, analyze=True
         )
         header = crypt4gh.header
         packets = header.packets

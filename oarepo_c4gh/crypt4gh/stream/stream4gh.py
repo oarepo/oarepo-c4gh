@@ -23,8 +23,8 @@ class Stream4GH(Proto4GH):
 
     def __init__(
         self,
-        reader_key: Union[Key, KeyCollection],
         istream: io.RawIOBase,
+        reader_key: Union[Key, KeyCollection],
         decrypt: bool = True,
         analyze: bool = False,
     ) -> None:
@@ -33,8 +33,8 @@ class Stream4GH(Proto4GH):
         symmetric key derivation.
 
         Parameters:
-            reader_key: the key used for reading the container
             istream: the container input stream
+            reader_key: the key (or collection) used for reading the container
             decrypt: if True, attempt to decrypt the data blocks
 
         """

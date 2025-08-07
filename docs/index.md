@@ -55,7 +55,7 @@ with actual container data is straightforward:
 from oarepo_c4gh import Crypt4GH
 
 with open("hello.txt.c4gh", "rb") as f:
-	container = Crypt4GH(my_secret_key, f)
+	container = Crypt4GH(f, my_secret_key)
 ```
 
 To process the data blocks from the initialized container a single-use
@@ -93,7 +93,7 @@ my_other_secret_key = C4GHKey.from_file(
 )
 my_keys = KeyCollection(my_secret_key, my_other_secret_key)
 with open("hello.txt.c4gh", "rb") as f:
-	container = Crypt4GH(my_keys, f)
+	container = Crypt4GH(f, my_keys)
 ```
 
 ### Container Serialization
@@ -128,7 +128,7 @@ my_other_secret_key = C4GHKey.from_file(
   lambda: "other_password"
 )
 my_keys = KeyCollection(my_secret_key, my_other_secret_key)
-orig_container = Crypt4GH(my_keys, open("hello.txt.c4gh", "rb"))
+orig_container = Crypt4GH(open("hello.txt.c4gh", "rb"), my_keys)
 new_container = AddRecipientFilter(orig_container, alice_pub)
 writer = Crypt4GHWriter(new_container, open("output.c4gh", "wb"))
 writer.write()

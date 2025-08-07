@@ -45,7 +45,7 @@ class TestCrypt4GHWriter(unittest.TestCase):
 
     def test_writing_header(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        crypt4gh = Crypt4GH(io.BytesIO(hello_world_encrypted), akey)
         ostream = io.BytesIO()
         writer = Crypt4GHWriter(crypt4gh, ostream)
         writer.write()
@@ -56,18 +56,18 @@ class TestCrypt4GHWriter(unittest.TestCase):
 
     def test_write_cycle(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        crypt4gh = Crypt4GH(io.BytesIO(hello_world_encrypted), akey)
         ostream = io.BytesIO()
         writer = Crypt4GHWriter(crypt4gh, ostream)
         writer.write()
-        crypt4gh2 = Crypt4GH(akey, io.BytesIO(ostream.getvalue()))
+        crypt4gh2 = Crypt4GH(io.BytesIO(ostream.getvalue()), akey)
 
 
 class TestCrypt4GHFilter(unittest.TestCase):
 
     def test_identity(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        crypt4gh = Crypt4GH(io.BytesIO(hello_world_encrypted), akey)
         filter4gh = Filter(crypt4gh)
         ostream = io.BytesIO()
         writer = Crypt4GHWriter(filter4gh, ostream)
@@ -78,13 +78,13 @@ class TestCrypt4GHFilter(unittest.TestCase):
 
     def test_roundtrip(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        crypt4gh = Crypt4GH(io.BytesIO(hello_world_encrypted), akey)
         bkey = C4GHKey.from_bytes(bob_sec_bstr, lambda: bob_sec_password)
         filter4gh = AddRecipientFilter(crypt4gh, bkey.public_key)
         ostream = io.BytesIO()
         writer = Crypt4GHWriter(filter4gh, ostream)
         writer.write()
-        crypt4ghb = Crypt4GH(bkey, io.BytesIO(ostream.getvalue()))
+        crypt4ghb = Crypt4GH(io.BytesIO(ostream.getvalue()), bkey)
         header = crypt4ghb.header
         packets = header.packets
         assert len(packets) == 2, "Exactly two header packets expected"

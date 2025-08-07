@@ -11,7 +11,7 @@ import io
 from base64 import b64encode
 
 
-class C4GHPublicKeyWriter():
+class C4GHPublicKeyWriter:
     """Very simple writer class that can be extended in the future. At
     the moment it serves as a thin layer between any Key
     implementation and textual serialization functions.

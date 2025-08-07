@@ -90,18 +90,18 @@ class TestGPGAgentKey(unittest.TestCase):
         key = GPGAgentKey(home_dir=homedir)
         assert key is not None, "Cannot get cv25519 key from gpg-agent"
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
-        crypt4gh = Crypt4GH(akey, io.BytesIO(hello_world_encrypted))
+        crypt4gh = Crypt4GH(io.BytesIO(hello_world_encrypted), akey)
         filter4gh = AddRecipientFilter(crypt4gh, key.public_key)
         ostream = io.BytesIO()
         writer = Crypt4GHWriter(filter4gh, ostream)
         writer.write()
-        crypt4ghb = Crypt4GH(key, io.BytesIO(ostream.getvalue()))
+        crypt4ghb = Crypt4GH(io.BytesIO(ostream.getvalue()), key)
         header = crypt4ghb.header
         packets = header.packets
         assert len(packets) == 2, "Exactly two header packets expected"
         assert len(header.reader_keys_used) == 1, "One reader key expected"
         assert header.reader_keys_used[0] == key.public_key, "HSM key expected"
-        key2 = GPGAgentKey(home_dir = homedir, keygrip = "00112233")
+        key2 = GPGAgentKey(home_dir=homedir, keygrip="00112233")
         self.assertRaises(Crypt4GHKeyException, lambda: key2.public_key)
         tempdir.cleanup()
 
