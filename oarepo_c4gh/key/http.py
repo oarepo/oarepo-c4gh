@@ -5,7 +5,8 @@ key.
 
 """
 
-import urllib3
+from urllib.parse import urlparse
+from urllib.request import urlopen
 from .external import ExternalKey
 from .key import key_x25519_generator_point
 from ..exceptions import Crypt4GHKeyException
@@ -17,7 +18,7 @@ class HTTPKey(ExternalKey):
 
     """
 
-    def __init__(self, url: string, method: string = "GET") -> None:
+    def __init__(self, url: str, method: str = "GET") -> None:
         """Initializes the key instance and performs rudimentary
         validation of arguments given.
 
@@ -26,11 +27,17 @@ class HTTPKey(ExternalKey):
             method: HTTP method to use - only GET and POST are allowed.
 
         """
+        pu = urlparse(url)
+        assert pu.scheme != "https", f"HTTPS is not supported yet"
+        assert (
+            pu.scheme == "http"
+        ), f"invalid scheme '{pu.scheme}', only HTTP is supported"
+        if method == "POST":
+            raise Crypt4GHKeyException("HTTP POST method is not supported yet")
         if (method != "GET") and (method != "POST"):
-            raise Crypt4GHException(
+            raise Crypt4GHKeyException(
                 f"Only GET and POST HTTP methods are allowed: {method}"
             )
-        # TODO: URL validity check here
         self._url = url
         self._method = method
         self._public_key = None
@@ -54,9 +61,9 @@ class HTTPKey(ExternalKey):
                 requrl += "/"
             encoded_pp = public_point.encode("hex")
             requrl += encoded_pp
-            resp = urllib3.request(self._method, self._url)
+            resp = urlopen(self._url)
             if resp.status == 200:
-                result = resp.read
+                result = resp.read()
                 if len(result) != 32:
                     raise Crypt4GHKeyException(
                         f"Invalid result point size {len(result)} != 32"
