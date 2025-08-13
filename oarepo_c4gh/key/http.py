@@ -10,6 +10,7 @@ from urllib.request import urlopen
 from .external import ExternalKey
 from .key import key_x25519_generator_point
 from ..exceptions import Crypt4GHKeyException
+from binascii import hexlify
 
 
 class HTTPKey(ExternalKey):
@@ -59,9 +60,12 @@ class HTTPKey(ExternalKey):
             requrl = self._url
             if not requrl.endswith("/"):
                 requrl += "/"
-            encoded_pp = public_point.encode("hex")
+            encoded_pp = hexlify(public_point).decode("ascii")
             requrl += encoded_pp
-            resp = urlopen(self._url)
+            try:
+                resp = urlopen(requrl)
+            except Exception as ex:
+                raise Crypt4GHKeyException(f"urllib exception {ex}")
             if resp.status == 200:
                 result = resp.read()
                 if len(result) != 32:
@@ -70,13 +74,7 @@ class HTTPKey(ExternalKey):
                     )
                 return result
             else:
-                pass
-        elif self._method == "POST":
-            raise Crypt4GHKeyException("POST method not implemented yet!")
-        else:
-            raise Crypt4GHKeyException(
-                "Only GET and POST HTTP methods can be used!"
-            )
+                raise Crypt4GHKeyException(f"Invalid response {resp.status}")
 
     @property
     def public_key(self) -> bytes:
