@@ -17,9 +17,9 @@ document are to be interpreted as described in RFC 2119[1].
 
 The `oarepo_c4gh` package supports working with private keys either
 using the cryptographic primitives of given standard - the X25519
-multiplication of point by scalar[2] - or using external provider like
-`gpg-agent`[3] through the Assuan protocol[4] to support OpenPGP card
-implementations such as the one provided by YubiKey tokens[5].
+multiplication of point by scalar[2] - or using external provider such
+as `gpg-agent`[3] through the Assuan protocol[4] to support OpenPGP
+card implementations such as the one provided by YubiKey tokens[5].
 
 ### Rationale
 
@@ -29,13 +29,13 @@ There are two major aims of this protocol design:
    site by allowing only a very limited subset of operations with the
    private key.
    
-   Even though an implementation like the one backed by YubiKey token
-   may provide good protection of confidentiality of the private key
-   in question, as a locally connected device (typically through USB
-   connection) it is not entirely protected against destructive
-   operations like generating new key. That would be a dire violation
-   of the accessibility requirement and therefore it should be
-   prevented whenever possible.
+   Even though an implementation similar to the one backed by YubiKey
+   token may provide good protection of confidentiality of the private
+   key in question, as a locally connected device (typically through
+   USB connection) it is not entirely protected against destructive
+   operations such as generating new key. That would be a dire
+   violation of the accessibility requirement and therefore it should
+   be prevented whenever possible.
    
 2. Allow sharing a HSM-backed private key between multiple network
    nodes for scalability and redundancy.
@@ -206,9 +206,15 @@ References
 ----------
 
 [1] https://www.rfc-editor.org/rfc/rfc2119
+
 [2] https://www.rfc-editor.org/rfc/rfc7748
+
 [3] https://oarepo.github.io/oarepo-c4gh/keys/#oarepo_c4gh.key.gpg_agent.GPGAgentKey
+
 [4] https://www.gnupg.org/documentation/manuals/assuan.pdf
+
 [5] https://support.yubico.com/hc/en-us/articles/360013790259-Using-Your-YubiKey-with-OpenPGP
+
 [6] https://www.rfc-editor.org/rfc/rfc2616
+
 [7] https://www.rfc-editor.org/rfc/rfc2046

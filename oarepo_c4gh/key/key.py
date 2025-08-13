@@ -7,6 +7,16 @@ classes implementations.
 
 from typing import Protocol, abstractmethod
 
+""" The Mongomery Curve X25519 group generator point. It is the point
+with the smallest X coordinate which has the order greater than curve
+cofactor (8). It has been proven that X=9. """
+key_x25519_generator_point = (
+    b"\x09\x00\x00\x00\x00\x00\x00\x00"
+    b"\x00\x00\x00\x00\x00\x00\x00\x00"
+    b"\x00\x00\x00\x00\x00\x00\x00\x00"
+    b"\x00\x00\x00\x00\x00\x00\x00\x00"
+)
+
 
 class Key(Protocol):
     """This is an abstract class, containing only abstract methods
