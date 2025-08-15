@@ -72,13 +72,10 @@ Both client and server MAY support any later HTTP version but they
 MUST NOT rely on the other side supporting any later protocol version
 than HTTP/1.1.
 
-Either the "GET" or "POST" method MUST be used.
+The "GET" method MUST be used.
 
 The server MUST always respond with "application/octet-stream" MIME
 type[7].
-
-When performing a "POST" method request, the client MUST send the
-payload as "application/octet-stream" MIME type.
 
 ### Rationale
 
@@ -93,15 +90,19 @@ result SHALL always be the same. The operation is idempotent and
 therefore "GET" request method semantics map onto the semantics of the
 operation.
 
-The reason why the "POST" request method is preferable is the nature
-of data that is passed from the client to the server. For the X25519
-key exchange it is 32 bytes of binary data. For the "GET" request
-method these must be somehow encoded in the path component of the
-request URL. For the "POST" request, it can be sent as a request body
-as-is with the content-type "application/octet-stream" (see above).
+The reason why the "POST" request method may be preferable is the
+nature of data that is passed from the client to the server. For the
+X25519 key exchange it is 32 bytes of binary data. For the "GET"
+request method these must be somehow encoded in the path component of
+the request URL. For the "POST" request, it can be sent as a request
+body as-is with the content-type "application/octet-stream".
 
 In both cases the resulting binary data can be returned as-is as the
 response body.
+
+As the "POST" request method does not possess any advantages over the
+"GET" request method, the "GET" request method was chosen for this
+protocol for simplicity and ease of implementation.
 
 Application Request and Response
 --------------------------------
@@ -164,13 +165,6 @@ encoded as follows:
 
 http://hsm.example.com/my-key/x25519/0900000000000000000000000000000000000000000000000000000000000000
 
-
-### POST Request
-
-The "POST" request method MUST send the compressed public point (the X
-coordinate) as 32 bytes in the request body. The request content type
-MUST be "application/octet-stream" (see above). The 32 bytes MUST be
-the little-endian binary representation of the number being sent.
 
 ### Response
 
