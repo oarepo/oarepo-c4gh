@@ -19,13 +19,12 @@ class HTTPKey(ExternalKey):
 
     """
 
-    def __init__(self, url: str, method: str = "GET") -> None:
+    def __init__(self, url: str) -> None:
         """Initializes the key instance and performs rudimentary
         validation of arguments given.
 
         Parameters:
             url: URL for requesting scalar multiplication by the private key.
-            method: HTTP method to use - only GET and POST are allowed.
 
         """
         pu = urlparse(url)
@@ -33,14 +32,7 @@ class HTTPKey(ExternalKey):
         assert (
             pu.scheme == "http"
         ), f"invalid scheme '{pu.scheme}', only HTTP is supported"
-        if method == "POST":
-            raise Crypt4GHKeyException("HTTP POST method is not supported yet")
-        if (method != "GET") and (method != "POST"):
-            raise Crypt4GHKeyException(
-                f"Only GET and POST HTTP methods are allowed: {method}"
-            )
         self._url = url
-        self._method = method
         self._public_key = None
 
     def compute_ecdh(self, public_point: bytes) -> bytes:
@@ -56,25 +48,24 @@ class HTTPKey(ExternalKey):
             raise Crypt4GHKeyException(
                 f"Invalid public point coordinate size {len(public_point)} != 32"
             )
-        if self._method == "GET":
-            requrl = self._url
-            if not requrl.endswith("/"):
-                requrl += "/"
-            encoded_pp = hexlify(public_point).decode("ascii")
-            requrl += encoded_pp
-            try:
-                resp = urlopen(requrl)
-            except Exception as ex:
-                raise Crypt4GHKeyException(f"urllib exception {ex}")
-            if resp.status == 200:
-                result = resp.read()
-                if len(result) != 32:
-                    raise Crypt4GHKeyException(
-                        f"Invalid result point size {len(result)} != 32"
-                    )
-                return result
-            else:
-                raise Crypt4GHKeyException(f"Invalid response {resp.status}")
+        requrl = self._url
+        if not requrl.endswith("/"):
+            requrl += "/"
+        encoded_pp = hexlify(public_point).decode("ascii")
+        requrl += encoded_pp
+        try:
+            resp = urlopen(requrl)
+        except Exception as ex:
+            raise Crypt4GHKeyException(f"urllib exception {ex}")
+        if resp.status == 200:
+            result = resp.read()
+            if len(result) != 32:
+                raise Crypt4GHKeyException(
+                    f"Invalid result point size {len(result)} != 32"
+                )
+            return result
+        else:
+            raise Crypt4GHKeyException(f"Invalid response {resp.status}")
 
     @property
     def public_key(self) -> bytes:

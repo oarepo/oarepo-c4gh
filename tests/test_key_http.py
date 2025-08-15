@@ -24,16 +24,6 @@ class TestHTTPKey(unittest.TestCase):
             lambda: HTTPKey("https://example.com/key-id/x25519"),
         )
 
-    def test_incorrect_method(self):
-        self.assertRaises(
-            Crypt4GHKeyException,
-            lambda: HTTPKey("http://example.com/key-id/x25519", "PUT"),
-        )
-        self.assertRaises(
-            Crypt4GHKeyException,
-            lambda: HTTPKey("http://example.com/key-id/x25519", "POST"),
-        )
-
     def test_simple_request(self):
         class TestHTTPKeyRequestHandler1(BaseHTTPRequestHandler):
             def do_GET(self):
