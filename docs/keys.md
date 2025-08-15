@@ -27,7 +27,12 @@ External Keys
 
 ::: oarepo_c4gh.key.gpg_agent
 
+Network Keys
+------------
+
 ::: oarepo_c4gh.key.http
+
+::: oarepo_c4gh.key.http_path_key_server
 
 Key Serialization
 -----------------
