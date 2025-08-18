@@ -37,7 +37,7 @@ class TestGPGAgentKey(unittest.TestCase):
         GPGAgentKey()
 
     def test_nonexistent_base(self):
-        self.assertRaises(Exception, lambda: compute_run_gnupg_base([]))
+        self.assertRaises(RuntimeError, lambda: compute_run_gnupg_base([]))
 
     def test_assuan_expect(self):
         r, w = socket.socketpair()

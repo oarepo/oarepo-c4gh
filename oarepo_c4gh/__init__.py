@@ -1,4 +1,4 @@
-from .key import Key, SoftwareKey, C4GHKey
+from .key import Key, SoftwareKey, C4GHKey, GPGAgentKey, HTTPKey, KeyCollection
 from .crypt4gh import (
     Crypt4GH,
     Crypt4GHWriter,
@@ -18,6 +18,9 @@ __all__ = [
     "Key",
     "SoftwareKey",
     "C4GHKey",
+    "GPGAgentKey",
+    "HTTPKey",
+    "KeyCollection",
     "Crypt4GH",
     "Crypt4GHWriter",
     "AddRecipientFilter",

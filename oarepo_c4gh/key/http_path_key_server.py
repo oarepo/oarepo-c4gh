@@ -70,8 +70,10 @@ class HTTPPathKeyServer:
         self._suffix = split_and_clean(suffix)
         remapping = {}
         for name, key in mapping.items():
-            assert isinstance(key, Key), "key path server must get Key instances"
-            if isinstance(key,ExternalKey):
+            assert isinstance(
+                key, Key
+            ), "key path server must get Key instances"
+            if isinstance(key, ExternalKey):
                 remapping[name] = key
             else:
                 remapping[name] = ExternalSoftwareKey(key)
@@ -145,7 +147,9 @@ class HTTPPathKeyServer:
         )
         return [result]
 
-    def handle_uwsgi_request(self, env: dict, start_response: callable) -> list:
+    def handle_uwsgi_request(
+        self, env: dict, start_response: callable
+    ) -> list:
         """A small wrapper that allows passing the uwsgi arguents
         directly to this key server implementation.
 
@@ -157,4 +161,4 @@ class HTTPPathKeyServer:
             List of one byte string of length 32 or an empty list in
             case of error.
         """
-        return self.handle_path_request(env['PATH_INFO'], start_response)
+        return self.handle_path_request(env["PATH_INFO"], start_response)

@@ -197,7 +197,11 @@ class TestHTTPPathKeyServer(unittest.TestCase):
 
     def test_uwsgi_wrapper_request(self):
         akey = C4GHKey.from_bytes(alice_pub_bstr)
-        hpks = make_test_kpks({"alice": [alice_sec_bstr, alice_sec_password]}, "some/prefix", "do/x25519")
+        hpks = make_test_kpks(
+            {"alice": [alice_sec_bstr, alice_sec_password]},
+            "some/prefix",
+            "do/x25519",
+        )
         env = {
             "PATH_INFO": "/some/prefix/alice/do/x25519/0900000000000000000000000000000000000000000000000000000000000000"
         }

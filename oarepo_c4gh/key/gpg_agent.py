@@ -391,7 +391,7 @@ def compute_run_gnupg_base(
     for ubase in ubases:
         if os.path.isdir(ubase):
             return f"{ubase}/gnupg"
-    raise ArgumentError("Cannot find GnuPG run base directory")
+    raise RuntimeError("Cannot find GnuPG run base directory")
 
 
 def compute_socket_dir(homedir: str = None) -> str:
