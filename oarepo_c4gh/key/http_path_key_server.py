@@ -7,6 +7,7 @@ Crypt4GH key network protocol. The request handler uses uwsgi
 from binascii import unhexlify
 from .external import ExternalKey
 from .external_software import ExternalSoftwareKey
+from .key import Key
 
 
 def split_and_clean(s: str) -> str:
@@ -24,7 +25,7 @@ def split_and_clean(s: str) -> str:
     if len(l[0]) == 0:
         l = l[1:]
     if len(l) > 0 and len(l[-1]) == 0:
-        l = l[:-2]
+        l = l[:-1]
     return l
 
 
@@ -66,24 +67,34 @@ class HTTPPathKeyServer:
 
         """
         self._prefix = split_and_clean(prefix)
-        print(f"prefix: {self._prefix}")
         self._suffix = split_and_clean(suffix)
-        print(f"suffix: {self._suffix}")
         remapping = {}
         for name, key in mapping.items():
-            if isinstance(key, ExternalKey):
+            assert isinstance(key, Key), "key path server must get Key instances"
+            if isinstance(ExternalKey, key):
                 remapping[name] = key
             else:
                 remapping[name] = ExternalSoftwareKey(key)
         self._mapping = remapping
 
-    def handle_request(
+    def handle_path_request(
         self, request_path: str, start_response: callable
     ) -> list:
-        """..."""
-        print(f"request_path: {request_path}")
+        """All requests for key operations are uniquely identified by
+        the request path. The key name and public point to be
+        multiplied by private key are both encoded in the path and
+        therefore the actual handling depends only upon the path.
+
+        Parameters:
+            request_path: the path element of request URL
+            start_response: uwsgi-compatible argument
+
+        Returns:
+            List of single byte string of length 32 or an empty list
+            in case of error.
+
+        """
         request_list = request_path.split("/")
-        print(f"request_list: {request_list}")
         if len(request_list[0]) > 0:
             # must start with /
             return make_not_found(start_response)
@@ -133,3 +144,17 @@ class HTTPPathKeyServer:
             "200 OK", [("Content-Type", "application/octet-stream")]
         )
         return [result]
+
+    def handle_uwsgi_request(self, env: dict, start_response: callable) -> list:
+        """A small wrapper that allows passing the uwsgi arguents
+        directly to this key server implementation.
+
+        Parameters:
+            env: HTTP environment sent by uwsgi
+            start_response: uwsgi's start_response argument
+
+        Returns:
+            List of one byte string of length 32 or an empty list in
+            case of error.
+        """
+        return self.handle_path_request(self, env['PATH_INFO'])
