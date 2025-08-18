@@ -71,7 +71,7 @@ class HTTPPathKeyServer:
         remapping = {}
         for name, key in mapping.items():
             assert isinstance(key, Key), "key path server must get Key instances"
-            if isinstance(ExternalKey, key):
+            if isinstance(key,ExternalKey):
                 remapping[name] = key
             else:
                 remapping[name] = ExternalSoftwareKey(key)
@@ -136,7 +136,7 @@ class HTTPPathKeyServer:
             return make_not_found(start_response)
         try:
             public_point_bytes = unhexlify(request_list[0])
-        except TypeError as ex:
+        except:
             return make_not_found(start_response)
         key = self._mapping[key_id_str]
         result = key.compute_ecdh(public_point_bytes)
@@ -157,4 +157,4 @@ class HTTPPathKeyServer:
             List of one byte string of length 32 or an empty list in
             case of error.
         """
-        return self.handle_path_request(self, env['PATH_INFO'])
+        return self.handle_path_request(env['PATH_INFO'], start_response)

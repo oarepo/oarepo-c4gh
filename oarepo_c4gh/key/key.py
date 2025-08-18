@@ -5,7 +5,7 @@ classes implementations.
 
 """
 
-from typing import Protocol, abstractmethod
+from typing import Protocol, abstractmethod, runtime_checkable
 
 """ The Mongomery Curve X25519 group generator point. It is the point
 with the smallest X coordinate which has the order greater than curve
@@ -18,6 +18,7 @@ key_x25519_generator_point = (
 )
 
 
+@runtime_checkable
 class Key(Protocol):
     """This is an abstract class, containing only abstract methods
     used to compute the Diffie-Hellman key exchange over the
