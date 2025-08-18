@@ -180,8 +180,6 @@ available, which adds given public key as a new recipient to the
 container by encrypting every readable packet for this recipient and
 adding the newly encrypted version of given packet to the output.
 
-TODO: alice_pub loading
-
 ```python
 from oarepo_c4gh import Crypt4GHFilter
 
@@ -192,6 +190,8 @@ my_other_secret_key = C4GHKey.from_file(
 )
 my_keys = KeyCollection(my_secret_key, my_other_secret_key)
 orig_container = Crypt4GH(open("hello.txt.c4gh", "rb"), my_keys)
+
+alice_pub = C4GHKey.from_file("alice_pub.c4gh")
 new_container = AddRecipientFilter(orig_container, alice_pub)
 writer = Crypt4GHWriter(new_container, open("output.c4gh", "wb"))
 writer.write()
