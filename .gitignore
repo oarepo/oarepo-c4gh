@@ -6,3 +6,4 @@ site/
 .coverage
 build
 dist/
+uv.lock

@@ -1,11 +1,12 @@
 import unittest
 
+from _test_data import alice_pub_bstr, alice_sec_bstr, alice_sec_password
+
+from oarepo_c4gh.key import C4GHKey, ExternalSoftwareKey
 from oarepo_c4gh.key.http_path_key_server import (
-    split_and_clean,
     HTTPPathKeyServer,
+    split_and_clean,
 )
-from oarepo_c4gh.key import ExternalSoftwareKey, C4GHKey
-from _test_data import alice_sec_bstr, alice_pub_bstr, alice_sec_password
 
 
 def make_test_kpks(keys0, prefix, suffix):
@@ -55,7 +56,7 @@ class TestHTTPPathKeyServer(unittest.TestCase):
         def init_with_bad_mapping():
             hpks = HTTPPathKeyServer({"my-key": "string"})
 
-        self.assertRaises(AssertionError, init_with_bad_mapping)
+        self.assertRaises(TypeError, init_with_bad_mapping)
 
     def test_internal_key(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
