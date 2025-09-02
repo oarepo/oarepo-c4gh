@@ -1,11 +1,12 @@
 import unittest
 
+from _test_data import alice_pub_bstr, alice_sec_bstr, alice_sec_password
+
+from oarepo_c4gh.key import C4GHKey, ExternalSoftwareKey
 from oarepo_c4gh.key.http_path_key_server import (
-    split_and_clean,
     HTTPPathKeyServer,
+    split_and_clean,
 )
-from oarepo_c4gh.key import ExternalSoftwareKey, C4GHKey
-from _test_data import alice_sec_bstr, alice_pub_bstr, alice_sec_password
 
 
 def make_test_kpks(keys0, prefix, suffix):
@@ -55,7 +56,7 @@ class TestHTTPPathKeyServer(unittest.TestCase):
         def init_with_bad_mapping():
             hpks = HTTPPathKeyServer({"my-key": "string"})
 
-        self.assertRaises(AssertionError, init_with_bad_mapping)
+        self.assertRaises(TypeError, init_with_bad_mapping)
 
     def test_internal_key(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
@@ -216,6 +217,47 @@ class TestHTTPPathKeyServer(unittest.TestCase):
             "200 OK",
             [("Content-Type", "application/octet-stream")],
         ] and res == [akey.public_key], "does not compute public key"
+
+
+# alternative way if pytest is used instead of unit test
+# TestHPKSArguments = namedtuple(
+# "TestHPKSArguments", "name mapping prefix suffix path status errstr"
+# )
+# @pytest.mark.parametrize(
+#     TestHPKSArguments._fields,
+#     (
+#         TestHPKSArguments(
+#             name="invalid_url_path",
+#             mapping={"alice": [alice_sec_bstr, alice_sec_password]},
+#             prefix="",
+#             suffix="",
+#             path="bad/root",
+#             status="fail",
+#             errstr="path must start with /",
+#         ),
+#         TestHPKSArguments(...), ...
+#     ),
+# )
+# def test_hpks_request(
+#     name, mapping, prefix, suffix, path, status, errstr
+# ):
+#     hpks = make_test_kpks(mapping, prefix, suffix)
+#     started_response = None
+
+#     def rec_start_response(c, l):
+#         nonlocal started_response
+#         started_response = [c, l]
+
+#     res = hpks.handle_path_request(path, rec_start_response)
+#     match status:
+#         case "fail":
+#             assert started_response == ["404 Not Found", []] and len(res) == 0
+#         case "ok":
+#             assert started_response == "200 OK", (
+#                 [("Content-Type", "application/octet-stream")]
+#                 and len(res) == 1
+#                 and len(res[0]) == 32
+#             )
 
 
 if __name__ == "__main__":
