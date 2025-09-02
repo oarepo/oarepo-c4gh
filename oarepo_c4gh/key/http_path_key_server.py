@@ -4,32 +4,20 @@ Crypt4GH key network protocol. The request handler uses uwsgi
 
 """
 
-from binascii import unhexlify
+from __future__ import annotations
+
+import binascii
+import re
+from typing import Iterable
+from wsgiref.types import StartResponse, WSGIEnvironment
+
 from .external import ExternalKey
 from .external_software import ExternalSoftwareKey
 from .key import Key
+from .software import SoftwareKey
 
 
-def split_and_clean(s: str) -> str:
-    """Splits path by slashes and cleans up to one heading and
-    trailing empty element.
-
-    Parameters:
-        s: string representing a path-like entity
-
-    Returns:
-        An array with path components.
-
-    """
-    l = s.split("/")
-    if len(l[0]) == 0:
-        l = l[1:]
-    if len(l) > 0 and len(l[-1]) == 0:
-        l = l[:-1]
-    return l
-
-
-def make_not_found(start_response: callable) -> list:
+def make_not_found(start_response: StartResponse) -> list[bytes]:
     """A common wrapper that starts a Not Found response and returns
     empty array. This way it can be used in simple return statements
     signalling an error. See the usage in
@@ -55,7 +43,7 @@ class HTTPPathKeyServer:
     """
 
     def __init__(
-        self, mapping: dict, prefix: str = "", suffix: str = "x25519"
+        self, mapping: dict[str, Key], prefix: str = "", suffix: str = "x25519"
     ) -> None:
         """Initializes the instance and ensures all keys in the
         mapping can perform ECDH exchange.
@@ -66,22 +54,29 @@ class HTTPPathKeyServer:
             suffix: path elements succeeding the key name in URL.
 
         """
-        self._prefix = split_and_clean(prefix)
-        self._suffix = split_and_clean(suffix)
-        remapping = {}
+        path_regex_parts = [
+            re.escape(prefix.strip("/")),
+            "([^/]+)",
+            re.escape(suffix.strip("/")),
+            "([a-fA-F0-9]{64})",
+        ]
+        self._path_regex = "/".join(p for p in path_regex_parts if p)
+
+        remapping: dict[str, ExternalKey] = {}
         for name, key in mapping.items():
-            assert isinstance(
-                key, Key
-            ), "key path server must get Key instances"
             if isinstance(key, ExternalKey):
                 remapping[name] = key
-            else:
+            elif isinstance(key, SoftwareKey):
                 remapping[name] = ExternalSoftwareKey(key)
+            else:
+                raise TypeError(
+                    f"Expected ExternalKey or SoftwareKey instance for key {name}, found {type(key)}"
+                )
         self._mapping = remapping
 
     def handle_path_request(
-        self, request_path: str, start_response: callable
-    ) -> list:
+        self, request_path: str, start_response: StartResponse
+    ) -> list[bytes]:
         """All requests for key operations are uniquely identified by
         the request path. The key name and public point to be
         multiplied by private key are both encoded in the path and
@@ -96,50 +91,23 @@ class HTTPPathKeyServer:
             in case of error.
 
         """
-        request_list = request_path.split("/")
-        if len(request_list[0]) > 0:
-            # must start with /
+        # request path structure: <prefix>/<key_id>/<suffix>/<public_point>
+        match = re.fullmatch(self._path_regex, request_path.strip("/"))
+        if not match:
             return make_not_found(start_response)
-        request_list = request_list[1:]
-        prefix = self._prefix
-        while len(prefix) > 0:
-            if len(request_list) == 0:
-                # request_list shorter than prefix
-                return make_not_found(start_response)
-            if prefix[0] != request_list[0]:
-                # component does not match
-                return make_not_found(start_response)
-            prefix = prefix[1:]
-            request_list = request_list[1:]
-        if len(request_list) == 0:
-            # request_list equal to prefix
-            return make_not_found(start_response)
-        key_id_str = request_list[0]
-        request_list = request_list[1:]
-        suffix = self._suffix
-        while len(suffix) > 0:
-            if len(request_list) == 0:
-                # request list shorter than suffix
-                return make_not_found(start_response)
-            if suffix[0] != request_list[0]:
-                # component does not match
-                return make_not_found(start_response)
-            suffix = suffix[1:]
-            request_list = request_list[1:]
-        if len(request_list) != 1:
-            # we need exactly 1 argument
-            return make_not_found(start_response)
-        if not key_id_str in self._mapping:
+
+        key_id_str = match.group(1)
+        public_point_hex = match.group(2)
+
+        if key_id_str not in self._mapping:
             # key does not exist
             return make_not_found(start_response)
-        public_point_hex = request_list[0]
-        if len(public_point_hex) != 64:
-            # incorrect public point length
-            return make_not_found(start_response)
+
         try:
-            public_point_bytes = unhexlify(request_list[0])
-        except:
+            public_point_bytes = binascii.unhexlify(public_point_hex)
+        except binascii.Error:
             return make_not_found(start_response)
+
         key = self._mapping[key_id_str]
         result = key.compute_ecdh(public_point_bytes)
         start_response(
@@ -148,8 +116,8 @@ class HTTPPathKeyServer:
         return [result]
 
     def handle_uwsgi_request(
-        self, env: dict, start_response: callable
-    ) -> list:
+        self, env: WSGIEnvironment, start_response: StartResponse
+    ) -> Iterable[bytes]:
         """A small wrapper that allows passing the uwsgi arguents
         directly to this key server implementation.
 

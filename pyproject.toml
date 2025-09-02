@@ -6,7 +6,7 @@ authors = [
 ]
 description = ""
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",
@@ -29,5 +29,6 @@ dev = [
     "mkdocstrings[python]>=0.18",
     "mkdocs-material",
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
+    "types-uwsgi>=2.0.0.20250809",
 ]
