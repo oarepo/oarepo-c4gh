@@ -133,7 +133,7 @@ class TestHTTPPathKeyServer(unittest.TestCase):
             {"alice": [alice_sec_bstr, alice_sec_password]},
             "some/prefix",
             "do/x25519",
-            "/some/prefix/alice/dont",
+            "/some/prefix/alice/dont/y25620/invalid-public-point",
             lambda result, response: result == ["404 Not Found", []]
             and len(response) == 0,
             "wrong suffix",
