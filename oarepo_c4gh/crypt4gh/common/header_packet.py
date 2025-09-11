@@ -20,6 +20,7 @@ class HeaderPacket:
         packet_type,
         data_encryption_method,
         data_encryption_key,
+        lengths,
     ):
         """Initializes the packet structure with all fields given."""
         self._packet_length = packet_length
@@ -29,6 +30,7 @@ class HeaderPacket:
         self._packet_type = packet_type
         self._data_encryption_method = data_encryption_method
         self._data_encryption_key = data_encryption_key
+        self._lenghts = lengths
 
     @property
     def is_data_encryption_parameters(self) -> bool:

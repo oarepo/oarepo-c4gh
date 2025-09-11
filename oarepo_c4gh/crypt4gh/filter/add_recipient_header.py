@@ -66,6 +66,7 @@ class AddRecipientHeader(FilterHeader):
                             None,
                             None,
                             None,
+                            None,
                         )
                     )
         return temp_packets

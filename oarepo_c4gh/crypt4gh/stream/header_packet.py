@@ -8,6 +8,7 @@ import io
 from ..util import (
     read_crypt4gh_stream_le_uint32,
     read_crypt4gh_bytes_le_uint32,
+    read_crypt4gh_bytes_le_uint64,
 )
 from nacl.bindings import crypto_aead_chacha20poly1305_ietf_decrypt
 from nacl.exceptions import CryptoError
@@ -72,6 +73,7 @@ class StreamHeaderPacket(HeaderPacket):
         _data_encryption_method = None
         _packet_type = None
         _data_encryption_key = None
+        _lengths = None
         if _content is not None:
             _packet_type = read_crypt4gh_bytes_le_uint32(
                 _content, 0, "packet type"
@@ -88,6 +90,15 @@ class StreamHeaderPacket(HeaderPacket):
                 _data_encryption_key = _content[8:40]
             elif _packet_type == 1:
                 # Edit List
+                _number_lengths = read_crypt4gh_bytes_le_uint32(
+                    _content, 4, "Number lengths"
+                )
+                _lengths = [
+                    read_crypt4gh_bytes_le_uint64(
+                        _content, (n + 1) * 4, "Edit list length"
+                    )
+                    for n in range(_number_lengths)
+                ]
                 pass
             else:
                 # Report error? Warning?
@@ -100,4 +111,5 @@ class StreamHeaderPacket(HeaderPacket):
             _packet_type,
             _data_encryption_method,
             _data_encryption_key,
+            _lengths,
         )
