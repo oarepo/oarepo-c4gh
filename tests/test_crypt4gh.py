@@ -249,6 +249,7 @@ class TestCrypt4GH(unittest.TestCase):
         crypt4gh = Crypt4GH(io.BytesIO(hello_alice_range), akey)
         for block in crypt4gh.data_blocks:
             assert block.is_deciphered
+        assert crypt4gh.header.edit_list == [2, 1], "Incorrect edit list read"
 
     def test_unknown_packet(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
