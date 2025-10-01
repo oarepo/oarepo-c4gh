@@ -9,8 +9,12 @@ from _test_data import (
     hello_world_bob_encrypted,
     hello_world_corrupted,
     hello_alice_range,
+    hello_alice_range_twice,
     hello_unknown_packet,
     hello_unknown_method,
+    hello_different_multi_range,
+    bob_sec_bstr,
+    bob_sec_password,
 )
 import io
 import sys
@@ -250,6 +254,22 @@ class TestCrypt4GH(unittest.TestCase):
         for block in crypt4gh.data_blocks:
             assert block.is_deciphered
         assert crypt4gh.header.edit_list == [2, 1], "Incorrect edit list read"
+
+    def test_multi_edit_list_packet(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(io.BytesIO(hello_alice_range_twice), akey)
+        self.assertRaises(
+            AssertionError, lambda: crypt4gh.header.packets
+        )
+
+    def test_multi_bad_edit_list_packet(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        bkey = C4GHKey.from_bytes(bob_sec_bstr, lambda: bob_sec_password)
+        keyset = KeyCollection(akey, bkey)
+        crypt4gh = Crypt4GH(io.BytesIO(hello_different_multi_range), keyset)
+        self.assertRaises(
+            AssertionError, lambda: crypt4gh.header.packets
+        )
 
     def test_unknown_packet(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
