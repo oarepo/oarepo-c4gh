@@ -80,6 +80,7 @@ class StreamHeader(Header):
         self._packets = None
         self._deks = DEKCollection()
         self._analyzer = analyzer
+        self._edit_list = []
 
     def load_packets(self) -> None:
         """Loads the packets from the input stream and discards the
@@ -92,6 +93,8 @@ class StreamHeader(Header):
 
         """
         self._packets = []
+        _edit_list_reader_keys = []
+        _edit_list = None
         for idx in range(self._packet_count):
             packet = StreamHeaderPacket(self._reader_keys, self._istream)
             if packet.is_data_encryption_parameters:
@@ -99,9 +102,22 @@ class StreamHeader(Header):
                     DEK(packet.data_encryption_key, packet.reader_key)
                 )
             self._packets.append(packet)
+            if packet.is_edit_list:
+                assert (
+                    packet.reader_key not in _edit_list_reader_keys
+                ), "more than one edit list with the same reader key"
+                _edit_list_reader_keys.append(packet.reader_key)
+                if _edit_list is None:
+                    _edit_list = packet.lengths
+                else:
+                    assert (
+                        packet.lengths == _edit_list
+                    ), "multiple different edit lists"
             if self._analyzer is not None:
                 self._analyzer.analyze_packet(packet)
         self._reader_keys = None
+        if _edit_list is not None:
+            self._edit_list = _edit_list
 
     @property
     def packets(self) -> list:
@@ -166,3 +182,8 @@ class StreamHeader(Header):
                 if packet.reader_key is not None
             )
         )
+
+    @property
+    def edit_list(self) -> list[int]:
+        """Returns the skip and keep lengths list of the edit list."""
+        return self._edit_list

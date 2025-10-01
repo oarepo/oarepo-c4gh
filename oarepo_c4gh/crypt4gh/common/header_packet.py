@@ -30,7 +30,7 @@ class HeaderPacket:
         self._packet_type = packet_type
         self._data_encryption_method = data_encryption_method
         self._data_encryption_key = data_encryption_key
-        self._lenghts = lengths
+        self._lengths = lengths
 
     @property
     def is_data_encryption_parameters(self) -> bool:
@@ -107,3 +107,11 @@ class HeaderPacket:
 
         """
         return self._packet_length
+
+    @property
+    def lengths(self) -> list[int]:
+        """Returns the alternating skip and keep lengths of an edit
+        list. This is valid only if `is_edit_list` is true.
+
+        """
+        return self._lengths
