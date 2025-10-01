@@ -95,7 +95,7 @@ class StreamHeaderPacket(HeaderPacket):
                 )
                 _lengths = [
                     read_crypt4gh_bytes_le_uint64(
-                        _content, (n + 1) * 4, "Edit list length"
+                        _content, n * 8 + 8, "Edit list length"
                     )
                     for n in range(_number_lengths)
                 ]

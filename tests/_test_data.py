@@ -217,7 +217,7 @@ hello_world_corrupted = (
     b"\x2b\xee\x1a\x5e\x88"
 )
 
-# Edit list with [8589934594, 2] (probably incorrect decoding)
+# Edit list with [2, 1]
 hello_alice_range = (
     b'crypt4gh\x01\x00\x00\x00\x02\x00\x00\x00'
     b'l\x00\x00\x00\x00\x00\x00\x00\xa3!\x11\x9d`!\xcd^\x0c\x02\x1f'
