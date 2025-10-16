@@ -87,9 +87,29 @@ class StreamHeader(Header):
         key. It populates the internal Data Encryption Key collection
         for later use during this process.
 
+        Performs edit list validation as follows:
+
+        If there are no edit lists, no checking is performed and an
+        empty edit list is assumed.
+
+        If there is only one readable edit list, no checking is
+        performed and this edit list is used.
+
+        If there are two edit lists readable by the same reader key,
+        an assertion violation is signalled.
+
+        If there is more than one edit list readable by distinct
+        reader keys and these edit lists are the same, no problem is
+        reported and the edit list is used.
+
+        If there is more than one edit list readable by distinct
+        reader keys but these are not identical, an assertion
+        violation is signalled.
+
         Raises:
             Crypt4GHHeaderException: if the reader key cannot perform symmetric key
                         derivation
+            AssertionError: if any problem with edit lists is found
 
         """
         self._packets = []
