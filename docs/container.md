@@ -81,3 +81,7 @@ Container Writer
 
 ::: oarepo_c4gh.crypt4gh.writer
 
+Raw IO
+------
+
+::: oarepo_c4gh.crypt4gh.rawio
