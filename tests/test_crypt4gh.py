@@ -258,18 +258,14 @@ class TestCrypt4GH(unittest.TestCase):
     def test_multi_edit_list_packet(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         crypt4gh = Crypt4GH(io.BytesIO(hello_alice_range_twice), akey)
-        self.assertRaises(
-            AssertionError, lambda: crypt4gh.header.packets
-        )
+        self.assertRaises(AssertionError, lambda: crypt4gh.header.packets)
 
     def test_multi_bad_edit_list_packet(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
         bkey = C4GHKey.from_bytes(bob_sec_bstr, lambda: bob_sec_password)
         keyset = KeyCollection(akey, bkey)
         crypt4gh = Crypt4GH(io.BytesIO(hello_different_multi_range), keyset)
-        self.assertRaises(
-            AssertionError, lambda: crypt4gh.header.packets
-        )
+        self.assertRaises(AssertionError, lambda: crypt4gh.header.packets)
 
     def test_unknown_packet(self):
         akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
