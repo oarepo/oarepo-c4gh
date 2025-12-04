@@ -29,3 +29,8 @@ class FilterHeader(Header):
     def version(self) -> int:
         """Returns the original version."""
         return self._original.version
+
+    @property
+    def edit_list(self) -> list[int]:
+        """Returns the original edit list."""
+        return self._original.edit_list

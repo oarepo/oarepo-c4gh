@@ -33,3 +33,10 @@ class Header(Protocol):
 
         """
         ...
+
+    @property
+    @abstractmethod
+    def edit_list(self) -> list[int]:
+        """Must return the skip and keep lengths list of the edit
+        list."""
+        ...

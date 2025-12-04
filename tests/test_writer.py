@@ -30,6 +30,7 @@ class TestACrypt4GHHeader(unittest.TestCase):
         assert hdr.packets is None, "Implementation in abstract class"
         assert hdr.magic_bytes is None, "Implementation in abstract class"
         assert hdr.version is None, "Implementation in abstract class"
+        assert hdr.edit_list is None, "Implementation in abstract class"
 
     def test_abstract_container(self):
         class MyCrypt4GH(Proto4GH):
@@ -92,6 +93,7 @@ class TestCrypt4GHFilter(unittest.TestCase):
         assert (
             header.reader_keys_used[0] == bkey.public_key
         ), "Bob's key expected"
+        assert len(filter4gh.header.edit_list) == 0, "Edit list expected"
         onlyread = OnlyReadableFilter(crypt4ghb)
         ostream2 = io.BytesIO()
         writer2 = Crypt4GHWriter(onlyread, ostream2)
