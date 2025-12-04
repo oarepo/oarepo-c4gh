@@ -4,6 +4,7 @@ from _test_data import (
     alice_sec_password,
     hello_world_encrypted,
     hello_world_corrupted,
+    hello_alice_range,
 )
 from oarepo_c4gh import Crypt4GH, C4GHKey
 import io
@@ -67,6 +68,12 @@ class TestSimpleLinear(unittest.TestCase):
         b = bytearray(5)
         nread1 = raw.readinto(b)
         assert nread1 == 5
+
+    def test_simple_edit(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(io.BytesIO(hello_alice_range), akey)
+        f = crypt4gh.open()
+        assert f.readline() == "l", "incorrect edit list interpretation"
 
 
 if __name__ == "__main__":

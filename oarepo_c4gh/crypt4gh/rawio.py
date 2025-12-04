@@ -106,6 +106,10 @@ class Crypt4GHRawIO(RawIOBase):
                             # Something left, therefore set the
                             # skipping flag again.
                             self._edit_skipping = True
+                        else:
+                            # Nothing left
+                            self._finished = True
+                            return bpos
         return bpos
 
     def writable(self) -> bool:

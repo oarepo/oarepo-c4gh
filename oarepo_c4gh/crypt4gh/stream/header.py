@@ -206,4 +206,5 @@ class StreamHeader(Header):
     @property
     def edit_list(self) -> list[int]:
         """Returns the skip and keep lengths list of the edit list."""
+        self.packets
         return self._edit_list
