@@ -75,6 +75,14 @@ class TestSimpleLinear(unittest.TestCase):
         f = crypt4gh.open()
         assert f.readline() == "l", "incorrect edit list interpretation"
 
+    def test_manual_edit(self):
+        akey = C4GHKey.from_bytes(alice_sec_bstr, lambda: alice_sec_password)
+        crypt4gh = Crypt4GH(io.BytesIO(hello_alice_range), akey)
+        crypt4gh.header.edit_list
+        crypt4gh.header._edit_list = [1,2,5,6]
+        f = crypt4gh.open()
+        assert f.readline() == "elrld!\n", "incorrect edit list interpretation"
+
 
 if __name__ == "__main__":
     unittest.main()
