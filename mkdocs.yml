@@ -22,7 +22,8 @@ plugins:
               - "__bytes__"
             show_signature_annotations: true
             show_root_heading: true
-            ignore_init_summary: false
+            docstring_options:
+              ignore_init_summary: false
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
