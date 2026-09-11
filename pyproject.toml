@@ -32,3 +32,6 @@ dev = [
     "pytest-cov",
     "types-uwsgi>=2.0.0.20250809",
 ]
+yubikey = [
+    "yubikey-manager>=5.0.0,<6.0.0"
+]
